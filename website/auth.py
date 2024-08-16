@@ -54,10 +54,19 @@ def sign_up():
             new_user=User(email=email,first_name=first_name,password=generate_password_hash(password1,method='pbkdf2:sha256'))
             db.session.add(new_user)
             db.session.commit()
-            login_user(user,remember=True)
-            flash('Account created.', category='success')
-            return redirect(url_for('views.home'))
+            #login_user(user,remember=True)
+            #flash('Account created.', category='success')
+            #return redirect(url_for('views.home'))
             #add user to database
+            user = User.query.filter_by(email=email).first()
+
+            if user:  # Check if user is found
+                login_user(user, remember=True)
+                flash('Account created successfully!', category='success')
+                return redirect(url_for('views.home'))
+            else:
+                flash('Error during user creation. Please try again.', category='error')
+
         
 
     return render_template("signup.html",user=current_user)

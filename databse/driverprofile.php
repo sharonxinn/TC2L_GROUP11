@@ -8,7 +8,7 @@
     $carmodel = $_POST['carmodel'];
     $totalperson = $_POST['totalperson'];
     $fees = $_POST['fees'];
-    $qrcode = $_POST['qrcode'];
+    $duitnowid = $_POST['duitnowid'];
     $message = $_POST['message'];
 
 	$conn = new mysqli('localhost','root','','IDENTITY');

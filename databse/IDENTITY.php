@@ -28,12 +28,6 @@
 				"qrcode` int NOT NULL,".
 				"message` varchar(100) NOT NULL; ";
 		
-		$retval = mysqli_query( $conn, $sql );
-		if(! $retval )
-		{
-			die('数据表创建失败: ' . mysqli_error($conn));
-		}
-		echo "数据表创建成功\n";
 
         $sql = "CREATE TABLE passengerprofile( ".
 				"fullName` varchar(50) NOT NULL, ".
@@ -50,5 +44,6 @@
 			die('数据表创建失败: ' . mysqli_error($conn));
 		}
 		echo "数据表创建成功\n";
+		
     mysqli_close($conn);
 ?>

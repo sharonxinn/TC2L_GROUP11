@@ -13,8 +13,8 @@
 		echo "$conn->connect_error";
 		die("Connection Failed : ". $conn->connect_error);
 	} else {
-		$stmt = $conn->prepare("insert into passengerprofile(fullName, gender, dateandTime, pickup, dropoff, totalperson,nmessage ) values(?, ?, ?, ?, ?, ?, ?)");
-		$stmt->bind_param("sssssis", $fullName, $gender, $dateandTime, $pickup, $dropoff, $totalperson,$message);
+		$stmt = $conn->prepare("insert into passengerprofile(fullName, gender, dateandTime, pickup, dropoff, totalperson,message ) values(?, ?, ?, ?, ?, ?, ?)");
+		$stmt->bind_param("sssssis", $fullName, $gender, $dateandTime, $pickup, $dropoff, $totalperson, $message);
 		$execval = $stmt->execute();
 		echo $execval;
 		echo "Registration successfully...";

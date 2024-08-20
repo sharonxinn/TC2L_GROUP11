@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask,request,jsonify
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
+import mysql.connector
 
 db=SQLAlchemy()
 DB_NAME="database.db"
@@ -37,3 +38,11 @@ def create_database(app):
           db.create_all()
           print('Created Database!')
 #website to 'instance/'.db
+
+def connect_to_db():
+    return mysql.connector.connect(
+        host="localhost",  # Change to your database server name
+        user="root",       # Change to your database username
+        password="",       # Change to your database password
+        database="carpool_db"  # Change to your database name
+    )

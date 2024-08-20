@@ -15,4 +15,13 @@ class User(db.Model,UserMixin):
     first_name=db.Column(db.String(150))
     
    
-    
+class Carpool(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    fullName = db.Column(db.String(100), nullable=False)
+    gender = db.Column(db.String(100), nullable=False)
+    dateandTime = db.Column(db.String(10), nullable=False)
+    pickup = db.Column(db.String(100), nullable=False)
+    dropoff = db.Column(db.String(100), nullable=False)
+    totalperson = db.Column(db.Integer, nullable=False)
+    message = db.Column(db.String(100), nullable=False)
+

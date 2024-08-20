@@ -25,6 +25,29 @@ def login():
     
     return render_template("login.html",user=current_user)
 
+@auth.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html', user=current_user)
+@auth.route('/bookinghisto')
+@login_required
+def bookinghisto():
+    return render_template('bookinghisto.html', user=current_user)
+@auth.route('/driverprofile')
+@login_required
+def driverprofile():
+    return render_template('driverprofile.html', user=current_user)
+
+@auth.route('/passengerprofile')
+@login_required
+def passengerprofile():
+    return render_template('passengerprofile.html', user=current_user)
+
+@auth.route('/googlemap')
+@login_required
+def googlemap():
+    return render_template('googlemap.html', user=current_user)
+
 @auth.route('/logout')
 @login_required
 def logout():
@@ -70,3 +93,7 @@ def sign_up():
         
 
     return render_template("signup.html",user=current_user)
+
+@auth.route('/about')
+def about():
+    return render_template('about.html', user=current_user)

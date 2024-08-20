@@ -1,0 +1,100 @@
+{% extends "base.html" %} {% block title %}Passenger Profile{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="passengerprofile.css">
+        <title>Passenger Profile</title>
+    </head>
+
+    <body>
+        <div class="outside-center">
+            <h1 align="center">Passenger Profile</h1>
+            <div class="middle-box">
+                <form name="input" action="passengerprofile.php" method="post">
+
+                    <div class="left-right">
+                        <div class="inner-center">
+                            Full Name<br><input type="text" name="fullName" placeholder="Enter Full Name" required><br>
+                        </div>
+
+                        <div class="inner-gender">
+                            Gender
+                            <div class="choose-gender">
+                                <div class="gender">
+                                    <input type="radio" name="gender" id="male" value="male">
+                                    <label for="male">Male</label>
+                                    <br>
+                                    <input type="radio" name="gender" id="female" value="female">
+                                    <label for="female">Female</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="inner-center">
+                        Date & Time<br>
+                        <input type="datetime-local" name="dateandTime" required><br>
+                    </div>
+
+                    <div class="left-right">
+                        <div class="inner-center">
+                            Pick-Up Location<br>
+                            <select name="pickup" required>
+                                <option value="HB1">HB1</option>
+                                <option value="HB2">HB2</option>
+                                <option value="HB3">HB3</option>
+                                <option value="HB4">HB4</option>
+                                <option value="FCI">FCI</option>
+                                <option value="STADIUM">STADIUM MMU</option>
+                                <option value="DTC">DTC</option>
+                                <option value="Dpulze">Dpulze</option>
+                                <option value="TamarindSquare">Tamarind Square</option>
+                                <option value="MutiaraVille">Mutiara Ville</option>
+                                <option value="TheArc">The Arc</option>
+                            </select><br>
+                        </div>
+
+                        <div class="inner-center">
+                            Drop-Off Location<br>
+                            <select name="dropoff" required>
+                                <option value="HB1">HB1</option>
+                                <option value="HB2">HB2</option>
+                                <option value="HB3">HB3</option>
+                                <option value="HB4">HB4</option>
+                                <option value="FCI">FCI</option>
+                                <option value="MMU STADIUM">MMU STADIUM</option>
+                                <option value="DTC">DTC</option>
+                                <option value="Dpulse">Dpulze</option>
+                                <option value="TamarindSquare">Tamarind Square</option>
+                                <option value="MutiaraVille">Mutiara Ville</option>
+                                <option value="TheArc">The Arc</option>
+                            </select><br>
+                        </div>
+                    </div>
+
+                    <div class="inner-center">
+                        Total Passenger<br>
+                        Maximum Number of Passengers<br>
+                        <input type="number" name="totalperson" required>
+                    </div>
+
+                    <div class="inner-center">
+                        Note<textarea name="message" rows="10" cols="30" placeholder="Enter Note..."></textarea>  
+                    </div>
+
+                    <br>
+                    <a href="#">
+                        <input type="submit" value="Submit" class="btn">
+                    </a>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
+
+{% endblock %}

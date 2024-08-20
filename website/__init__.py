@@ -39,10 +39,3 @@ def create_database(app):
           print('Created Database!')
 #website to 'instance/'.db
 
-def connect_to_db():
-    return mysql.connector.connect(
-        host="localhost",  # Change to your database server name
-        user="root",       # Change to your database username
-        password="",       # Change to your database password
-        database="carpool_db"  # Change to your database name
-    )

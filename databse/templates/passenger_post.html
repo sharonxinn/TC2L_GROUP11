@@ -4,23 +4,24 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="driverprofile.css">
-        <title>Driver Profile</title>
+        <link rel="stylesheet" href="passengerprofile.css">
+        <title>Passenger Profile</title>
     </head>
 
     <body>
         <div class="outside-center">
-            <h1 align="center">Driver Profile</h1>
+            <h1 align="center">Passenger Profile</h1>
             <div class="middle-box">
-                <form name="input" action="driverprofile.php" method="post">
-                    
+                <form action="{{ url_for('passenger_post') }}" method="post">
+
                     <div class="left-right">
                         <div class="inner-center">
-                            Full Name<br><input type="text" name="fullName" placeholder="Enter Full Name" required><br>
+                            <label for="fullName">Full Name:</label>
+                            <br><input type="text" name="fullName" placeholder="Enter Full Name" required><br>
                         </div>
 
                         <div class="inner-gender">
-                            Gender
+                            <label for="gender">Gender:</label>
                             <div class="choose-gender">
                                 <div class="gender">
                                     <input type="radio" name="gender" id="male" value="male">
@@ -33,14 +34,17 @@
                         </div>
                     </div>
 
+
                     <div class="inner-center">
-                        Date & Time<br>
+                        <label for="dateandTime">Date & Time</label>
+                        <br>
                         <input type="datetime-local" name="dateandTime" required><br>
                     </div>
 
                     <div class="left-right">
                         <div class="inner-center">
-                            Pick-Up Location<br>
+                            <label for="pickup">Pick-Up Location</label>
+                            <br>
                             <select name="pickup" required>
                                 <option value="HB1">HB1</option>
                                 <option value="HB2">HB2</option>
@@ -57,16 +61,17 @@
                         </div>
 
                         <div class="inner-center">
-                            Drop-Off Location<br>
+                            <label for="dropoff">Drop-Off Location</label>
+                            <br>
                             <select name="dropoff" required>
                                 <option value="HB1">HB1</option>
                                 <option value="HB2">HB2</option>
                                 <option value="HB3">HB3</option>
                                 <option value="HB4">HB4</option>
                                 <option value="FCI">FCI</option>
-                                <option value="MMUSTADIUM">MMU STADIUM</option>
+                                <option value="MMU STADIUM">MMU STADIUM</option>
                                 <option value="DTC">DTC</option>
-                                <option value="Dpulze">Dpulze</option>
+                                <option value="Dpulse">Dpulze</option>
                                 <option value="TamarindSquare">Tamarind Square</option>
                                 <option value="MutiaraVille">Mutiara Ville</option>
                                 <option value="TheArc">The Arc</option>
@@ -74,37 +79,17 @@
                         </div>
                     </div>
 
-                    <div class="left-right">
-                        <div class="inner-center">
-                            Car Plate <br><input type="text" name="carplate" required placeholder="Enter Car Plate"><br>
-                        </div>
-                            
-                        <div class="inner-center">
-                            Car Model <br><input type="text" name="carmodel" required placeholder="Enter Car Model"><br>
-                        </div>
-                    </div>
-
                     <div class="inner-center">
-                        Maximum Number of Passengers<br>
+                        <label for="totalperson">Total Passenger</label><br>
                         <input type="number" name="totalperson" required>
                     </div>
 
                     <div class="inner-center">
-                        Fees<br>
-                        <select name="fees">
-                            <option value="Free">Free</option>
-                            <option value="RM1" >RM1 per person</option>
-                        </select><br>
+                        <label for="message">Note</label>
+                        <textarea name="message" rows="10" cols="30" placeholder="Enter Note..."></textarea>  
                     </div>
 
-                    <div class="inner-center">
-                        <br><input type="text" name="duitnowid" placeholder="YOUR DUITNOW ID（TNG/DuitNow）" required><br><br>
-                    </div>
-
-                    <div class="inner-center">
-                        Note<textarea name="message" rows="10" cols="30" placeholder="Enter Note..."></textarea><br><br>
-                    </div>
-
+                    <br>
                     <a href="#">
                         <input type="submit" value="Submit" class="btn">
                     </a>

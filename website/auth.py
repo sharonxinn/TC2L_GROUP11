@@ -6,6 +6,7 @@ from flask_login import login_user,login_required,logout_user,current_user
 
 auth = Blueprint('auth',__name__)
 
+#define login route
 @auth.route('/login',methods=['GET','POST'])
 def login():
     if request.method=='POST':
@@ -25,35 +26,44 @@ def login():
     
     return render_template("login.html",user=current_user)
 
+#define profile route
 @auth.route('/profile')
 @login_required
 def profile():
     return render_template('profile.html', user=current_user)
+
+#define bookinghisto route
 @auth.route('/bookinghisto')
 @login_required
 def bookinghisto():
     return render_template('bookinghisto.html', user=current_user)
+
+#define driverprofile route
 @auth.route('/driverprofile')
 @login_required
 def driverprofile():
     return render_template('driverprofile.html', user=current_user)
 
+#define passengerprofile route
 @auth.route('/passengerprofile')
 @login_required
 def passengerprofile():
     return render_template('passengerprofile.html', user=current_user)
 
+#define googlemap route
 @auth.route('/googlemap')
 @login_required
 def googlemap():
     return render_template('googlemap.html', user=current_user)
 
+#define logout route
 @auth.route('/logout')
 @login_required
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
 
+#define sign up route
 @auth.route('/signup',methods=['GET','POST'])
 def sign_up():
     if request.method=='POST':
@@ -94,6 +104,34 @@ def sign_up():
 
     return render_template("signup.html",user=current_user)
 
+#define about route
 @auth.route('/about')
 def about():
     return render_template('about.html', user=current_user)
+
+#define change password route
+@auth.route('/change_password',methods=['GET','POST'])
+@login_required
+def change_password():
+    if request.method == "POST":
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        confirm_new_password = request.form.get('confirm_new_password')
+
+        if old_password == new_password:
+            flash("Old Password and New Password Are The Same.", category='error')
+
+        elif new_password != confirm_new_password:
+            flash("New Passwords Don't Match.",category="error")
+
+        elif check_password_hash(current_user.password, old_password):
+            current_user.password = generate_password_hash(new_password,method='scrypt')
+            db.session.commit()
+            flash('Password successfully changed.',category='success')
+
+        else:
+            db.session.rollback()
+            flash("Incorrect old password.",category='error')
+
+
+    return render_template('change_password.html',current_page='change_password')

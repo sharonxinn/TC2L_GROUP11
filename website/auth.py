@@ -31,6 +31,14 @@ def profile():
     image_file=url_for('static',filename='profile_pics'+current_user.image_file)
     return render_template('profile.html', user=current_user,image_file=image_file)
 
+@auth.route('/bookinghisto')
+@login_required
+def bookinghisto():
+    return render_template('bookinghisto.html', user=current_user)
+@auth.route('/driverprofile')
+@login_required
+def driverprofile():
+    return render_template('driverprofile.html', user=current_user)
 
 @auth.route('/logout')
 @login_required

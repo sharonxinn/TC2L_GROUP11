@@ -11,7 +11,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
-class Carpool(db.Model):
+class Passenger(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     fullName = db.Column(db.String(100), nullable=False)
     gender = db.Column(db.String(100), nullable=False)
@@ -37,7 +37,7 @@ def passenger_post():
         totalperson = request.form['totalperson']
         message = request.form['message']
 
-        new_carpool = Carpool(
+        new_carpool = Passenger(
             fullName=fullName,
             gender=gender,
             dateandTime=dateandTime,

@@ -1,9 +1,8 @@
 from flask import Blueprint,render_template,request,flash,redirect,url_for
-from .models import User,Carpool
+from .models import User
 from werkzeug.security import generate_password_hash,check_password_hash
 from . import db
 from flask_login import login_user,login_required,logout_user,current_user
-
 auth = Blueprint('auth',__name__)
 
 #define login route
@@ -38,36 +37,6 @@ def profile():
 @login_required
 def bookinghisto():
     return render_template('bookinghisto.html', user=current_user)
-
-
-@auth.route('/passenger_post', methods=['GET', 'POST'])
-def passenger_post():
-    if request.method == 'POST':
-
-        fullName = request.form['fullName']
-        gender = request.form['gender']
-        dateandTime = request.form['dateandTime']
-        pickup = request.form['pickup']
-        dropoff = request.form['dropoff']
-        totalperson = request.form['totalperson']
-        message = request.form['message']
-
-        new_carpool = Carpool(
-            fullName=fullName,
-            gender=gender,
-            dateandTime=dateandTime,
-            pickup=pickup,
-            dropoff=dropoff,
-            totalperson=totalperson,
-            message=message
-        )
-
-        db.session.add(new_carpool)
-        db.session.commit()
-
-        return redirect(url_for('passenger_post'))
-
-    return render_template('passenger_post.html')
 
 
 #define googlemap route

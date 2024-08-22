@@ -15,9 +15,8 @@ def login():
         user=User.query.filter_by(email=email).first()
         if user:
             if check_password_hash(user.password, password):
-                flash('Logged in successfully',category='success')
                 login_user(user,remember=True)
-                return redirect(url_for('views.home'))
+                return redirect(url_for('auth.driverorpassenger'))
             else:
                 flash('Incorrect password,try again',category='error')
         else:
@@ -32,12 +31,33 @@ def profile():
     
     return render_template('profile.html', user=current_user)
 
+<<<<<<< HEAD
 #define bookinghisto route
+=======
+>>>>>>> shixiang
 @auth.route('/bookinghisto')
 @login_required
 def bookinghisto():
     return render_template('bookinghisto.html', user=current_user)
+<<<<<<< HEAD
 
+=======
+
+@auth.route('/driverprofile')
+@login_required
+def driverprofile():
+    return render_template('driverprofile.html', user=current_user)
+
+@auth.route('/driverorpassenger')
+@login_required
+def driverorpassenger():
+    return render_template('driverorpassenger.html', user=current_user)
+
+@auth.route('/passengerprofile')
+@login_required
+def passengerprofile():
+    return render_template('passengerprofile.html', user=current_user)
+>>>>>>> shixiang
 
 #define googlemap route
 @auth.route('/map')
@@ -84,8 +104,8 @@ def sign_up():
 
             if user:  # Check if user is found
                 login_user(user, remember=True)
-                flash('Account created successfully!', category='success')
-                return redirect(url_for('views.home'))
+                #flash('Account created successfully!', category='success')
+                return redirect(url_for('auth.driverorpassenger'))
             else:
                 flash('Error during user creation. Please try again.', category='error')
 
@@ -98,6 +118,7 @@ def sign_up():
 def about():
     return render_template('about.html', user=current_user)
 
+<<<<<<< HEAD
 #define change password route
 @auth.route('/change_password',methods=['GET','POST'])
 @login_required
@@ -124,3 +145,8 @@ def change_password():
 
 
     return render_template('change_password.html',current_page='change_password')
+=======
+@auth.route('/home')
+def home():
+    return render_template('home.html', user=current_user)
+>>>>>>> shixiang

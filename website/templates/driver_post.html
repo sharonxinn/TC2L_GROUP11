@@ -4,13 +4,21 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="driverprofile.css">
+        <link rel="stylesheet" href="../static/driverprofile.css">
         <title>Driver Profile</title>
     </head>
 
     <body>
+        <div class="logout">
+            <a href="/home">
+                <input type="image" src="../static/logout icon.png" width="50px" height="50px">
+            </a>
+        </div>
+
         <div class="outside-center">
-            <h1 align="center">Driver Profile</h1>
+            <div class="title">
+                <b>Driver Profile</b>
+            </div>
             <div class="middle-box">
                 <form action="{{ url_for('driver_post') }}" method="post">
                     
@@ -107,8 +115,9 @@
                     </div>
 
                     <div class="inner-center">
-                        <label for="duitnowid">DuitNow ID</label>
-                        <br><input type="text" id="duitnowid"  name="duitnowid" placeholder="YOUR DUITNOW ID（TNG/DuitNow）"><br><br>
+                        ID (DuitNow/TNG)
+                        <br><input type="text" name="duitnowid" placeholder="Enter ID" required><br><br>
+>>>>>>> shixiang:website/templates/driverprofile.html
                     </div>
 
                     <div class="inner-center">

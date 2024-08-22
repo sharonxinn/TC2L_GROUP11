@@ -35,8 +35,6 @@
 .left{
   width: 375px;
   height: 400px;
-  /*background-image: linear-gradient(to top, #474056, #514865, #5b4f75, #655785, #705f96, #77659f, #7f6ba8, #8671b1, #8b77b4, #907eb7, #9684b9, #9b8bbc);
-  border-radius: 50px;*/
   align-items: center;
   justify-content: center;
   display: flex;
@@ -90,10 +88,6 @@ h2{
   outline: 3px solid rgba(0, 0, 0, 0.2);
 }
 
-/*.typing input::-ms-reveal{
-  filter: invert(100%);
-}*/
-
 .typing i{
   position: absolute;
   left: 19px;
@@ -130,14 +124,3 @@ h2{
 .login a:hover{
   text-decoration: underline;
 }
-
-
-/*<div class="left-word">
-    <h1 align="center">Welcome!</h1>
-    <h3 align="center">Create your account to enjoy carpooling with MMU students</h3>
-  </div>
-
-  .left-word{
-    color: white;
-    width: 65%;
-  }*/

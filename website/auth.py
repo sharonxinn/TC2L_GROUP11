@@ -31,17 +31,10 @@ def profile():
     
     return render_template('profile.html', user=current_user)
 
-<<<<<<< HEAD
-#define bookinghisto route
-=======
->>>>>>> shixiang
 @auth.route('/bookinghisto')
 @login_required
 def bookinghisto():
     return render_template('bookinghisto.html', user=current_user)
-<<<<<<< HEAD
-
-=======
 
 @auth.route('/driverprofile')
 @login_required
@@ -57,7 +50,6 @@ def driverorpassenger():
 @login_required
 def passengerprofile():
     return render_template('passengerprofile.html', user=current_user)
->>>>>>> shixiang
 
 #define googlemap route
 @auth.route('/map')
@@ -118,7 +110,6 @@ def sign_up():
 def about():
     return render_template('about.html', user=current_user)
 
-<<<<<<< HEAD
 #define change password route
 @auth.route('/change_password',methods=['GET','POST'])
 @login_required
@@ -145,8 +136,8 @@ def change_password():
 
 
     return render_template('change_password.html',current_page='change_password')
-=======
+
 @auth.route('/home')
 def home():
     return render_template('home.html', user=current_user)
->>>>>>> shixiang
+

@@ -25,6 +25,10 @@ def login():
     
     return render_template("login.html",user=current_user)
 
+@auth.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html', user=current_user)
 @auth.route('/bookinghisto')
 @login_required
 def bookinghisto():
@@ -57,7 +61,6 @@ def sign_up():
         first_name=request.form.get('firstName')
         password1=request.form.get('password1')
         password2=request.form.get('password2')
-
 
         user=User.query.filter_by(email=email).first()
         if user:
@@ -95,6 +98,29 @@ def sign_up():
 def about():
     return render_template('about.html', user=current_user)
 
-@auth.route('/profile')
-def about():
-    return render_template('profile.html', user=current_user)
+# define route for changing password
+@auth.route('/change_password',methods=['GET','POST'])
+@login_required
+def change_password():
+    if request.method == "POST":
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        confirm_new_password = request.form.get('confirm_new_password')
+
+        if old_password == new_password:
+            flash("Old Password and New Password Are The Same.", category='error')
+
+        elif new_password != confirm_new_password:
+            flash("New Passwords Don't Match.",category="error")
+
+        elif check_password_hash(current_user.password, old_password):
+            current_user.password = generate_password_hash(new_password,method='scrypt')
+            db.session.commit()
+            flash('Password successfully changed.',category='success')
+
+        else:
+            db.session.rollback()
+            flash("Incorrect old password.",category='error')
+
+
+    return render_template('change_password.html',user=current_user)

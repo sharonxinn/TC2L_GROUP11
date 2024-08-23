@@ -25,10 +25,6 @@ def login():
     
     return render_template("login.html",user=current_user)
 
-@auth.route('/profile')
-@login_required
-def profile():
-    return render_template('profile.html', user=current_user)
 @auth.route('/bookinghisto')
 @login_required
 def bookinghisto():
@@ -61,6 +57,7 @@ def sign_up():
         first_name=request.form.get('firstName')
         password1=request.form.get('password1')
         password2=request.form.get('password2')
+
 
         user=User.query.filter_by(email=email).first()
         if user:
@@ -97,3 +94,7 @@ def sign_up():
 @auth.route('/about')
 def about():
     return render_template('about.html', user=current_user)
+
+@auth.route('/profile')
+def about():
+    return render_template('profile.html', user=current_user)

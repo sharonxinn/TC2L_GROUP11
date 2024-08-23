@@ -24,13 +24,6 @@ def login():
     
     return render_template("login.html",user=current_user)
 
-#define profile route
-@auth.route('/profile')
-@login_required
-def profile():
-    
-    return render_template('profile.html', user=current_user)
-
 @auth.route('/bookinghisto')
 @login_required
 def bookinghisto():

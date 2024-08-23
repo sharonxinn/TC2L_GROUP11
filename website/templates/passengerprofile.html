@@ -1,4 +1,4 @@
-{% extends "base.html" %} {% block title %}Passenger Post{% endblock %}
+{% extends "base.html" %} {% block title %}Passenger Profile{% endblock %}
 {% block content %}
 <!DOCTYPE html>
 <html lang="en">
@@ -22,16 +22,15 @@
                 <b>Passenger Profile</b>
             </div>
             <div class="middle-box">
-                <form action="{{ url_for('passenger_post') }}" method="post">
+                <form name="input" action="passengerprofile.php" method="post">
 
                     <div class="left-right">
                         <div class="inner-center">
-                            <label for="fullName">Full Name:</label>
-                            <br><input type="text" name="fullName" placeholder="Enter Full Name" required><br>
+                            Full Name<br><input type="text" name="fullName" placeholder="Enter Full Name" required><br>
                         </div>
 
                         <div class="inner-gender">
-                            <label for="gender">Gender:</label>
+                            Gender
                             <div class="choose-gender">
                                 <div class="gender">
                                     <input type="radio" name="gender" id="male" value="male">
@@ -46,15 +45,13 @@
 
 
                     <div class="inner-center">
-                        <label for="dateandTime">Date & Time</label>
-                        <br>
+                        Date & Time<br>
                         <input type="datetime-local" name="dateandTime" required><br>
                     </div>
 
                     <div class="left-right">
                         <div class="inner-center">
-                            <label for="pickup">Pick-Up Location</label>
-                            <br>
+                            Pick-Up Location<br>
                             <select name="pickup" required>
                                 <option value="HB1">HB1</option>
                                 <option value="HB2">HB2</option>
@@ -71,8 +68,7 @@
                         </div>
 
                         <div class="inner-center">
-                            <label for="dropoff">Drop-Off Location</label>
-                            <br>
+                            Drop-Off Location<br>
                             <select name="dropoff" required>
                                 <option value="HB1">HB1</option>
                                 <option value="HB2">HB2</option>
@@ -90,13 +86,13 @@
                     </div>
 
                     <div class="inner-center">
-                        <label for="totalperson">Total Passenger</label><br>
+                        Total Passenger<br>
+                        Maximum Number of Passengers<br>
                         <input type="number" name="totalperson" required>
                     </div>
 
                     <div class="inner-center">
-                        <label for="message">Note</label>
-                        <textarea name="message" rows="10" cols="30" placeholder="Enter Note..."></textarea>  
+                        Note<textarea name="message" rows="10" cols="30" placeholder="Enter Note..."></textarea>  
                     </div>
 
                     <br>
@@ -108,4 +104,5 @@
         </div>
     </body>
 </html>
+
 {% endblock %}

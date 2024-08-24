@@ -123,3 +123,29 @@ def change_password():
 
 
     return render_template('change_password.html',user='current_user')
+
+@auth.route('/change_profile',methods=['GET','POST'])
+@login_required
+def change_profile():
+    if request.method == "POST":
+        old_email = request.form.get('old_email')
+        new_email = request.form.get('new_email')
+        confirm_new_email = request.form.get('confirm_new_email')
+
+        if old_password == new_password:
+            flash("Old Password and New Password Are The Same.", category='error')
+
+        elif new_password != confirm_new_password:
+            flash("New Passwords Don't Match.",category="error")
+
+        elif check_password_hash(current_user.password, old_password):
+            current_user.password = generate_password_hash(new_password,method='scrypt')
+            db.session.commit()
+            flash('Password successfully changed.',category='success')
+
+        else:
+            db.session.rollback()
+            flash("Incorrect old password.",category='error')
+
+
+    return render_template('change_password.html',user='current_user')

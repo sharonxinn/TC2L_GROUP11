@@ -97,6 +97,10 @@ def sign_up():
 @auth.route('/about')
 def about():
     return render_template('about.html', user=current_user)
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 # define route for changing password
 @auth.route('/change_password',methods=['GET','POST'])
 @login_required
@@ -122,6 +126,7 @@ def change_password():
             flash("Incorrect old password.",category='error')
 
 
+<<<<<<< HEAD
     return render_template('change_password.html',user='current_user')
 
 @auth.route('/change_profile',methods=['GET','POST'])
@@ -149,3 +154,6 @@ def change_profile():
 
 
     return render_template('change_password.html',user='current_user')
+=======
+    return render_template('change_password.html',user=current_user)
+>>>>>>> master

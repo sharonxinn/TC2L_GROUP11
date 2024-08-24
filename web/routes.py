@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
-from .models import User, Driverspost, Profile
+from .models import User, Driverspost, Profile,PassengerMatch
 from . import db
 
 bp = Blueprint('main', __name__)
@@ -59,10 +59,16 @@ def profile():
 def bookinghisto():
     return render_template('bookinghisto.html', user=current_user)
 
-@bp.route('/chooseid')
+@bp.route('/chooseid', methods=['GET', 'POST'])
 @login_required
 def chooseid():
-    return render_template('chooseid.html', user=current_user)
+    if request.method == 'POST':
+        role = request.form.get('role')
+        if role == 'passenger':
+            return redirect(url_for('main.drivers_list'))
+        elif role == 'driver':
+            return redirect(url_for('main.driver_post'))
+    return render_template('chooseid.html')
 
 
 
@@ -157,15 +163,67 @@ def driver_post():
         db.session.add(new_Driverspost)
         db.session.commit()
 
-        return redirect(url_for('main.drivers_list'))
+        return redirect(url_for('main.match_passenger',driver_id=current_user.id))
 
     return render_template('driver_post.html')
 
-@bp.route('/drivers')
+@bp.route('/drivers_list')
 @login_required
 def drivers_list():
     drivers = Driverspost.query.all()
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
 
+    print("Profile Dict:", profile_dict)
+    for driver in drivers:
+        print(f"Driver ID: {driver.id}, User ID: {driver.user_id}")
+
     return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict)
+
+
+@bp.route('/match_passenger/<int:driver_id>')
+@login_required
+def match_passenger(driver_id):
+    driver = Driverspost.query.get_or_404(driver_id)
+    profiles = Profile.query.all()
+    profile_dict = {profile.user_id: profile for profile in profiles}
+    passengers = PassengerMatch.query.filter_by(driver_id=driver_id).all()  
+    return render_template('match_passenger.html', driver=driver, passengers=passengers,profile_dict=profile_dict)
+
+@bp.route('/match_driver/<int:driver_id>')
+@login_required
+def match_driver(driver_id):
+    driver = Driverspost.query.get_or_404(driver_id)
+    profiles = Profile.query.all()
+    profile_dict = {profile.user_id: profile for profile in profiles}
+    passengers = PassengerMatch.query.filter_by(driver_id=driver_id).all() 
+    return render_template('match_driver.html', driver=driver, passengers=passengers,profile_dict=profile_dict)
+
+@bp.route('/select_driver/<int:driver_id>', methods=['POST'])
+@login_required
+def select_driver(driver_id):
+    selected_driver = Driverspost.query.get_or_404(driver_id)
+    
+    existing_match = PassengerMatch.query.filter_by(passenger_id=current_user.id, driver_id=driver_id).first()
+    if existing_match:
+        flash('You have already selected this driver.', 'info')
+        return redirect(url_for('main.drivers_list'))
+    
+    passenger_match = PassengerMatch(passenger_id=current_user.id, driver_id=selected_driver.id)
+    db.session.add(passenger_match)
+    db.session.commit()
+    
+    flash('Driver selected successfully.', 'success')
+    return redirect(url_for('main.match_driver', driver_id=driver_id))
+
+@bp.route('/remove_passenger/<int:passenger_id>/<int:driver_id>', methods=['POST'])
+@login_required
+def remove_passenger(passenger_id, driver_id):
+    passenger_match = PassengerMatch.query.filter_by(passenger_id=passenger_id, driver_id=driver_id).first_or_404()
+    if passenger_match.passenger_id == current_user.id or current_user.has_role('admin'):  # Add a condition to allow admin or the driver
+        db.session.delete(passenger_match)
+        db.session.commit()
+        flash('Passenger removed successfully', 'success')
+    return redirect(url_for('main.match_passenger', driver_id=driver_id))
+
+

@@ -97,37 +97,32 @@ def sign_up():
 @auth.route('/about')
 def about():
     return render_template('about.html', user=current_user)
-<<<<<<< HEAD
-=======
-
->>>>>>> master
 # define route for changing password
 @auth.route('/change_password',methods=['GET','POST'])
 @login_required
 def change_password():
     if request.method == "POST":
-        old_password = request.form.get('old_password')
-        new_password = request.form.get('new_password')
-        confirm_new_password = request.form.get('confirm_new_password')
+        old_email = request.form.get('old_email')
+        new_email = request.form.get('new_email')
+        confirm_new_email = request.form.get('confirm_new_email')
 
-        if old_password == new_password:
-            flash("Old Password and New Password Are The Same.", category='error')
+        if old_email == new_email:
+            flash("Old Email and New Email Are The Same.", category='error')
 
-        elif new_password != confirm_new_password:
-            flash("New Passwords Don't Match.",category="error")
+        elif new_email != confirm_new_email:
+            flash("New Email Don't Match.",category="error")
 
-        elif check_password_hash(current_user.password, old_password):
-            current_user.password = generate_password_hash(new_password,method='scrypt')
+        elif check_email(current_user.email, old_email):
+            current_user.email = generate_email(new_email,method='scrypt')
             db.session.commit()
-            flash('Password successfully changed.',category='success')
+            flash('Email successfully changed.',category='success')
 
         else:
             db.session.rollback()
-            flash("Incorrect old password.",category='error')
+            flash("Incorrect gmail.",category='error')
 
 
-<<<<<<< HEAD
-    return render_template('change_password.html',user='current_user')
+    return render_template('profile.html',user='current_user')
 
 @auth.route('/change_profile',methods=['GET','POST'])
 @login_required
@@ -154,6 +149,3 @@ def change_profile():
 
 
     return render_template('change_password.html',user='current_user')
-=======
-    return render_template('change_password.html',user=current_user)
->>>>>>> master

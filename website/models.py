@@ -14,8 +14,8 @@ class User(db.Model,UserMixin):
     email=db.Column(db.String(150),unique=True)
     password=db.Column(db.String(150))
     first_name=db.Column(db.String(150))
-    bio = db.Column(db.Text, nullable=True)  
-    profile_pic = db.Column(db.String(150), nullable=True)
+    bio=db.Column(db.Text, nullable=True)  
+    profile_pic=db.Column(db.String(150), nullable=True)
 
 
 
@@ -25,4 +25,4 @@ class User(db.Model,UserMixin):
 
 
     
->>>>>>> master
+

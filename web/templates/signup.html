@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 {% extends "base.html" %} {% block title %}Sign Up{% endblock %}
 
 {% block content %}
@@ -12,7 +13,7 @@
 
     <body>
         <div class="logout">
-            <a href="..\coding\home.html">
+            <a href="home.html">
                 <input type="image" src="../static/logout icon.png" width="50px" height="50px">
             </a>
         </div>
@@ -34,15 +35,14 @@
                 <h2 align="center">Sign Up</h2>
                 <form method="POST">
                 <form name="input" action="#" method="get">
-                    <div class="typing">
-                    <i class='bx bxs-user'></i>
-                    <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Full Name" required>
-                    </div>
+ 
 
                     <div class="typing">
                     <i class='bx bxs-envelope'></i>
                     <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" required>
                     </div>
+
+                    
 
                     <div class="typing">
                     <i class='bx bxs-lock-alt' ></i>
@@ -59,13 +59,19 @@
                     <input type="password" class="form-control" id="password1" name="password1" placeholder="Password" required>
                     </div>
 
+
+
                     <div class="typing">
                     <i class='bx bxs-lock-alt' ></i>
                     <input type="text" class="form-control" id="password2" name="password2" placeholder="Confirm password" required>
                     </div>
 
+<<<<<<< HEAD:web/templates/signup.html
+                    <a href="chooseid.html">
+=======
 
                     <a href="..\coding\driver&passenger.html">
+>>>>>>> master:website/templates/signup.html
                     <button type="submit" class="btn">Sign Up</button>
                     </a>
 

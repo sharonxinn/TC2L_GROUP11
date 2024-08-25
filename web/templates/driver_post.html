@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -12,27 +13,8 @@
         <div class="outside-center">
             <h1 align="center">Driver Profile</h1>
             <div class="middle-box">
-                <form action="{{ url_for('driver_post') }}" method="post">
+                <form action="{{ url_for('main.driver_post') }}" method="post">
                     
-                    <div class="left-right">
-                        <div class="inner-center">
-                            <label for="fullName">Full Name:</label><br>
-                            <input type="text" id="fullName" name="fullName" placeholder="Enter Full Name" required><br>
-                        </div>
-
-                        <div class="inner-gender">
-                            <label for="gender">Gender:</label><br>
-                            <div class="choose-gender">
-                                <div class="gender">
-                                    <input type="radio" name="gender" id="male" value="male">
-                                    <label for="male">Male</label>
-                                    <br>
-                                    <input type="radio" name="gender" id="female" value="female">
-                                    <label for="female">Female</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="inner-center">
                         <label for="dateandTime">Date & Time</label>

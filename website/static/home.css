@@ -73,7 +73,7 @@ header{
     overflow: hidden;
     position: relative;
     min-height: 100vh;
-    background: url('backgound\ \(1\).jpeg') no-repeat;
+    background: url('../static/pic&video/backgound\ \(1\).jpeg') no-repeat;
     background-size: cover;
     background-position: center;
     background-attachment: fixed;

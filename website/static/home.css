@@ -77,6 +77,9 @@ header{
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
+    /*display: flex;
+    justify-content: center;
+    align-items: center;*/
 }
 
 .center h1{
@@ -140,4 +143,90 @@ header{
     top: 40%;
     right: 9%;
     width: 16%;
+}
+
+#about{
+    padding-left: 150px;
+    padding-right: 150px;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    text-align: center;
+}
+
+.background{
+    min-height: 100vh;
+    background-image: linear-gradient(to left bottom, #473f61, #54466d, #634d78, #725484, #825a8e, #8c6095, #95679c, #9f6da3, #a474a9, #a87cb0, #ad83b6, #b28bbc);
+}
+
+#about h2{
+    font-size: 40px;
+    color: white;
+}
+
+#about p{
+    font-size: 18px;
+    padding-top: 8px;
+    color: white;
+}
+
+.container{
+    display: flex;
+    position: relative;
+    /*flex-direction: row;*/
+    justify-content: center;
+    align-items: center;
+    /*max-width: 1200px;*/
+    flex-wrap: wrap;
+    z-index: 1;
+}
+
+.container .card{
+    position: relative;
+    width: 280px;
+    height: 400px;
+    margin: 30px;
+    box-shadow: 20px 20px 50px rgba(0, 0, 0, 0.5);
+    border-radius: 30px;
+    background-image: linear-gradient(to left top, #302a45, #3a2f50, #46355b, #523966, #603e70, #6a4578, #754b80, #805288, #895d91, #92689b, #9b73a4, #a47eae);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.6);
+    border-left: 1px solid rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(5px);
+    transition: all .5s ease;
+}
+
+.container .card .info{
+    padding: 20px;
+    text-align: center;
+}
+
+.container .card .info h2{
+    position: absolute;
+    top: -30px;
+    right: 30px;
+    font-size: 8em;
+    color: rgba(255, 255, 255, 0.08);
+    pointer-events: none;
+}
+
+.container .card .info h3{
+    font-size: 25px;
+    color: rgb(255, 255, 255, 0.95);
+    z-index: 1;
+    padding-bottom: 8px;
+    pointer-events: none;
+}
+
+.container .card .info p{
+    font-size: 16px;
+    color: rgb(255, 255, 255, 0.85);
+    font-weight: 300;
+    pointer-events: none;
+}
+
+.container .card:hover{
+    transform: translateY(-30px);
 }

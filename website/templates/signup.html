@@ -1,73 +1,103 @@
-{% extends "base.html" %} {% block title %}Sign Up{% endblock %}
-
-{% block content %}
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="../static/signup.css">
-        <title>Sign Up</title>
-        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    </head>
 
-    <body>
-        <div class="logout">
-            <a href="/home">
-                <input type="image" src="../static/logout icon.png" width="50px" height="50px">
-            </a>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/signup.css">
+    <title>Sign Up</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  </head>
+
+  <body>
+    <div class="logout">
+      <a href="/home">
+          <input type="image" src="../static/logout icon.png" width="50px" height="50px">
+      </a>
+    </div>
+    
+    <div class="outer">
+      <div class="inner">
+
+        <div class="left">
+          <video src="../static/video.mp4" muted autoplay loop id="carvideo"></video>
         </div>
 
-        <div class="outer">
-            <div class="inner">
+        <script>
+          let vid = document.getElementById("carvideo");
+          vid.playbackRate = 2;
+        </script> 
 
-            <div class="left">
-                <video src="../static/video.mp4" muted autoplay loop id="carvideo"></video>
-            </div>
+        <div class="right">
+          <div class="right-word">
+            <h2 align="center">Sign Up</h2>
+            
+            <form name="input" action="#" method="get">
+              <div class="typing">
+                <i class='bx bxs-user'></i>
+                <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Full Name" required>
+              </div>
 
-            <script>
-                let vid = document.getElementById("carvideo");
-                vid.playbackRate = 2;
-            </script>
+              <div class="typing">
+                <i class='bx bxs-envelope'></i>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" required>
+              </div>
 
-            <div class="right">
-                <div class="right-word">
-                <h2 align="center">Sign Up</h2>
-                <form method="POST">
-                <form name="input" action="#" method="get">
-                    <div class="typing">
-                    <i class='bx bxs-user'></i>
-                    <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Full Name" required>
-                    </div>
+              <div class="typing">
+                <i class='bx bxs-lock-alt' ></i>
+                <ion-icon name="eye-off-outline" id="eyeicon1"></ion-icon>
+                <input type="password" class="form-control" id="password1" name="password1" placeholder="Password" required>
+              </div>
 
-                    <div class="typing">
-                    <i class='bx bxs-envelope'></i>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" required>
-                    </div>
+              <script>
+                let eyeicon1 = document.getElementById("eyeicon1");
+                let password1 = document.getElementById("password1");
 
-                    <div class="typing">
-                    <i class='bx bxs-lock-alt' ></i>
-                    <input type="password" class="form-control" id="password1" name="password1" placeholder="Password" required>
-                    </div>
+                eyeicon1.onclick = function(){
+                  if(password1.type == "password"){
+                    password1.type = "text";
+                    eyeicon1.setAttribute('name', 'eye-outline');
+                  }else{
+                    password1.type = "password";
+                    eyeicon1.setAttribute('name', 'eye-off-outline')
+                  }
+                }
+              </script>
 
-                    <div class="typing">
-                    <i class='bx bxs-lock-alt' ></i>
-                    <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirm password" required>
-                    </div>
+              <div class="typing">
+                <i class='bx bxs-lock-alt' ></i>
+                <ion-icon name="eye-off-outline" id="eyeicon2"></ion-icon>
+                <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirm Password" required>
+              </div>
 
-                    <a href="/driverorpassenger">
-                    <button type="submit" class="btn">Sign Up</button>
-                    </a>
+              <script>
+                let eyeicon2 = document.getElementById("eyeicon2");
+                let password2 = document.getElementById("password2");
 
-                    <p class ="login">
-                    Already have an account?
-                    <a href="/login">Log In</a>
-                    </p>
-                </form>
-                </form>
-                </div>
-            </div>
-            </div>
+                eyeicon2.onclick = function(){
+                  if(password2.type == "password"){
+                    password2.type = "text";
+                    eyeicon2.setAttribute('name', 'eye-outline');
+                  }else{
+                    password2.type = "password";
+                    eyeicon2.setAttribute('name', 'eye-off-outline')
+                  }
+                }
+              </script>
+
+              <a href="..\coding\profile.html">
+                <button type="submit" class="btn">Sign Up</button>
+              </a>
+
+              <p class ="login">
+                Already have an account?
+                <a href="/login">Log In</a>
+              </p>
+            </form>
+          </div>
         </div>
-    </body>
+      </div>
+    </div>
+  </body>
 </html>
-{% endblock %}

@@ -1,8 +1,7 @@
-from flask import Flask,request,jsonify
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
-import mysql.connector
 
 db=SQLAlchemy()
 DB_NAME="database.db"
@@ -19,7 +18,7 @@ def create_app():
     app.register_blueprint(views,url_prefix='/')
     app.register_blueprint(auth,url_prefix='/')
 
-    from .models import User, Note
+    from .models import User
 
     create_database(app)
     login_manager= LoginManager()
@@ -38,4 +37,3 @@ def create_database(app):
           db.create_all()
           print('Created Database!')
 #website to 'instance/'.db
-

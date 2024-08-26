@@ -15,14 +15,20 @@ def login():
         user=User.query.filter_by(email=email).first()
         if user:
             if check_password_hash(user.password, password):
+                flash('Logged in successfully',category='success')
                 login_user(user,remember=True)
-                return redirect(url_for('auth.driverorpassenger'))
+                return redirect(url_for('views.home'))
             else:
                 flash('Incorrect password,try again',category='error')
         else:
             flash('Email does not exist.',category='error')
     
     return render_template("login.html",user=current_user)
+
+@auth.route('/home')
+@login_required
+def home():
+    return render_template('home.html', user=current_user)
 
 @auth.route('/profile')
 @login_required
@@ -39,15 +45,15 @@ def bookinghisto():
 def driverprofile():
     return render_template('driverprofile.html', user=current_user)
 
-@auth.route('/driverorpassenger')
-@login_required
-def driverorpassenger():
-    return render_template('driverorpassenger.html', user=current_user)
-
 @auth.route('/passengerprofile')
 @login_required
 def passengerprofile():
     return render_template('passengerprofile.html', user=current_user)
+
+@auth.route('/driverorpassengerprofile')
+@login_required
+def driverorpassengerprofile():
+    return render_template('driverorpassengerprofile.html', user=current_user)
 
 @auth.route('/googlemap')
 @login_required
@@ -59,6 +65,11 @@ def googlemap():
 def logout():
     logout_user()
     return redirect(url_for('auth.login'))
+
+@auth.route('/forgotpassword')
+@login_required
+def forgotpassword():
+    return render_template('forgotpassword.html', user=current_user)
 
 @auth.route('/signup',methods=['GET','POST'])
 def sign_up():
@@ -78,7 +89,7 @@ def sign_up():
         elif password1 != password2:
             flash('Password does not match.',category='error')
         elif len(password1)<7:
-            flash('Password must be greater than 6 characters.',category='error')
+            flash('Password must be greater than 8 characters.',category='error')
         else:
             new_user=User(email=email,first_name=first_name,password=generate_password_hash(password1,method='pbkdf2:sha256'))
             db.session.add(new_user)
@@ -91,8 +102,8 @@ def sign_up():
 
             if user:  # Check if user is found
                 login_user(user, remember=True)
-                #flash('Account created successfully!', category='success')
-                return redirect(url_for('auth.driverorpassenger'))
+                flash('Account created successfully!', category='success')
+                return redirect(url_for('views.home'))
             else:
                 flash('Error during user creation. Please try again.', category='error')
 
@@ -103,7 +114,29 @@ def sign_up():
 @auth.route('/about')
 def about():
     return render_template('about.html', user=current_user)
+# define route for changing password
+@auth.route('/change_password',methods=['GET','POST'])
+@login_required
+def change_password():
+    if request.method == "POST":
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        confirm_new_password = request.form.get('confirm_new_password')
 
-@auth.route('/home')
-def home():
-    return render_template('home.html', user=current_user)
+        if old_password == new_password:
+            flash("Old Password and New Password Are The Same.", category='error')
+
+        elif new_password != confirm_new_password:
+            flash("New Passwords Don't Match.",category="error")
+
+        elif check_password_hash(current_user.password, old_password):
+            current_user.password = generate_password_hash(new_password,method='scrypt')
+            db.session.commit()
+            flash('Password successfully changed.',category='success')
+
+        else:
+            db.session.rollback()
+            flash("Incorrect old password.",category='error')
+
+
+    return render_template('change_password.html',user='current_user')

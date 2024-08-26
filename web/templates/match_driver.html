@@ -1,0 +1,20 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+    
+        <title>DriversList</title>
+    </head>
+
+    <body>
+        <h2>Driver: {{ profile_dict[driver.user_id].fullName }}</h2>
+        <p>Gender: {{ profile_dict[driver.user_id].gender }}</p>
+        <p>Contact: {{ profile_dict[driver.user_id].contact }}</p>
+
+        <h3>Other Passengers:</h3>
+        {% for passenger in passengers %}
+        <p>{{ profile_dict[passenger.passenger_id].fullName }} - {{ profile_dict[passenger.passenger_id].gender }}</p>
+        {% endfor %}
+
+    </body>
+</html>

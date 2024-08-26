@@ -131,6 +131,7 @@ def sign_up():
 def about():
     return render_template('about.html', user=current_user)
 
+<<<<<<< HEAD
 
 
 
@@ -231,3 +232,31 @@ def remove_passenger(passenger_id, driver_id):
     return redirect(url_for('main.match_passenger', driver_id=driver_id))
 
 
+=======
+# define route for changing password
+@auth.route('/change_password',methods=['GET','POST'])
+@login_required
+def change_password():
+    if request.method == "POST":
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        confirm_new_password = request.form.get('confirm_new_password')
+
+        if old_password == new_password:
+            flash("Old Password and New Password Are The Same.", category='error')
+
+        elif new_password != confirm_new_password:
+            flash("New Passwords Don't Match.",category="error")
+
+        elif check_password_hash(current_user.password, old_password):
+            current_user.password = generate_password_hash(new_password,method='scrypt')
+            db.session.commit()
+            flash('Password successfully changed.',category='success')
+
+        else:
+            db.session.rollback()
+            flash("Incorrect old password.",category='error')
+
+
+    return render_template('change_password.html',user=current_user)
+>>>>>>> master

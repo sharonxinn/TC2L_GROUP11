@@ -29,7 +29,9 @@
   border-radius: 50px;
   display: flex;
   overflow: hidden;
-  box-shadow: 0 0 30px 15px rgba(0, 0, 0, 0.5);
+  /*box-shadow: 0 0 30px 15px rgba(0, 0, 0, 0.5);*/
+  box-shadow: 20px 20px 50px rgba(0, 0, 0, 0.5);
+
 }
 
 .left{
@@ -101,6 +103,15 @@ h2{
   transform: translateY(-50%);
   font-size: 14px;
   color: rgba(0, 0, 0, 0.6);
+}
+
+.typing ion-icon{
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(0, 0, 0, 0.8);
+  font-size: 15px;
 }
 
 .btn{

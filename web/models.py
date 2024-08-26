@@ -6,10 +6,13 @@ class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), unique=True)
     password = db.Column(db.String(150))
+    
 
     drivers_post = db.relationship('Driverspost', backref='user', lazy=True)
     profile = db.relationship('Profile', backref='user', lazy=True)
     passenger_matches = db.relationship('PassengerMatch', foreign_keys='PassengerMatch.passenger_id', backref='passenger_user', lazy=True)
+    profile_pic=db.relationship('Pic',foreign_keys='Pic.user_id',backref='user', lazy=True)
+
 
 class Driverspost(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -33,6 +36,8 @@ class Profile(db.Model):
     contact = db.Column(db.String(15), nullable=False)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    bio = db.Column(db.String(200),default=None)
+
 
 class PassengerMatch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -42,8 +47,10 @@ class PassengerMatch(db.Model):
     passenger = db.relationship('User', foreign_keys=[passenger_id], backref='matches_as_passenger')
     driver = db.relationship('Driverspost', foreign_keys=[driver_id], backref='matches_as_driver')
 
-
-
+class Pic(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    profile_pic = db.Column(db.String(200),default="default.jpg")
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 # class Note(db.Model):
 #     id=db.Column(db.Integer,primary_key=True)

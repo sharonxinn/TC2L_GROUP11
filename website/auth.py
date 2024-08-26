@@ -122,7 +122,7 @@ def change_password():
             flash("Incorrect gmail.",category='error')
 
 
-    return render_template('profile.html',user='current_user')
+    return render_template('customize_profile.html',user='current_user')
 
 @auth.route('/change_profile',methods=['GET','POST'])
 @login_required

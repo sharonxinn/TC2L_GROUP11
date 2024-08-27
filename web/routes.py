@@ -8,9 +8,7 @@ import os
 
 app = Flask(__name__)
 bp = Blueprint('main', __name__)
-app.config['UPLOAD_FOLDER'] = os.path.join('web', 'static', 'uploads')
-
-
+app.config['UPLOAD_FOLDER']='/web/static/uploads/'
 
 @bp.route('/login',methods=['GET','POST'])
 def login():
@@ -35,64 +33,12 @@ def login():
 def home():
     return render_template('home.html',user=current_user)
 
-<<<<<<< HEAD
 def file_is_valid(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
-=======
-@bp.route('/forgotpassword')
-def forgotpassword():
-    return render_template('forgotpassword.html',user=current_user)
->>>>>>> 2e6f387b04101e925ac3fdd7d62f6d098064ccc0
 
 @bp.route('/profile', methods=['GET', 'POST'])
+@login_required
 def profile():
-    if request.method == 'POST':
-        fullName = request.form['fullName']
-        gender = request.form['gender']
-        contact = request.form['contact']
-        file = request.files.get('file')
-
-        if file and file.filename != '':
-            if not file_is_valid(file.filename):  # Custom validation function
-                flash("Invalid File Type: Only .jpg, .jpeg, and .png Files Are Allowed.", category="error")
-                return redirect(url_for('main.profile'))
-
-            filename = secure_filename(file.filename)
-            upload_path = app.config['UPLOAD_FOLDER']
-            if not os.path.exists(upload_path):
-                os.makedirs(upload_path)
-            
-            file_path = os.path.join(upload_path, filename)
-            print("Saving file to:", file_path)  # Debugging: Print file path
-            file.save(file_path)
-
-            new_Profile = Profile(
-                fullName=fullName,
-                gender=gender,
-                contact=contact,
-                profile_pic=filename,
-                user_id=current_user.id
-            )
-        else:
-            new_Profile = Profile(
-                fullName=fullName,
-                gender=gender,
-                contact=contact,
-                profile_pic="default_pfp.png",
-                user_id=current_user.id
-            )
-
-        db.session.add(new_Profile)
-        db.session.commit()
-
-        flash("Profile successfully created!", category="success")
-        return redirect(url_for('main.chooseid'))
-
-    return render_template('profile.html')
-
-
-# @bp.route('/profile', methods=['GET', 'POST'])
-# def profile():
     if request.method == 'POST':
         fullName = request.form['fullName']
         gender = request.form['gender']
@@ -101,46 +47,43 @@ def profile():
 
         # Handling file upload (if any)
         if file and file.filename != '':
-            if not file_is_valid(file.filename):  # Custom validation function
-                flash("Invalid File Type: Only .jpg, .jpeg, and .png Files Are Allowed.", category="error")
-                return redirect(url_for('main.profile'))
-
-            # Secure the filename and ensure the upload directory exists
             filename = secure_filename(file.filename)
             upload_path = app.config['UPLOAD_FOLDER']
             if not os.path.exists(upload_path):
                 os.makedirs(upload_path)
             
-            # Save the file to the upload folder
             file_path = os.path.join(upload_path, filename)
-            file.save(file_path)
+            print("Saving file to:", file_path)  # Debugging: Print file path
+            
+            try:
+                file.save(file_path)
+            except Exception as e:
+                flash(f"An error occurred while saving the file: {e}", category="error")
+                return redirect(url_for('main.profile'))
 
-            # Save file path to the database
-            new_Profile = Profile(
-                fullName=fullName,
-                gender=gender,
-                contact=contact,
-                profile_pic=filename,  # Save filename to database
-                user_id=current_user.id
-            )
+            # Create the image URL
+            image_url = f'/static/uploads/{filename}'
 
         else:
-            # If no file is uploaded, just save the rest of the details
-            new_Profile = Profile(
-                fullName=fullName,
-                gender=gender,
-                contact=contact,
-                profile_pic="default_pfp.png",  # Use a default picture if none is uploaded
-                user_id=current_user.id
-            )
+            # Default to a placeholder or default image if no file is uploaded
+            image_url = '/static/uploads/default_pfp.png'  # Assuming you have a default image
+
+        # Save the user profile with the image URL
+        new_Profile = Profile(
+            fullName=fullName,
+            gender=gender,
+            contact=contact,
+            user_id=current_user.id,
+            profile_pic=image_url
+        )
 
         db.session.add(new_Profile)
         db.session.commit()
 
-        flash("Profile successfully created!", category="success")
         return redirect(url_for('main.chooseid'))
 
     return render_template('profile.html')
+
 
 @bp.route('/bookinghisto')
 @login_required
@@ -314,11 +257,8 @@ def remove_passenger(passenger_id, driver_id):
         flash('Passenger removed successfully', 'success')
     return redirect(url_for('main.match_passenger', driver_id=driver_id))
 
-<<<<<<< HEAD
-=======
 # define route for changing password
 @bp.route('/change_password',methods=['GET','POST'])
-@login_required
 def change_password():
     if request.method == "POST":
         old_password = request.form.get('old_password')
@@ -342,4 +282,73 @@ def change_password():
 
 
     return render_template('change_password.html',user=current_user)
->>>>>>> 2e6f387b04101e925ac3fdd7d62f6d098064ccc0
+
+#@bp.route('/customize_profile', methods=["GET","POST"])
+#def customize_profile():
+    if request.method == "POST":
+        
+        if 'profile_pic' in request.files:
+            profile_pic = request.files['profile_pic']
+            
+            if profile_pic.filename != "":
+                if not file_is_valid(profile_pic.filename):
+                    flash("Invalid File Type: Only .jpg, .jpeg and .png Files Are Allowed.",category="error")
+                
+                else:
+                    cwd = os.getcwd()
+
+                    #  if user's original pic is not the default, delete it
+                    previous_profile_pic = User.profile_pic
+                    if previous_profile_pic != "default_pfp.png":
+                        os.remove(f"{cwd}/user/static/assets/images/user_uploads/{previous_profile_pic}")
+
+                    filename = secure_filename(profile_pic.filename)
+                    os.makedirs(f"{cwd}/user/static/assets/images/user_uploads", exist_ok=True)
+
+                    # resize image (make image smaller so it takes up less space) 
+                    img_size = (100,100)
+                    i = Image.open(profile_pic)
+                    i.thumbnail(img_size)
+
+                    i.save(os.path.join(f"{cwd}/user/static/assets/images/user_uploads", filename))
+                    User.profile_pic = filename
+                    db.session.commit()
+                    flash("Profile Picture Successfully Updated!",category='success')
+
+        old_bio = Profile.bio
+        new_bio = request.form.get('bio')
+        
+        if old_bio != new_bio:
+            if new_bio is not None and new_bio.strip() != "":
+                Profile.bio = new_bio 
+                db.session.commit()
+                flash("Bio Successfully Updated!",category='success')
+                return redirect(url_for('profile_bp.customize_profile'))
+            
+            else:
+                Profile.bio = None 
+                db.session.commit()
+                flash("Bio Successfully Cleared!",category="success")
+                
+        old_username = Profile.fullName
+        new_username = request.form.get("username")
+
+        new_username_is_taken = User.query.filter_by(username=new_username).first()
+        if new_username_is_taken:
+            flash("Oops! Username already taken. Please enter a different username.",category="error")
+            return redirect(url_for("user_bp.customize_profile"))
+
+        if old_username != new_username and new_username is not None:
+            Profile.fullName = new_username 
+            db.session.commit()
+            flash("Username successfully changed!",category='success')
+            return redirect(url_for('profile_bp.customize_profile'))
+
+    current_bio = Profile.bio
+    current_profile_pic = User.profile_pic 
+    current_username = Profile.fullName
+    return render_template('customize_profile.html',
+                           current_page="customize_profile",
+                           current_profile_pic=current_profile_pic,
+                           current_bio=current_bio,
+                           current_username=current_username)

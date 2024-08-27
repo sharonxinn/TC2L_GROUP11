@@ -1,14 +1,14 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import User, Driverspost, Profile,PassengerMatch
 from . import db
 from werkzeug.utils import secure_filename
-from PIL import Image
 import os
 
 app = Flask(__name__)
 bp = Blueprint('main', __name__)
+app.config['UPLOAD_FOLDER']='/web/static/uploads/'
 
 @bp.route('/login',methods=['GET','POST'])
 def login():
@@ -33,15 +33,16 @@ def login():
 def home():
     return render_template('home.html',user=current_user)
 
+def file_is_valid(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
 
-@bp.route('/profile',methods=['GET', 'POST'])
-def profile():
+#@bp.route('/profile', methods=['GET', 'POST'])
+#def profile():
     if request.method == 'POST':
-
-        fullName=request.form['fullName']
+        fullName = request.form['fullName']
         gender = request.form['gender']
         contact = request.form['contact']
-        file = request.files['file']
+        file = request.files.get('file')
 
         # Handling file upload (if any)
         if file and file.filename != '':
@@ -52,13 +53,14 @@ def profile():
             # Secure the filename and save the file
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            file['image_url'] = f'/web/static/uploads/{filename}'
+
 
             # Assuming you want to save the filename to the database
             new_Profile = Profile(
                 fullName=fullName,
                 gender=gender,
                 contact=contact,
-                user_id=current_user.id,
                 profile_pic=filename  # Assuming there's a column for the profile picture in Profile
             )
 
@@ -74,10 +76,57 @@ def profile():
         db.session.add(new_Profile)
         db.session.commit()
 
+        flash("Profile successfully created!", category="success")
         return redirect(url_for('main.chooseid'))
 
     return render_template('profile.html')
+@bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    if request.method == 'POST':
+        fullName = request.form['fullName']
+        gender = request.form['gender']
+        contact = request.form['contact']
+        file = request.files.get('file')
 
+        # Handling file upload (if any)
+        if file and file.filename != '':
+            filename = secure_filename(file.filename)
+            upload_path = app.config['UPLOAD_FOLDER']
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
+            
+            file_path = os.path.join(upload_path, filename)
+            print("Saving file to:", file_path)  # Debugging: Print file path
+            
+            try:
+                file.save(file_path)
+            except Exception as e:
+                flash(f"An error occurred while saving the file: {e}", category="error")
+                return redirect(url_for('main.profile'))
+
+            # Create the image URL
+            image_url = f'/static/uploads/{filename}'
+
+        else:
+            # Default to a placeholder or default image if no file is uploaded
+            image_url = '/static/uploads/default_pfp.png'  # Assuming you have a default image
+
+        # Save the user profile with the image URL
+        new_Profile = Profile(
+            fullName=fullName,
+            gender=gender,
+            contact=contact,
+            user_id=current_user.id,
+            profile_pic=image_url
+        )
+
+        db.session.add(new_Profile)
+        db.session.commit()
+
+        return redirect(url_for('main.chooseid'))
+
+    return render_template('profile.html')
 
 
 @bp.route('/bookinghisto')
@@ -252,7 +301,6 @@ def remove_passenger(passenger_id, driver_id):
         flash('Passenger removed successfully', 'success')
     return redirect(url_for('main.match_passenger', driver_id=driver_id))
 
-
 # define route for changing password
 @bp.route('/change_password',methods=['GET','POST'])
 def change_password():
@@ -279,8 +327,8 @@ def change_password():
 
     return render_template('change_password.html',user=current_user)
 
-@bp.route('/customize_profile', methods=["GET","POST"])
-def customize_profile():
+#@bp.route('/customize_profile', methods=["GET","POST"])
+#def customize_profile():
     if request.method == "POST":
         
         if 'profile_pic' in request.files:

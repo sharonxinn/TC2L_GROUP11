@@ -9,6 +9,15 @@ class Note(db.Model):
     date=db.Column(db.DateTime(timezone=True),default=func.now())
     user_id=db.Column(db.Integer, db.ForeignKey('user.id'))
 
+<<<<<<< HEAD
+class User(db.Model,UserMixin):
+    id=db.Column(db.Integer,primary_key=True)
+    email=db.Column(db.String(150),unique=True)
+    password=db.Column(db.String(150))
+    first_name=db.Column(db.String(150))
+    bio = db.Column(db.Text, nullable=True)  
+    profile_pic = db.Column(db.String(150), nullable=True)
+=======
 class Profile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     fullName = db.Column(db.String(150))
@@ -17,6 +26,7 @@ class Profile(db.Model):
     profile_pic = db.Column(db.String(150), nullable=True)  # Add this line
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
+>>>>>>> master
 
 
 
@@ -25,4 +35,9 @@ class Profile(db.Model):
 
 
 
+<<<<<<< HEAD
     
+
+=======
+    
+>>>>>>> master

@@ -220,7 +220,7 @@ def select_driver(driver_id):
 @login_required
 def remove_passenger(passenger_id, driver_id):
     passenger_match = PassengerMatch.query.filter_by(passenger_id=passenger_id, driver_id=driver_id).first_or_404()
-    if passenger_match.passenger_id == current_user.id or current_user.has_role('admin'):  # Add a condition to allow admin or the driver
+    if passenger_match.passenger_id == current_user.id or current_user.has_role('admin'):  
         db.session.delete(passenger_match)
         db.session.commit()
         flash('Passenger removed successfully', 'success')

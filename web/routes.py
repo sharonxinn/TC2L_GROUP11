@@ -36,78 +36,10 @@ def home():
 def file_is_valid(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
 
-<<<<<<< HEAD
-#@bp.route('/profile', methods=['GET', 'POST'])
-#def profile():
-=======
 @bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
->>>>>>> master
-    if request.method == 'POST':
-        fullName = request.form['fullName']
-        gender = request.form['gender']
-        contact = request.form['contact']
-        file = request.files.get('file')
-<<<<<<< HEAD
 
-        # Handling file upload (if any)
-        if file and file.filename != '':
-            if not file_is_valid(file.filename):  # Custom validation function
-                flash("Invalid File Type: Only .jpg, .jpeg, and .png Files Are Allowed.", category="error")
-                return redirect(url_for('main.profile'))
-
-            # Secure the filename and save the file
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            file['image_url'] = f'/web/static/uploads/{filename}'
-=======
->>>>>>> master
-
-        # Handling file upload (if any)
-        if file and file.filename != '':
-            filename = secure_filename(file.filename)
-            upload_path = app.config['UPLOAD_FOLDER']
-            if not os.path.exists(upload_path):
-                os.makedirs(upload_path)
-            
-            file_path = os.path.join(upload_path, filename)
-            print("Saving file to:", file_path)  # Debugging: Print file path
-            
-            try:
-                file.save(file_path)
-            except Exception as e:
-                flash(f"An error occurred while saving the file: {e}", category="error")
-                return redirect(url_for('main.profile'))
-
-<<<<<<< HEAD
-            # Assuming you want to save the filename to the database
-            new_Profile = Profile(
-                fullName=fullName,
-                gender=gender,
-                contact=contact,
-                profile_pic=filename  # Assuming there's a column for the profile picture in Profile
-            )
-
-        else:
-            # If no file is uploaded, just save the rest of the details
-            new_Profile = Profile(
-                fullName=fullName,
-                gender=gender,
-                contact=contact,
-                user_id=current_user.id
-            )
-
-        db.session.add(new_Profile)
-        db.session.commit()
-
-        flash("Profile successfully created!", category="success")
-        return redirect(url_for('main.chooseid'))
-
-    return render_template('profile.html')
-@bp.route('/profile', methods=['GET', 'POST'])
-@login_required
-def profile():
     if request.method == 'POST':
         fullName = request.form['fullName']
         gender = request.form['gender']
@@ -130,8 +62,6 @@ def profile():
                 flash(f"An error occurred while saving the file: {e}", category="error")
                 return redirect(url_for('main.profile'))
 
-=======
->>>>>>> master
             # Create the image URL
             image_url = f'/static/uploads/{filename}'
 

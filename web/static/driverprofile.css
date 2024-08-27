@@ -27,6 +27,10 @@ body{
     right: 1.5%;
 }
 
+h1{
+  font-size: 45px;
+}
+
 .outside-center{
     background: linear-gradient(180deg, #DDDDDD 0%, #C8C8C8 64.5%, #777777 100%);
     border-radius: 50px;
@@ -53,16 +57,6 @@ body{
     margin-top: 25px;
 }
 
-.inner-gender{
-    width:100%;
-    margin-top: 25px;
-}
-
-.choose-gender input, label{
-    accent-color: black;
-    cursor: pointer;
-  }
-
 .inner-center input, select, textarea{
     position: relative;
     width: 100%;
@@ -74,7 +68,6 @@ body{
     transition: 0.3s;
     font-size: 15px;
     margin-top: 6px;
-    cursor: pointer;
   }
 
   .inner-center::placeholder{

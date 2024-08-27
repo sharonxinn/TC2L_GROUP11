@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from auth.models import db, User
+from web.models import db, User
 from flask_login import current_user
 from werkzeug.utils import secure_filename
 from PIL import Image

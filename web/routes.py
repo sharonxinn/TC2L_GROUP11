@@ -1,9 +1,12 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import User, Driverspost, Profile,PassengerMatch
 from . import db
+from werkzeug.utils import secure_filename
+import os
 
+app = Flask(__name__)
 bp = Blueprint('main', __name__)
 
 @bp.route('/login',methods=['GET','POST'])
@@ -29,30 +32,54 @@ def login():
 def home():
     return render_template('home.html',user=current_user)
 
+def file_is_valid(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
 
-@bp.route('/profile',methods=['GET', 'POST'])
+@bp.route('/profile', methods=['GET', 'POST'])
 def profile():
     if request.method == 'POST':
-
-        fullName=request.form['fullName']
+        fullName = request.form['fullName']
         gender = request.form['gender']
         contact = request.form['contact']
+        file = request.files['file']
 
+        # Handling file upload (if any)
+        if file and file.filename != '':
+            if not file_is_valid(file.filename):  # Custom validation function
+                flash("Invalid File Type: Only .jpg, .jpeg, and .png Files Are Allowed.", category="error")
+                return redirect(url_for('main.profile'))
 
-        new_Profile = Profile(
-            fullName=fullName,
-            gender=gender,
-            contact=contact,
-            user_id=current_user.id
+            # Secure the filename and save the file
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-        )
+            # Assuming you want to save the filename to the database
+            new_Profile = Profile(
+                fullName=fullName,
+                gender=gender,
+                contact=contact,
+                user_id=current_user.id,
+                profile_pic=filename  # Assuming there's a column for the profile picture in Profile
+            )
+
+        else:
+            # If no file is uploaded, just save the rest of the details
+            new_Profile = Profile(
+                fullName=fullName,
+                gender=gender,
+                contact=contact,
+                user_id=current_user.id
+            )
 
         db.session.add(new_Profile)
         db.session.commit()
 
+        flash("Profile successfully created!", category="success")
         return redirect(url_for('main.chooseid'))
 
     return render_template('profile.html')
+
+
 
 @bp.route('/bookinghisto')
 @login_required
@@ -225,5 +252,4 @@ def remove_passenger(passenger_id, driver_id):
         db.session.commit()
         flash('Passenger removed successfully', 'success')
     return redirect(url_for('main.match_passenger', driver_id=driver_id))
-
 

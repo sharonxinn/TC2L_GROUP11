@@ -2,6 +2,7 @@ from . import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
+
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), unique=True)
@@ -31,7 +32,7 @@ class Profile(db.Model):
     fullName = db.Column(db.String(150))
     gender = db.Column(db.String(100), nullable=False)
     contact = db.Column(db.String(15), nullable=False)
-
+    profile_pic = db.Column(db.String(200),default="default_pfp.png")
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 class PassengerMatch(db.Model):

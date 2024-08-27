@@ -32,7 +32,7 @@ class Profile(db.Model):
     fullName = db.Column(db.String(150))
     gender = db.Column(db.String(100), nullable=False)
     contact = db.Column(db.String(15), nullable=False)
-    profile_pic = db.Column(db.String(200),default="default_pfp.png")
+    profile_pic = db.Column(db.String(200), default="default_pfp.png")  # Make sure this column is present
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 class PassengerMatch(db.Model):

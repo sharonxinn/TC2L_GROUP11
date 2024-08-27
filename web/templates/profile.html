@@ -12,7 +12,7 @@
         <div class="outside-center">
             <h1 align="center">Profile</h1>
             <div class="middle-box">
-                <form action="{{ url_for('main.profile') }}" method="post">
+                <form action="{{ url_for('main.profile') }}" method="post" enctype="multipart/form-data">
 
 
                     <input type="text" class="form-control" id="fullName" name="fullName" placeholder="Full Name" required>
@@ -36,7 +36,7 @@
                     </div>
 
                     <div class="upload photo">
-                        <input type="file" name="file" class="form-control" >
+                        <input type="file" id="file" name="file" class="form-control" >
                     </div>
 
                     <input type="submit" value="Submit" class="btn">

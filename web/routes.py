@@ -5,6 +5,7 @@ from .models import User, Driverspost, Profile,PassengerMatch
 from . import db
 from werkzeug.utils import secure_filename
 import os
+from PIL import Image
 
 app = Flask(__name__)
 bp = Blueprint('main', __name__)
@@ -39,7 +40,6 @@ def file_is_valid(filename):
 @bp.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-
     if request.method == 'POST':
         fullName = request.form['fullName']
         gender = request.form['gender']
@@ -63,11 +63,11 @@ def profile():
                 return redirect(url_for('main.profile'))
 
             # Create the image URL
-            image_url = f'/static/uploads/{filename}'
+            file['image_url'] = f'/web/static/uploads/{filename}'
 
         else:
             # Default to a placeholder or default image if no file is uploaded
-            image_url = '/static/uploads/default_pfp.png'  # Assuming you have a default image
+            image_url = '/web/static/uploads/default.png'  # Assuming you have a default image
 
         # Save the user profile with the image URL
         new_Profile = Profile(
@@ -299,37 +299,23 @@ def change_password():
                     cwd = os.getcwd()
 
                     #  if user's original pic is not the default, delete it
-                    previous_profile_pic = User.profile_pic
+                    previous_profile_pic = Profile.profile_pic
                     if previous_profile_pic != "default_pfp.png":
-                        os.remove(f"{cwd}/user/static/assets/images/user_uploads/{previous_profile_pic}")
+                        os.remove(f"{cwd}/static/uploads/{previous_profile_pic}")
 
                     filename = secure_filename(profile_pic.filename)
-                    os.makedirs(f"{cwd}/user/static/assets/images/user_uploads", exist_ok=True)
+                    os.makedirs(f"{cwd}/static/uploads", exist_ok=True)
 
                     # resize image (make image smaller so it takes up less space) 
                     img_size = (100,100)
                     i = Image.open(profile_pic)
                     i.thumbnail(img_size)
 
-                    i.save(os.path.join(f"{cwd}/user/static/assets/images/user_uploads", filename))
+                    i.save(os.path.join(f"{cwd}/static/uploads", filename))
                     User.profile_pic = filename
                     db.session.commit()
                     flash("Profile Picture Successfully Updated!",category='success')
 
-        old_bio = Profile.bio
-        new_bio = request.form.get('bio')
-        
-        if old_bio != new_bio:
-            if new_bio is not None and new_bio.strip() != "":
-                Profile.bio = new_bio 
-                db.session.commit()
-                flash("Bio Successfully Updated!",category='success')
-                return redirect(url_for('profile_bp.customize_profile'))
-            
-            else:
-                Profile.bio = None 
-                db.session.commit()
-                flash("Bio Successfully Cleared!",category="success")
                 
         old_username = Profile.fullName
         new_username = request.form.get("username")
@@ -345,11 +331,10 @@ def change_password():
             flash("Username successfully changed!",category='success')
             return redirect(url_for('profile_bp.customize_profile'))
 
-    current_bio = Profile.bio
-    current_profile_pic = User.profile_pic 
+    current_profile_pic = Profile.profile_pic 
     current_username = Profile.fullName
     return render_template('customize_profile.html',
                            current_page="customize_profile",
                            current_profile_pic=current_profile_pic,
-                           current_bio=current_bio,
                            current_username=current_username)
+

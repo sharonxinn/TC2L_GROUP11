@@ -211,6 +211,13 @@ def drivers_list():
 
     return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict)
 
+@bp.route('/user_list')
+@login_required
+def user_list():
+    users = User.query.all()
+
+    return render_template('user_list.html', users=users)
+
 
 @bp.route('/match_passenger/<int:driver_id>')
 @login_required

@@ -28,15 +28,12 @@
     background-color: #fff;
     border-radius: 50px;
     display: flex;
-    /*overflow: hidden;*/
-    box-shadow: 0 0 30px 15px rgba(0, 0, 0, 0.5);
+    box-shadow: 20px 20px 50px rgba(0, 0, 0, 0.5);
   }
   
   .left{
     width: 375px;
     height: 400px;
-    /*background-image: linear-gradient(to top, #474056, #514865, #5b4f75, #655785, #705f96, #77659f, #7f6ba8, #8671b1, #8b77b4, #907eb7, #9684b9, #9b8bbc);
-    border-radius: 50px;*/
     align-items: center;
     justify-content: center;
     display: flex;
@@ -103,6 +100,15 @@
     font-size: 14px;
     color: rgba(0, 0, 0, 0.6);
   }
+  
+  .typing ion-icon{
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(0, 0, 0, 0.8);
+    font-size: 15px;
+  }
 
   .rmb-forgot{
     display: flex;
@@ -157,13 +163,3 @@
   .signup a:hover{
     text-decoration: underline;
   }
-
-
-  /*<div class="left-word">
-            <h1 align="center">Hello!</h1>
-            <h3 align="center">We are really happy to see you again!</h3>
-          </div>
-
-           .left-word{
-    color: white;
-  }*/

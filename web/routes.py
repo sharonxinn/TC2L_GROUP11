@@ -7,10 +7,8 @@ from werkzeug.utils import secure_filename
 from PIL import Image
 import os
 
-
-bp = Blueprint('main', __name__,template_folder="templates",static_folder="static")
-def file_is_valid(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
+app = Flask(__name__)
+bp = Blueprint('main', __name__)
 
 @bp.route('/login',methods=['GET','POST'])
 def login():
@@ -43,15 +41,35 @@ def profile():
         fullName=request.form['fullName']
         gender = request.form['gender']
         contact = request.form['contact']
+        file = request.files['file']
 
+        # Handling file upload (if any)
+        if file and file.filename != '':
+            if not file_is_valid(file.filename):  # Custom validation function
+                flash("Invalid File Type: Only .jpg, .jpeg, and .png Files Are Allowed.", category="error")
+                return redirect(url_for('main.profile'))
 
-        new_Profile = Profile(
-            fullName=fullName,
-            gender=gender,
-            contact=contact,
-            user_id=current_user.id
+            # Secure the filename and save the file
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-        )
+            # Assuming you want to save the filename to the database
+            new_Profile = Profile(
+                fullName=fullName,
+                gender=gender,
+                contact=contact,
+                user_id=current_user.id,
+                profile_pic=filename  # Assuming there's a column for the profile picture in Profile
+            )
+
+        else:
+            # If no file is uploaded, just save the rest of the details
+            new_Profile = Profile(
+                fullName=fullName,
+                gender=gender,
+                contact=contact,
+                user_id=current_user.id
+            )
 
         db.session.add(new_Profile)
         db.session.commit()
@@ -59,6 +77,8 @@ def profile():
         return redirect(url_for('main.chooseid'))
 
     return render_template('profile.html')
+
+
 
 @bp.route('/bookinghisto')
 @login_required

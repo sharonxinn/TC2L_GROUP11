@@ -10,7 +10,10 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///carpooling.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = 'your_secret_key'
+    app.config['UPLOAD_FOLDER']=UPLOAD_FOLDER
+    app.config['MAX_CONTENT_LENGTH']=16*1024*1024
 
+    
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'login'

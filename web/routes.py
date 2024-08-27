@@ -5,6 +5,7 @@ from .models import User, Driverspost, Profile,PassengerMatch
 from . import db
 from werkzeug.utils import secure_filename
 import os
+from PIL import Image
 
 app = Flask(__name__)
 bp = Blueprint('main', __name__)
@@ -62,11 +63,11 @@ def profile():
                 return redirect(url_for('main.profile'))
 
             # Create the image URL
-            image_url = f'/static/uploads/{filename}'
+            file['image_url'] = f'/web/static/uploads/{filename}'
 
         else:
             # Default to a placeholder or default image if no file is uploaded
-            image_url = '/static/uploads/default_pfp.png'  # Assuming you have a default image
+            image_url = '/web/static/uploads/default.png'  # Assuming you have a default image
 
         # Save the user profile with the image URL
         new_Profile = Profile(
@@ -296,8 +297,51 @@ def dashboard():
     # Fetch the user's profile data from the database
     profile = Profile.query.filter_by(user_id=current_user.id).first()
 
+<<<<<<< HEAD
     if profile is None:
         flash("No profile found. Please complete your profile first.", category="error")
         return redirect(url_for('main.profile'))
 
     return render_template('dashboard.html', profile=profile)
+=======
+                    #  if user's original pic is not the default, delete it
+                    previous_profile_pic = Profile.profile_pic
+                    if previous_profile_pic != "default_pfp.png":
+                        os.remove(f"{cwd}/static/uploads/{previous_profile_pic}")
+
+                    filename = secure_filename(profile_pic.filename)
+                    os.makedirs(f"{cwd}/static/uploads", exist_ok=True)
+
+                    # resize image (make image smaller so it takes up less space) 
+                    img_size = (100,100)
+                    i = Image.open(profile_pic)
+                    i.thumbnail(img_size)
+
+                    i.save(os.path.join(f"{cwd}/static/uploads", filename))
+                    User.profile_pic = filename
+                    db.session.commit()
+                    flash("Profile Picture Successfully Updated!",category='success')
+
+                
+        old_username = Profile.fullName
+        new_username = request.form.get("username")
+
+        new_username_is_taken = User.query.filter_by(username=new_username).first()
+        if new_username_is_taken:
+            flash("Oops! Username already taken. Please enter a different username.",category="error")
+            return redirect(url_for("user_bp.customize_profile"))
+
+        if old_username != new_username and new_username is not None:
+            Profile.fullName = new_username 
+            db.session.commit()
+            flash("Username successfully changed!",category='success')
+            return redirect(url_for('profile_bp.customize_profile'))
+
+    current_profile_pic = Profile.profile_pic 
+    current_username = Profile.fullName
+    return render_template('customize_profile.html',
+                           current_page="customize_profile",
+                           current_profile_pic=current_profile_pic,
+                           current_username=current_username)
+
+>>>>>>> 39ea75d5f17ca8753cb2d1295d1ee38845b885cb

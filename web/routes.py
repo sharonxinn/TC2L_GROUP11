@@ -272,7 +272,6 @@ def remove_passenger(passenger_id, driver_id):
         flash('Passenger removed successfully', category='success')
     return redirect(url_for('main.match_passenger', driver_id=driver_id))
 
-<<<<<<< HEAD
 # define route for changing password
 @bp.route('/change_password',methods=['GET','POST'])
 def change_password():
@@ -280,7 +279,7 @@ def change_password():
         old_password = request.form.get('old_password')
         new_password = request.form.get('new_password')
         confirm_new_password = request.form.get('confirm_new_password')
-=======
+
 @bp.route('/complete/<int:driver_id>', methods=['POST'])
 @login_required
 def complete(driver_id):
@@ -296,25 +295,7 @@ def boooking_history(driver_id):
     return render_template('bookinghistory.html', driver=driver, passengers=passengers,profile_dict=profile_dict)
 
 
->>>>>>> f200085 (up)
 
-        if old_password == new_password:
-            flash("Old Password and New Password Are The Same.", category='error')
-
-        elif new_password != confirm_new_password:
-            flash("New Passwords Don't Match.",category="error")
-
-        elif check_password_hash(current_user.password, old_password):
-            current_user.password = generate_password_hash(new_password,method='scrypt')
-            db.session.commit()
-            flash('Password successfully changed.',category='success')
-
-        else:
-            db.session.rollback()
-            flash("Incorrect old password.",category='error')
-
-
-    return render_template('change_password.html',user=current_user)
 
 
 

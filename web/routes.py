@@ -49,7 +49,9 @@ def profile():
         # Handling file upload (if any)
         if file and file.filename != '':
             filename = secure_filename(file.filename)
-            upload_path = app.config['UPLOAD_FOLDER']
+            # upload_path = app.config['UPLOAD_FOLDER']
+            upload_path = os.path.join('web', 'static', 'uploads')
+
             if not os.path.exists(upload_path):
                 os.makedirs(upload_path)
             
@@ -63,11 +65,11 @@ def profile():
                 return redirect(url_for('main.profile'))
 
             # Create the image URL
-            file['image_url'] = f'/web/static/uploads/{filename}'
+            image_url = f'/static/uploads/{filename}'
 
         else:
             # Default to a placeholder or default image if no file is uploaded
-            image_url = '/web/static/uploads/default.jpg'  # Assuming you have a default image
+            image_url = '/static/uploads/default.jpg'  # Assuming you have a default image
 
         # Save the user profile with the image URL
         new_Profile = Profile(
@@ -75,7 +77,7 @@ def profile():
             gender=gender,
             contact=contact,
             user_id=current_user.id,
-            profile_pic=image_url
+            profile_pic=image_url  # Assigning the image_url to profile_pic
         )
 
         db.session.add(new_Profile)
@@ -84,6 +86,7 @@ def profile():
         return redirect(url_for('main.chooseid'))
 
     return render_template('profile.html')
+
 
 
 @bp.route('/bookinghisto')

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="../static/profile.css">
+        <title>Profile</title>
+    </head>
+
+    <body>
+        <div class="logout">
+            <a href="/">
+                <input type="image" src="../static/pic&video/logout icon.png" width="50px" height="50px">
+            </a>
+        </div>
+        
+        <div class="outside-center">
+            <h1 align="center">Profile</h1>
+            <div class="middle-box">
+                <form action="{{ url_for('main.profile') }}" method="post">
+
+
+                    <input type="text" class="form-control" id="fullName" name="fullName" placeholder="Full Name" required>
+                            
+
+                        <div class="inner-gender">
+                            Gender
+                            <div class="choose-gender">
+                                <div class="gender">
+                                    <input type="radio" name="gender" id="male" value="male">
+                                    <label for="male">Male</label>
+                                    <br>
+                                    <input type="radio" name="gender" id="female" value="female">
+                                    <label for="female">Female</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="inner-center">
+                        Birth Year<br><input type="text" name="birthyear" id="birthyear" placeholder="Enter Birth Year"><br>
+                    </div>
+
+                    <div class="inner-center">
+                        Contact Number<br><input type="text" name="contact" id="contact" placeholder="Enter Contact Number"><br>
+                    </div>
+                    <div class="upload photo">
+                        <input type="file" name="file" class="form-control" >
+                    </div>
+                    <br>
+                    <a href="/chooseid">
+                        <input type="submit" value="Submit" class="btn">
+                    </a>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

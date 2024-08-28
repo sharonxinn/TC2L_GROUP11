@@ -1,0 +1,33 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+    
+        <title>DriversList</title>
+    </head>
+
+    <body>
+        <h2>Driver: {{ profile_dict[driver.user_id].fullName }}</h2>
+        <p>Gender: {{ profile_dict[driver.user_id].gender }}</p>
+        <p>Contact: {{ profile_dict[driver.user_id].contact }}</p>
+        <p>Date & Time: {{ driver.dateandTime }}</p>
+        <p>Pickup: {{ driver.pickup }}</p>
+        <p>Dropoff: {{ driver.dropoff }}</p>
+        <p>Carplate:{{ driver.carplate }}</p>
+        <p>Carmodel{{ driver.carmodel }}</p>
+
+        <h3>Other Passengers:</h3>
+        {% for passenger in passengers %}
+        <p>{{ profile_dict[passenger.passenger_id].fullName }} - {{ profile_dict[passenger.passenger_id].contact }}</p>
+        <p></p><form action="{{ url_for('main.complete_match', match_id=passenger.id) }}" method="POST">
+            <input type="submit" value="Complete">
+        </form>
+        <form action="{{ url_for('main.cancel_match', match_id=passenger.id) }}" method="POST">
+            <input type="submit" value="Cancel">
+        </form></p>
+
+        {% endfor %}
+
+
+    </body>
+</html>

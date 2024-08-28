@@ -207,9 +207,6 @@ def drivers_list():
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
 
-    print("Profile Dict:", profile_dict)
-    for driver in drivers:
-        print(f"Driver ID: {driver.id}, User ID: {driver.user_id}")
 
     return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict)
 
@@ -275,6 +272,7 @@ def remove_passenger(passenger_id, driver_id):
         flash('Passenger removed successfully', category='success')
     return redirect(url_for('main.match_passenger', driver_id=driver_id))
 
+<<<<<<< HEAD
 # define route for changing password
 @bp.route('/change_password',methods=['GET','POST'])
 def change_password():
@@ -282,6 +280,23 @@ def change_password():
         old_password = request.form.get('old_password')
         new_password = request.form.get('new_password')
         confirm_new_password = request.form.get('confirm_new_password')
+=======
+@bp.route('/complete/<int:driver_id>', methods=['POST'])
+@login_required
+def complete(driver_id):
+    return redirect(url_for('main.booking_history', driver_id=driver_id))
+
+@bp.route('/booking_history/<int:driver_id>')
+@login_required
+def boooking_history(driver_id):
+    driver = Driverspost.query.get_or_404(driver_id)
+    profiles = Profile.query.all()
+    profile_dict = {profile.user_id: profile for profile in profiles}
+    passengers = PassengerMatch.query.filter_by(driver_id=driver_id).all() 
+    return render_template('bookinghistory.html', driver=driver, passengers=passengers,profile_dict=profile_dict)
+
+
+>>>>>>> f200085 (up)
 
         if old_password == new_password:
             flash("Old Password and New Password Are The Same.", category='error')

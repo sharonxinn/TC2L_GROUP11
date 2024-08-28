@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+</head>
+<body>
+    <h1>Dashboard</h1>
+    <p><strong>Full Name:</strong> {{ profile.fullName }}</p>
+    <p><strong>Gender:</strong> {{ profile.gender }}</p>
+    <p><strong>Contact:</strong> {{ profile.contact }}</p>
+    <p><strong>Email:</strong> {{ current_user.email }}</p>
+    <p><strong>Profile Picture:</strong> <img src="{{ url_for('static', filename='/static/uploads/' + profile.profile_pic) }}" alt="Profile Picture"></p>
+</body>
+</html>

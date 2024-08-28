@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User List</title>
+</head>
+<body>
+    <h1>User List</h1>
+    <table border="1">
+        <tr>
+            <th>No.</th>
+            <th>Full Name</th>
+            <th>Gender</th>
+            <th>Profile Pic</th>
+            <th>Contact Num</th>
+        </tr>
+        {% for profile in profiles %}
+        <tr>
+            <td>{{ profile.id }}</td>
+            <td>{{ profile.fullName }}</td>
+            <td>{{ profile.gender }}</td>
+            <td>{{ profile.profile_pics }}</td>
+            <td>{{ profile.contact }}</td>
+
+
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

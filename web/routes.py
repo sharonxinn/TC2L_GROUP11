@@ -49,7 +49,9 @@ def profile():
         # Handling file upload (if any)
         if file and file.filename != '':
             filename = secure_filename(file.filename)
-            upload_path = app.config['UPLOAD_FOLDER']
+            # upload_path = app.config['UPLOAD_FOLDER']
+            upload_path = os.path.join('web', 'static', 'uploads')
+
             if not os.path.exists(upload_path):
                 os.makedirs(upload_path)
             
@@ -63,11 +65,11 @@ def profile():
                 return redirect(url_for('main.profile'))
 
             # Create the image URL
-            file['image_url'] = f'/web/static/uploads/{filename}'
+            image_url = f'/static/uploads/{filename}'
 
         else:
             # Default to a placeholder or default image if no file is uploaded
-            image_url = '/web/static/uploads/default.png'  # Assuming you have a default image
+            image_url = '/static/uploads/default.jpg'  # Assuming you have a default image
 
         # Save the user profile with the image URL
         new_Profile = Profile(
@@ -75,7 +77,7 @@ def profile():
             gender=gender,
             contact=contact,
             user_id=current_user.id,
-            profile_pic=image_url
+            profile_pic=image_url  # Assigning the image_url to profile_pic
         )
 
         db.session.add(new_Profile)
@@ -84,6 +86,7 @@ def profile():
         return redirect(url_for('main.chooseid'))
 
     return render_template('profile.html')
+
 
 
 
@@ -209,6 +212,20 @@ def drivers_list():
         print(f"Driver ID: {driver.id}, User ID: {driver.user_id}")
 
     return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict)
+
+@bp.route('/user_list')
+@login_required
+def user_list():
+    users = User.query.all()
+
+    return render_template('user_list.html', users=users)
+
+@bp.route('/profile_list')
+@login_required
+def profile_list():
+    profiles = Profile.query.all()
+
+    return render_template('profile_list.html', profiles=profiles)
 
 
 
@@ -336,44 +353,14 @@ def booking_history():
                 
                 else:
                     cwd = os.getcwd()
+@bp.route('/dashboard')
+@login_required
+def dashboard():
+    # Fetch the user's profile data from the database
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
 
-                    #  if user's original pic is not the default, delete it
-                    previous_profile_pic = Profile.profile_pic
-                    if previous_profile_pic != "default_pfp.png":
-                        os.remove(f"{cwd}/static/uploads/{previous_profile_pic}")
+    if profile is None:
+        flash("No profile found. Please complete your profile first.", category="error")
+        return redirect(url_for('main.profile'))
 
-                    filename = secure_filename(profile_pic.filename)
-                    os.makedirs(f"{cwd}/static/uploads", exist_ok=True)
-
-                    # resize image (make image smaller so it takes up less space) 
-                    img_size = (100,100)
-                    i = Image.open(profile_pic)
-                    i.thumbnail(img_size)
-
-                    i.save(os.path.join(f"{cwd}/static/uploads", filename))
-                    User.profile_pic = filename
-                    db.session.commit()
-                    flash("Profile Picture Successfully Updated!",category='success')
-
-                
-        old_username = Profile.fullName
-        new_username = request.form.get("username")
-
-        new_username_is_taken = User.query.filter_by(username=new_username).first()
-        if new_username_is_taken:
-            flash("Oops! Username already taken. Please enter a different username.",category="error")
-            return redirect(url_for("user_bp.customize_profile"))
-
-        if old_username != new_username and new_username is not None:
-            Profile.fullName = new_username 
-            db.session.commit()
-            flash("Username successfully changed!",category='success')
-            return redirect(url_for('profile_bp.customize_profile'))
-
-    current_profile_pic = Profile.profile_pic 
-    current_username = Profile.fullName
-    return render_template('customize_profile.html',
-                           current_page="customize_profile",
-                           current_profile_pic=current_profile_pic,
-                           current_username=current_username)
-
+    return render_template('dashboard.html', profile=profile)

@@ -86,10 +86,6 @@ def profile():
     return render_template('profile.html')
 
 
-@bp.route('/bookinghisto')
-@login_required
-def bookinghisto():
-    return render_template('bookinghisto.html', user=current_user)
 
 @bp.route('/chooseid', methods=['GET', 'POST'])
 @login_required

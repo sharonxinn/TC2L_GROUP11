@@ -1,10 +1,103 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Match Driver</title>
-</head>
-<body>
-    <h1>Match Driver</h1>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/match_passenger.css">
+    <title>Sidebar Menu</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  </head>
+
+  <body>
+    <div class="sidebar">
+
+      <div class="logo_name">
+        <div class="logo">
+          <ion-icon name="car"></ion-icon>
+          <div class="name">MMU Carpooling</div>
+        </div>
+        <i class='bx bx-menu' id="btn" ></i>
+      </div>
+
+      <ul class="nav_list">
+        <li>
+            <i class='bx bx-search-alt-2' ></i>
+            <input type="text" placeholder="Search...">
+          <span class="tooltip">Search</span>
+        </li>
+
+        <li>
+          <a href="#">
+            <i class='bx bx-home-alt-2' ></i>
+            <span class="icon_name">Home</span>
+          </a>
+          <span class="tooltip">Home</span>
+        </li>
+
+        <li>
+          <a href="#">
+            <i class='bx bx-user'></i>
+            <span class="icon_name">Profile</span>
+          </a>
+          <span class="tooltip">Profile</span>
+        </li>
+
+        <li>
+          <a href="#">
+            <i class='bx bx-map' ></i>
+            <span class="icon_name">Google Map</span>
+          </a>
+          <span class="tooltip">Google Map</span>
+        </li>
+
+        <li>
+          <a href="#">
+            <i class='bx bx-history' ></i>
+            <span class="icon_name">Booking History</span>
+          </a>
+          <span class="tooltip">Booking History</span>
+        </li>
+
+        <li>
+          <a href="#">
+            <i class='bx bx-moon'></i>
+            <span class="icon_name">Dark Mode</span>
+          </a>
+          <span class="tooltip">Dark Mode</span>
+        </li>
+
+      <div class="profile_content">
+        <div class="profile">
+          <div class="profile_details">
+            <img src="../static/pic&video/profilepic.png" width="40px" height="40px" alt="">
+            <div class="name_id">
+              <div class="name">Willie</div>
+              <div class="id">Driver</div>
+            </div>
+          </div>
+          <a href="/">
+            <i class='bx bx-exit' id="logout" ></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let btn = document.querySelector("#btn");
+      let sidebar = document.querySelector(".sidebar");
+      let searchBtn = document.querySelector(".bx-search-alt-2");
+
+      btn.onclick = function(){
+        sidebar.classList.toggle("active");
+      }
+      searchBtn.onclick = function(){
+        sidebar.classList.toggle("active");
+      }
+    </script>
+
+    <div class="right_box">
+        <h1>Match Driver</h1>
 
     <h2>Your Information</h2>
     <table border="1">
@@ -62,5 +155,6 @@
         </tr>
         {% endfor %}
     </table>
-</body>
+    </div>
+  </body>
 </html>

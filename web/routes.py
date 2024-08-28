@@ -126,11 +126,6 @@ def sign_up():
     return render_template("signup.html",user=current_user)
 
 
-@bp.route('/about')
-def about():
-    return render_template('about.html', user=current_user)
-
-
 
 
 @bp.route('/driver_post', methods=['GET', 'POST'])

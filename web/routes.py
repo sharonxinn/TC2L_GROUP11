@@ -5,7 +5,7 @@ from .models import User, Driverspost, Profile,PassengerMatch
 from . import db
 from werkzeug.utils import secure_filename
 import os
-from PIL import Image
+# from PIL import Image
 
 app = Flask(__name__)
 bp = Blueprint('main', __name__)
@@ -89,10 +89,6 @@ def profile():
 
 
 
-@bp.route('/bookinghisto')
-@login_required
-def bookinghisto():
-    return render_template('bookinghisto.html', user=current_user)
 
 @bp.route('/chooseid', methods=['GET', 'POST'])
 @login_required
@@ -179,6 +175,7 @@ def driver_post():
         fees = request.form['fees']
         duitnowid = request.form['duitnowid']
         message = request.form['message']
+        status = 'ongoing'
 
         new_Driverspost = Driverspost(
             dateandTime=dateandTime,
@@ -190,6 +187,7 @@ def driver_post():
             fees=fees,
             duitnowid=duitnowid,
             message=message,
+            status= status,
             user_id=current_user.id
 
 
@@ -205,7 +203,7 @@ def driver_post():
 @bp.route('/drivers_list')
 @login_required
 def drivers_list():
-    drivers = Driverspost.query.all()
+    drivers = Driverspost.query.filter_by(status='ongoing')
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
 
@@ -230,14 +228,15 @@ def profile_list():
     return render_template('profile_list.html', profiles=profiles)
 
 
+
 @bp.route('/match_passenger/<int:driver_id>')
 @login_required
 def match_passenger(driver_id):
     driver = Driverspost.query.get_or_404(driver_id)
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
-    passengers = PassengerMatch.query.filter_by(driver_id=driver_id).all()  
-    return render_template('match_passenger.html', driver=driver, passengers=passengers,profile_dict=profile_dict)
+    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='ongoing').all()  
+    return render_template('match_passenger.html', driver=driver, passengers=passengers, profile_dict=profile_dict)
 
 @bp.route('/match_driver/<int:driver_id>')
 @login_required
@@ -245,8 +244,8 @@ def match_driver(driver_id):
     driver = Driverspost.query.get_or_404(driver_id)
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
-    passengers = PassengerMatch.query.filter_by(driver_id=driver_id).all() 
-    return render_template('match_driver.html', driver=driver, passengers=passengers,profile_dict=profile_dict)
+    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='ongoing').all() 
+    return render_template('match_driver.html', driver=driver, passengers=passengers, profile_dict=profile_dict)
 
 @bp.route('/select_driver/<int:driver_id>', methods=['POST'])
 @login_required
@@ -258,11 +257,12 @@ def select_driver(driver_id):
         flash('You have already selected this driver.', 'info')
         return redirect(url_for('main.drivers_list'))
     
+    
     passenger_match = PassengerMatch(passenger_id=current_user.id, driver_id=selected_driver.id)
     db.session.add(passenger_match)
     db.session.commit()
     
-    flash('Driver selected successfully.', 'success')
+    flash('Driver selected successfully.', category='success')
     return redirect(url_for('main.match_driver', driver_id=driver_id))
 
 @bp.route('/remove_passenger/<int:passenger_id>/<int:driver_id>', methods=['POST'])
@@ -272,7 +272,7 @@ def remove_passenger(passenger_id, driver_id):
     if passenger_match.passenger_id == current_user.id or current_user.has_role('admin'):  # Add a condition to allow admin or the driver
         db.session.delete(passenger_match)
         db.session.commit()
-        flash('Passenger removed successfully', 'success')
+        flash('Passenger removed successfully', category='success')
     return redirect(url_for('main.match_passenger', driver_id=driver_id))
 
 # define route for changing password
@@ -301,6 +301,58 @@ def change_password():
 
     return render_template('change_password.html',user=current_user)
 
+
+
+@bp.route('/complete_match/<int:match_id>', methods=['POST'])
+@login_required
+def complete_match(match_id):
+    match = PassengerMatch.query.get_or_404(match_id)
+    if match.driver.user_id == current_user.id or match.passenger_id == current_user.id:
+        match.status = 'completed'
+        db.session.commit()
+        flash('Match completed successfully', category='success')
+    return redirect(url_for('main.booking_history', driver_id=match.driver_id))
+
+@bp.route('/cancel_match/<int:match_id>', methods=['POST'])
+@login_required
+def cancel_match(match_id):
+    match = PassengerMatch.query.get_or_404(match_id)
+    if match.driver.user_id == current_user.id or match.passenger_id == current_user.id:
+        match.status = 'canceled'
+        db.session.commit()
+        flash('Match canceled successfully', category='success')
+    return redirect(url_for('main.booking_history', driver_id=match.driver_id))
+
+
+@bp.route('/booking_history')
+@login_required
+def booking_history():
+    # Query all passenger matches related to the current user
+    passenger_matches = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
+                                            .join(Driverspost, PassengerMatch.driver_id == Driverspost.id) \
+                                            .filter((PassengerMatch.passenger_id == current_user.id) | 
+                                                    (Driverspost.user_id == current_user.id)) \
+                                            .all()
+    
+    profiles = Profile.query.all()
+    profile_dict = {profile.user_id: profile for profile in profiles}
+
+    return render_template('booking_history.html', matches=passenger_matches, profile_dict=profile_dict)
+
+
+#@bp.route('/customize_profile', methods=["GET","POST"])
+#def customize_profile():
+    if request.method == "POST":
+        
+        if 'profile_pic' in request.files:
+            profile_pic = request.files['profile_pic']
+            
+            if profile_pic.filename != "":
+                if not file_is_valid(profile_pic.filename):
+                    flash("Invalid File Type: Only .jpg, .jpeg and .png Files Are Allowed.",category="error")
+                
+                else:
+                    cwd = os.getcwd()
 @bp.route('/dashboard')
 @login_required
 def dashboard():

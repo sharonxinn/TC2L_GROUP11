@@ -67,7 +67,7 @@ def profile():
 
         else:
             # Default to a placeholder or default image if no file is uploaded
-            image_url = '/web/static/uploads/default.png'  # Assuming you have a default image
+            image_url = '/web/static/uploads/default.jpg'  # Assuming you have a default image
 
         # Save the user profile with the image URL
         new_Profile = Profile(

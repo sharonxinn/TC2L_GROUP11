@@ -44,20 +44,19 @@ def customize_profile():
                     db.session.commit()
                     flash("Profile Picture Successfully Updated!",category='success')
 
-        old_bio = current_user.bio
-        new_bio = request.form.get('bio')
-        
-        if old_bio != new_bio:
-            if new_bio is not None and new_bio.strip() != "":
-                current_user.bio = new_bio 
-                db.session.commit()
-                flash("Bio Successfully Updated!",category='success')
-                return redirect(url_for('user_bp.customize_profile'))
-            
-            else:
-                current_user.bio = None 
-                db.session.commit()
-                flash("Bio Successfully Cleared!",category="success")
+        old_email = current_user.email
+        new_email = request.form.get("email")
+
+        new_email_is_taken = User.query.filter_by(username=new_email).first()
+        if new_email_is_taken:
+            flash("Oops! Email already taken. Please enter a different email.",category="error")
+            return redirect(url_for("user_bp.customize_profile"))
+
+        if old_email != new_email and new_email is not None:
+            current_user.email = new_email
+            db.session.commit()
+            flash("Email successfully changed!",category='success')
+            return redirect(url_for('user_bp.customize_profile'))        
                 
         old_username = current_user.username
         new_username = request.form.get("username")
@@ -73,11 +72,12 @@ def customize_profile():
             flash("Username successfully changed!",category='success')
             return redirect(url_for('user_bp.customize_profile'))
 
-    current_bio = current_user.bio
+
     current_profile_pic = current_user.profile_pic 
     current_username = current_user.username
+    current_email = current_user.email
     return render_template('customize_profile.html',
                            current_page="customize_profile",
                            current_profile_pic=current_profile_pic,
-                           current_bio=current_bio,
+                           current_email=current_email,
                            current_username=current_username)

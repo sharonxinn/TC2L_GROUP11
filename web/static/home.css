@@ -77,9 +77,6 @@ header{
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    /*display: flex;
-    justify-content: center;
-    align-items: center;*/
 }
 
 .center h1{
@@ -172,10 +169,8 @@ header{
 .container{
     display: flex;
     position: relative;
-    /*flex-direction: row;*/
     justify-content: center;
     align-items: center;
-    /*max-width: 1200px;*/
     flex-wrap: wrap;
     z-index: 1;
 }

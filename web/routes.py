@@ -33,6 +33,14 @@ def home():
 def forgotpassword():
     return render_template('forgotpassword.html',user=current_user)
 
+@bp.route('/sidebar')
+def sidebar():
+    return render_template('sidebar.html',user=current_user)
+
+@bp.route('/base')
+def base():
+    return render_template('base.html',user=current_user)
+
 @bp.route('/profile',methods=['GET', 'POST'])
 def profile():
     if request.method == 'POST':
@@ -68,7 +76,7 @@ def chooseid():
     if request.method == 'POST':
         role = request.form.get('role')
         if role == 'passenger':
-            return redirect(url_for('main.drivers_list'))
+            return redirect(url_for('main.sidebar'))
         elif role == 'driver':
             return redirect(url_for('main.driver_post'))
     return render_template('chooseid.html')
@@ -161,7 +169,7 @@ def driver_post():
         db.session.add(new_Driverspost)
         db.session.commit()
 
-        return redirect(url_for('main.match_passenger',driver_id=current_user.id))
+        return redirect(url_for('main.base',driver_id=current_user.id))
 
     return render_template('driver_post.html')
 

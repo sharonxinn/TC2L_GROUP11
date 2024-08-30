@@ -71,6 +71,10 @@ body{
     -webkit-transform: scale(1.15);
 }
 
+.dnp a{
+    text-decoration: none;
+}
+
 .dnp img{
     margin-top: -5rem;
     filter: drop-shadow(0 0 0.5rem black);

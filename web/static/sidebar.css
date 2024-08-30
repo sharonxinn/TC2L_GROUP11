@@ -6,13 +6,31 @@
     box-sizing: border-box;
     font-family: "poppins";
   }
+
+  :root{
+    --background-color: linear-gradient(to bottom, #27242f, #292632, #2c2935, #2e2b39, #312e3c, #383544, #3f3b4c, #464254, #534e64, #615a74, #6f6784, #7d7495);
+    --box-color: linear-gradient(180deg, #DDDDDD 0%, #C8C8C8 64.5%, #777777 100%);
+    --text-color: black;
+    --toggle-color: white;
+    --mode-background: rgba(255, 255, 255, 0.5);
+    --box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+  }
+
+  body.dark{
+    --background-color: linear-gradient(180deg, #DDDDDD 0%, #C8C8C8 64.5%, #777777 100%);
+    --box-color: linear-gradient(to bottom, #27242f, #292632, #2c2935, #2e2b39, #312e3c, #383544, #3f3b4c, #464254, #534e64, #615a74, #6f6784, #7d7495);
+    --text-color: white;
+    --toggle-color: black;
+    --mode-background: rgba(0, 0, 0, 0.5);
+    --box-shadow: 5px 5px 10px rgba(255, 255, 255, 0.5);
+  }
   
   body{
     position: relative;
     min-height: 100vh;
     width: 100%;
     overflow: hidden;
-    background-image: linear-gradient(to bottom, #27242f, #292632, #2c2935, #2e2b39, #312e3c, #383544, #3f3b4c, #464254, #534e64, #615a74, #6f6784, #7d7495);
+    background: var(--background-color);
   }
 
   .sidebar{
@@ -21,7 +39,7 @@
     bottom: 20px;
     left: 25px;
     width: 70px;
-    background: linear-gradient(180deg, #DDDDDD 0%, #C8C8C8 64.5%, #777777 100%);
+    background: var(--box-color);
     padding: 10px 10px; /*updown leftright*/
     border-radius: 50px;
     transition: all 0.5s ease;
@@ -46,6 +64,7 @@
   .sidebar.active .logo_name .logo{
     opacity: 1;
     pointer-events: none;
+    color: var(--text-color);
   }
 
   .logo_name .logo ion-icon{
@@ -55,6 +74,7 @@
   .logo_name .logo .name{
     font-size: 17px;
     font-weight: 600;
+    white-space: nowrap;
   }
 
   .sidebar #btn{
@@ -67,6 +87,7 @@
     text-align: center;
     line-height: 50px;
     transform: translateX(-50%);
+    color: var(--text-color);
   }
 
   .sidebar.active #btn{
@@ -96,10 +117,10 @@
     border-radius: 15px;
     height: 35px;
     width: 140px;
-    background: white;
+    background: var(--toggle-color);
     line-height: 35px;
     text-align: center;
-    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--box-shadow);
     transition: 0s;
     opacity: 0;
     pointer-events: none;
@@ -115,6 +136,7 @@
     transition: all 0.5s ease;
     opacity: 1;
     z-index: 100;
+    color: var(--text-color);
   }
 
 
@@ -127,10 +149,10 @@
     border-radius: 15px;
     outline: none;
     border: none;
-    background: white;
+    background: var(--toggle-color);
     padding-left: 50px;
     font-size: 16px;
-    color: black;
+    color: var(--text-color);
   }
 
   .sidebar ul li .bx-search-alt-2{
@@ -142,16 +164,17 @@
     text-align: center;
     font-size: 25px;
     transition: all 0.5s ease;
+    color: var(--text-color);
   }
 
   .sidebar ul li .bx-search-alt-2:hover{
     border-radius: 15px;
-    color: white;
-    background-image: linear-gradient(to bottom, #27242f, #292632, #2c2935, #2e2b39, #312e3c, #383544, #3f3b4c, #464254, #534e64, #615a74, #6f6784, #7d7495);
+    color: var(--toggle-color);
+    background: var(--background-color);
   }
 
   .sidebar ul li a{
-    color: black;
+    color: var(--text-color);
     display: flex;
     align-items: center;
     text-decoration: none;
@@ -160,8 +183,8 @@
   }
 
   .sidebar ul li a:hover{
-    color: white;
-    background-image: linear-gradient(to bottom, #27242f, #292632, #2c2935, #2e2b39, #312e3c, #383544, #3f3b4c, #464254, #534e64, #615a74, #6f6784, #7d7495);
+    color: var(--toggle-color);
+    background: var(--background-color);
   }
 
   .sidebar ul li a i{
@@ -184,52 +207,63 @@
     transition: all 0.5s ease;
   }
 
-  /*
-  <li class="mode">
-          <div class="moon-sun">
-            <i class='bx bx-sun icon sun' ></i>
-            <i class='bx bx-moon icon moon' ></i>
-          </div>
-          <span class="mode-text text">Dark Mode</span>
-
-          <div class="toogle-switch">
-            <span class="switch"></span>
-          </div>
-        </li>
-      </ul>
-
-      
-      <script>
-        const body = document.querySelector("body"),
-          modeSwitch = body.querySelector(".toggle-switch");
-      </script>
-  
-  .sidebar .mode{
-    background: var(--primary-colour-light);
-  }
-
-  .sidebar .mode .moon-sun{
-    height: 80px;
-    width: 60px;
+  .sidebar .nav_list .mode{
+    background: var(--mode-background);
+    border-radius: 15px;
     display: flex;
     align-items: center;
+    position: relative;
+    color: var(--text-color);
+    position: relative;
   }
 
-  .sidebar .mode i{
+  .sidebar .nav_list .mode .moon-sun{
+    font-size: 22px;
+    height: 50px;
+    min-width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar .nav_list .mode i{
     position: absolute;
   }
 
-  .sidebar .mode i.sun{
+  .sidebar .nav_list .mode i.sun{
     opacity: 0;
   }
 
+  body.dark .sidebar .mode .moon-sun .sun{
+    opacity: 1;
+  }
+
+  body.dark .sidebar .mode .moon-sun .moon{
+    opacity: 0;
+  }
+
+  .sidebar .nav_list .mode .mode_name{
+    opacity: 0;
+    pointer-events: none;
+    position: relative;
+    white-space: nowrap;
+  }
+
+  .sidebar.active .nav_list .mode .mode_name{
+    opacity: 1;
+    pointer-events: none;
+    transition: all 0.5s ease;
+  }
+
   .sidebar .mode .toggle-switch{
+    position: absolute;
+    right: 3px;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
-    min-width: 60px;
-    background: red;
+    min-width: 45px;
+    cursor: pointer;
   }
 
   .toggle-switch .switch{
@@ -237,29 +271,25 @@
     height: 22px;
     width: 44px;
     border-radius: 25px;
-    background: var(--toggle-colour);
+    background: #b7b6b6;
   }
 
-  .switch::before{
+  .toggle-switch .switch::before{
     content: '';
     position: absolute;
     height: 15px;
+    width: 15px;
     border-radius: 50%;
     top: 50%;
     left: 5px;
     transform: translateY(-50%);
-    background: var(--sidebar-colour);
+    background: var(--toggle-color);
+    transition: all 0.5s ease;
   }
 
-  body.dark .switch::before{
-    left: 25px;
-  }*/
-
-
-
-
-
-
+  body.dark .sidebar .nav_list .mode .toggle-switch .switch::before{
+    left: 24px;
+  }
 
   .sidebar .profile_content{
     position: absolute;
@@ -291,7 +321,7 @@
   .sidebar.active .profile .profile_details{
     opacity: 1;
     pointer-events: auto;
-    transition: all 2s ease;
+    transition: all 0.5s ease;
   }
 
   .profile .profile_details img{
@@ -315,7 +345,7 @@
   }
 
   .profile #logout{
-    color: white;
+    color: var(--toggle-color);
     cursor: pointer;
     position: absolute;
     left: 35%;
@@ -327,18 +357,14 @@
     border-radius: 15px;
     text-align: center;
     transition: all 0.4s ease;
-    background-image: linear-gradient(to bottom, #27242f, #292632, #2c2935, #2e2b39, #312e3c, #383544, #3f3b4c, #464254, #534e64, #615a74, #6f6784, #7d7495);
+    background: var(--background-color);
   }
 
   .sidebar.active .profile #logout{
     cursor: pointer;
     left: 88%;
-    background-image: linear-gradient(to bottom, #27242f, #292632, #2c2935, #2e2b39, #312e3c, #383544, #3f3b4c, #464254, #534e64, #615a74, #6f6784, #7d7495);
-  }/*他分多一个 background: none;*/
-
-
-
-
+    background: var(--background-color);
+  }
 
   .right_box{
     position: absolute;
@@ -346,7 +372,7 @@
     bottom: 20px;
     left: 120px;
     right: 25px;
-    background: linear-gradient(180deg, #DDDDDD 0%, #C8C8C8 64.5%, #777777 100%);
+    background: var(--box-color);
     padding: 10px 10px; /*updown leftright*/
     border-radius: 50px;
     transition: all 0.5s ease;

@@ -21,12 +21,11 @@
         <div class="outside-center">
             <h1 align="center">Profile</h1>
             <div class="middle-box">
-                <form action="{{ url_for('main.profile') }}" method="post">
+                <form action="{{ url_for('main.profile') }}" method="post" enctype="multipart/form-data">
 
-                    <div class="left-right">
-                        <div class="inner-center">
-                            Full Name<br><input type="text" class="form-control" id="fullName" name="fullName" placeholder="Enter Full Name" required><br>
-                        </div>
+
+                    <input type="text" class="form-control" id="fullName" name="fullName" placeholder="Full Name" required>
+                            
 
                         <div class="inner-gender">
                             Gender
@@ -49,12 +48,18 @@
                     <div class="inner-center">
                         Contact Number<br><input type="text" name="contact" id="contact" placeholder="Enter Contact Number"><br>
                     </div>
+<<<<<<< HEAD
 
                     <div class="inner-center">
                         Profile Picture<br><input type="file" name="file" class="form-control">
                     </div>
 
                     <br>
+=======
+                    <div class="upload photo">
+                        <input type="file" name="file" class="form-control" >
+                    </div>
+>>>>>>> master
                     <br>
                     <a href="/chooseid">
                         <input type="submit" value="Submit" class="btn">

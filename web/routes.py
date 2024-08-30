@@ -1,10 +1,15 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import User, Driverspost, Profile,PassengerMatch
 from . import db
+from werkzeug.utils import secure_filename
+import os
+# from PIL import Image
 
+app = Flask(__name__)
 bp = Blueprint('main', __name__)
+app.config['UPLOAD_FOLDER']='/web/static/uploads/'
 
 @bp.route('/login',methods=['GET','POST'])
 def login():
@@ -29,10 +34,10 @@ def login():
 def home():
     return render_template('home.html',user=current_user)
 
-@bp.route('/forgotpassword')
-def forgotpassword():
-    return render_template('forgotpassword.html',user=current_user)
+def file_is_valid(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
 
+<<<<<<< HEAD
 @bp.route('/sidebar')
 def sidebar():
     return render_template('sidebar.html',user=current_user)
@@ -42,20 +47,49 @@ def base():
     return render_template('base.html',user=current_user)
 
 @bp.route('/profile',methods=['GET', 'POST'])
+=======
+@bp.route('/profile', methods=['GET', 'POST'])
+@login_required
+>>>>>>> master
 def profile():
     if request.method == 'POST':
-
-        fullName=request.form['fullName']
+        fullName = request.form['fullName']
         gender = request.form['gender']
         contact = request.form['contact']
+        file = request.files.get('file')
 
+        # Handling file upload (if any)
+        if file and file.filename != '':
+            filename = secure_filename(file.filename)
+            # upload_path = app.config['UPLOAD_FOLDER']
+            upload_path = os.path.join('web', 'static', 'uploads')
 
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
+            
+            file_path = os.path.join(upload_path, filename)
+            print("Saving file to:", file_path)  # Debugging: Print file path
+            
+            try:
+                file.save(file_path)
+            except Exception as e:
+                flash(f"An error occurred while saving the file: {e}", category="error")
+                return redirect(url_for('main.profile'))
+
+            # Create the image URL
+            image_url = f'/static/uploads/{filename}'
+
+        else:
+            # Default to a placeholder or default image if no file is uploaded
+            image_url = '/static/uploads/default.jpg'  # Assuming you have a default image
+
+        # Save the user profile with the image URL
         new_Profile = Profile(
             fullName=fullName,
             gender=gender,
             contact=contact,
-            user_id=current_user.id
-
+            user_id=current_user.id,
+            profile_pic=image_url  # Assigning the image_url to profile_pic
         )
 
         db.session.add(new_Profile)
@@ -65,10 +99,8 @@ def profile():
 
     return render_template('profile.html')
 
-@bp.route('/bookinghisto')
-@login_required
-def bookinghisto():
-    return render_template('bookinghisto.html', user=current_user)
+
+
 
 @bp.route('/chooseid', methods=['GET', 'POST'])
 @login_required
@@ -150,6 +182,7 @@ def driver_post():
         fees = request.form['fees']
         duitnowid = request.form['duitnowid']
         message = request.form['message']
+        status = 'ongoing'
 
         new_Driverspost = Driverspost(
             dateandTime=dateandTime,
@@ -161,6 +194,7 @@ def driver_post():
             fees=fees,
             duitnowid=duitnowid,
             message=message,
+            status= status,
             user_id=current_user.id
 
 
@@ -176,7 +210,7 @@ def driver_post():
 @bp.route('/drivers_list')
 @login_required
 def drivers_list():
-    drivers = Driverspost.query.all()
+    drivers = Driverspost.query.filter_by(status='ongoing')
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
 
@@ -186,6 +220,21 @@ def drivers_list():
 
     return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict)
 
+@bp.route('/user_list')
+@login_required
+def user_list():
+    users = User.query.all()
+
+    return render_template('user_list.html', users=users)
+
+@bp.route('/profile_list')
+@login_required
+def profile_list():
+    profiles = Profile.query.all()
+
+    return render_template('profile_list.html', profiles=profiles)
+
+
 
 @bp.route('/match_passenger/<int:driver_id>')
 @login_required
@@ -193,8 +242,8 @@ def match_passenger(driver_id):
     driver = Driverspost.query.get_or_404(driver_id)
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
-    passengers = PassengerMatch.query.filter_by(driver_id=driver_id).all()  
-    return render_template('match_passenger.html', driver=driver, passengers=passengers,profile_dict=profile_dict)
+    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='ongoing').all()  
+    return render_template('match_passenger.html', driver=driver, passengers=passengers, profile_dict=profile_dict)
 
 @bp.route('/match_driver/<int:driver_id>')
 @login_required
@@ -202,8 +251,8 @@ def match_driver(driver_id):
     driver = Driverspost.query.get_or_404(driver_id)
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
-    passengers = PassengerMatch.query.filter_by(driver_id=driver_id).all() 
-    return render_template('match_driver.html', driver=driver, passengers=passengers,profile_dict=profile_dict)
+    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='ongoing').all() 
+    return render_template('match_driver.html', driver=driver, passengers=passengers, profile_dict=profile_dict)
 
 @bp.route('/select_driver/<int:driver_id>', methods=['POST'])
 @login_required
@@ -215,11 +264,12 @@ def select_driver(driver_id):
         flash('You have already selected this driver.', 'info')
         return redirect(url_for('main.drivers_list'))
     
+    
     passenger_match = PassengerMatch(passenger_id=current_user.id, driver_id=selected_driver.id)
     db.session.add(passenger_match)
     db.session.commit()
     
-    flash('Driver selected successfully.', 'success')
+    flash('Driver selected successfully.', category='success')
     return redirect(url_for('main.match_driver', driver_id=driver_id))
 
 @bp.route('/remove_passenger/<int:passenger_id>/<int:driver_id>', methods=['POST'])
@@ -229,12 +279,11 @@ def remove_passenger(passenger_id, driver_id):
     if passenger_match.passenger_id == current_user.id or current_user.has_role('admin'):  # Add a condition to allow admin or the driver
         db.session.delete(passenger_match)
         db.session.commit()
-        flash('Passenger removed successfully', 'success')
+        flash('Passenger removed successfully', category='success')
     return redirect(url_for('main.match_passenger', driver_id=driver_id))
 
 # define route for changing password
 @bp.route('/change_password',methods=['GET','POST'])
-@login_required
 def change_password():
     if request.method == "POST":
         old_password = request.form.get('old_password')
@@ -258,3 +307,67 @@ def change_password():
 
 
     return render_template('change_password.html',user=current_user)
+
+
+
+@bp.route('/complete_match/<int:match_id>', methods=['POST'])
+@login_required
+def complete_match(match_id):
+    match = PassengerMatch.query.get_or_404(match_id)
+    if match.driver.user_id == current_user.id or match.passenger_id == current_user.id:
+        match.status = 'completed'
+        db.session.commit()
+        flash('Match completed successfully', category='success')
+    return redirect(url_for('main.booking_history', driver_id=match.driver_id))
+
+@bp.route('/cancel_match/<int:match_id>', methods=['POST'])
+@login_required
+def cancel_match(match_id):
+    match = PassengerMatch.query.get_or_404(match_id)
+    if match.driver.user_id == current_user.id or match.passenger_id == current_user.id:
+        match.status = 'canceled'
+        db.session.commit()
+        flash('Match canceled successfully', category='success')
+    return redirect(url_for('main.booking_history', driver_id=match.driver_id))
+
+
+@bp.route('/booking_history')
+@login_required
+def booking_history():
+    # Query all passenger matches related to the current user
+    passenger_matches = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
+                                            .join(Driverspost, PassengerMatch.driver_id == Driverspost.id) \
+                                            .filter((PassengerMatch.passenger_id == current_user.id) | 
+                                                    (Driverspost.user_id == current_user.id)) \
+                                            .all()
+    
+    profiles = Profile.query.all()
+    profile_dict = {profile.user_id: profile for profile in profiles}
+
+    return render_template('booking_history.html', matches=passenger_matches, profile_dict=profile_dict)
+
+
+#@bp.route('/customize_profile', methods=["GET","POST"])
+#def customize_profile():
+    if request.method == "POST":
+        
+        if 'profile_pic' in request.files:
+            profile_pic = request.files['profile_pic']
+            
+            if profile_pic.filename != "":
+                if not file_is_valid(profile_pic.filename):
+                    flash("Invalid File Type: Only .jpg, .jpeg and .png Files Are Allowed.",category="error")
+                
+                else:
+                    cwd = os.getcwd()
+@bp.route('/dashboard')
+@login_required
+def dashboard():
+    # Fetch the user's profile data from the database
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+
+    if profile is None:
+        flash("No profile found. Please complete your profile first.", category="error")
+        return redirect(url_for('main.profile'))
+
+    return render_template('dashboard.html', profile=profile)

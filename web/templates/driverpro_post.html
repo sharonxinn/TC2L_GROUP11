@@ -1,26 +1,40 @@
-
+{% extends "base.html" %} {% block title %}Driver Profile{% endblock %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="en">
 
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="../static/driver_post.css">
+        <link rel="stylesheet" href="driverprofile.css">
         <title>Driver Profile</title>
     </head>
 
     <body>
-        <div class="logout">
-            <a href="/">
-                <input type="image" src="../static/pic&video/logout icon.png" width="50px" height="50px">
-            </a>
-        </div>
-
         <div class="outside-center">
-            <h1 align="center">Rider Post</h1>
+            <h1 align="center">Driver Profile</h1>
             <div class="middle-box">
-                <form action="{{ url_for('main.driver_post') }}" method="post">
+                <form action="{{ url_for('driver_post') }}" method="post">
                     
+                    <div class="left-right">
+                        <div class="inner-center">
+                            <label for="fullName">Full Name:</label><br>
+                            <input type="text" id="fullName" name="fullName" placeholder="Enter Full Name" required><br>
+                        </div>
+
+                        <div class="inner-gender">
+                            <label for="gender">Gender:</label><br>
+                            <div class="choose-gender">
+                                <div class="gender">
+                                    <input type="radio" name="gender" id="male" value="male">
+                                    <label for="male">Male</label>
+                                    <br>
+                                    <input type="radio" name="gender" id="female" value="female">
+                                    <label for="female">Female</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="inner-center">
                         <label for="dateandTime">Date & Time</label>
@@ -68,7 +82,7 @@
 
                     <div class="left-right">
                         <div class="inner-center">
-                            <label for="carplate">Car Plate</label>
+                            <label for="carplate">Car Platet</label>
                              <br>
                             <input id="carplate" type="text" name="carplate" required placeholder="Enter Car Plate"><br>
                         </div>
@@ -96,7 +110,7 @@
 
                     <div class="inner-center">
                         <label for="duitnowid">DuitNow ID</label>
-                        <br><input type="text" id="duitnowid"  name="duitnowid" placeholder="Enter Your ID"><br><br>
+                        <br><input type="text" id="duitnowid"  name="duitnowid" placeholder="YOUR DUITNOW ID（TNG/DuitNow）"><br><br>
                     </div>
 
                     <div class="inner-center">
@@ -112,3 +126,4 @@
         </div>
     </body>
 </html>
+{% endblock %}

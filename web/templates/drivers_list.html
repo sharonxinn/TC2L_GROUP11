@@ -1,22 +1,30 @@
-{% extends "base.html" %}
-{% block title %}DriversList{% endblock %}
+<!-- {% extends "base.html" %} -->
 {% block content %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>DriversList</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
+<main>
 <body>
     <h1>DriverList</h1>
-    <table border="1">
+    <select id="columnSelect">
+        <option value="all">All Columns</option>
+        <option value="5">Pick-Up Location</option>
+        <option value="6">Drop-Off Location</option>
+    </select>
+
+    <input id="columnSearch" type="text" placeholder="Search column">
+    <table border="1" id="myTable">
         <tr>
             <th>Full Name</th>
             <th>Gender</th>
             <th>Contact</th>
-            <th>DateandTime</th>
+            <th>Date and Time</th>
             <th>Pick-Up Location</th>
             <th>Drop-Off Location</th>
-            <th>Car Platet</th>
+            <th>Car Plate</th>
             <th>Car Model</th>
             <th>Maximum Number of Passengers</th>
             <th>Fees</th>
@@ -44,6 +52,32 @@
         </tr>
         {% endfor %}
     </table>
+
+    <script>
+        $(document).ready(function () {
+            $("#columnSearch").on("keyup", function () {
+                let columnValue = $("#columnSearch").val().toLowerCase();
+                let selectedColumn = $("#columnSelect").val();
+                
+                $("#myTable tr").each(function (index) {
+                    if (index === 0) return;
+
+                    let matchColumn = true;
+
+                    if (selectedColumn !== "all" && columnValue !== "") {
+                        let columnIndex = parseInt(selectedColumn, 10);
+                        let columnData = $(this).find("td:nth-child(" + columnIndex + ")").text().toLowerCase();
+                        matchColumn = columnData.indexOf(columnValue) > -1;
+                    }
+
+                    $(this).toggle(matchColumn);
+                });
+            });
+        });
+    </script>
 </body>
+</main>
 </html>
 {% endblock %}
+
+

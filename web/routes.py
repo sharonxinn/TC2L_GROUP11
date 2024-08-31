@@ -22,7 +22,7 @@ def login():
             if check_password_hash(user.password, password):
                 flash('Logged in successfully',category='success')
                 login_user(user,remember=True)
-                return redirect(url_for('main.chooseid'))
+                return redirect(url_for('main.base'))
             else:
                 flash('Incorrect password,try again',category='error')
         else:
@@ -37,7 +37,6 @@ def home():
 def file_is_valid(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
 
-<<<<<<< HEAD
 @bp.route('/sidebar')
 def sidebar():
     return render_template('sidebar.html',user=current_user)
@@ -46,11 +45,9 @@ def sidebar():
 def base():
     return render_template('base.html',user=current_user)
 
-@bp.route('/profile',methods=['GET', 'POST'])
-=======
+
 @bp.route('/profile', methods=['GET', 'POST'])
 @login_required
->>>>>>> master
 def profile():
     if request.method == 'POST':
         fullName = request.form['fullName']

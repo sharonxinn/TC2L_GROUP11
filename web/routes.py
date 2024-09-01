@@ -1,11 +1,10 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask
+from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask,session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import User, Driverspost, Profile,PassengerMatch
 from . import db
 from werkzeug.utils import secure_filename
 import os
-# from PIL import Image
 
 app = Flask(__name__)
 bp = Blueprint('main', __name__)
@@ -18,15 +17,19 @@ def login():
         password=request.form.get('password')
 
         user=User.query.filter_by(email=email).first()
-        if user:
-            if check_password_hash(user.password, password):
-                flash('Logged in successfully',category='success')
-                login_user(user,remember=True)
-                return redirect(url_for('main.chooseid'))
-            else:
-                flash('Incorrect password,try again',category='error')
+        if request.form.get("email")=="admin@gmail.com" and request.form.get("password")=="admin1234":
+            session['logged in']=True
+            return redirect("/admin")
         else:
-            flash('Email does not exist.',category='error')
+            if user:
+                if check_password_hash(user.password, password):
+                    flash('Logged in successfully',category='success')
+                    login_user(user,remember=True)
+                    return redirect(url_for('main.chooseid'))
+                else:
+                    flash('Incorrect password,try again',category='error')
+            else:
+                flash('Email does not exist.',category='error')
     
     return render_template("login.html",user=current_user)
 

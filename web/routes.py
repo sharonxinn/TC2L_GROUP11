@@ -50,7 +50,7 @@ def home():
 @bp.route('/base')
 def base():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
-    return render_template('base.html',user=current_user)
+    return render_template('base.html',user=current_user,profile=profile)
 
 def file_is_valid(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
@@ -59,10 +59,6 @@ def file_is_valid(filename):
 @bp.route('/sidebar')
 def sidebar():
     return render_template('sidebar.html',user=current_user)
-
-@bp.route('/base')
-def base():
-    return render_template('base.html',user=current_user)
 
 
 @bp.route('/profile', methods=['GET', 'POST'])
@@ -296,15 +292,25 @@ def remove_passenger(passenger_id, driver_id):
 
 # define route for changing password
 @bp.route('/change_password',methods=['GET','POST'])
+@login_required
 def change_password():
     if request.method == "POST":
         old_password = request.form.get('old_password')
         new_password = request.form.get('new_password')
         confirm_new_password = request.form.get('confirm_new_password')
+        if old_password == new_password:
+            flash("Old Password and New Password Are The Same.", category='error')
+        elif new_password != confirm_new_password:
+            flash("New Passwords Don't Match.",category="error")
+        elif check_password_hash(current_user.password, old_password):
+            current_user.password = generate_password_hash(new_password,method='scrypt')
+            db.session.commit()
+            flash('Password successfully changed.',category='success')
+        else:
+            db.session.rollback()
+            flash("Incorrect old password.",category='error')
 
-
-
-
+    return render_template('change_password.html',user=current_user)
 
 
 @bp.route('/complete_match/<int:match_id>', methods=['POST'])
@@ -356,6 +362,8 @@ def dashboard():
 
     return render_template('dashboard.html', profile=profile)
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
 @bp.route('/update_profile', methods=['POST'])
 @login_required
@@ -375,19 +383,23 @@ def update_profile():
         user.email = email
         db.session.commit()
 
+    # Handle profile picture upload
     if 'profile_pic' in request.files:
         file = request.files['profile_pic']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             upload_path = os.path.join('web', 'static', 'uploads')
+
+            # Ensure upload directory exists
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
+
             file_path = os.path.join(upload_path, filename)
-            print("Saving file to:", file_path)  # Debugging: Print file path
-            profile.profile_pic = filename
-            db.session.commit()
-    
+            file.save(file_path)
+
+            # Store relative path or URL to access it easily
+            profile.profile_pic = f'static/uploads/{filename}'
+
     db.session.commit()
     flash("Profile updated successfully!", category="success")
     return redirect(url_for('main.dashboard'))
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}

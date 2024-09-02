@@ -1,11 +1,10 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask
+from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask,session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import User, Driverspost, Profile,PassengerMatch
 from . import db
 from werkzeug.utils import secure_filename
 import os
-# from PIL import Image
 
 app = Flask(__name__)
 bp = Blueprint('main', __name__)
@@ -18,6 +17,7 @@ def login():
         password=request.form.get('password')
 
         user=User.query.filter_by(email=email).first()
+
         if user:
             if check_password_hash(user.password, password):
                 flash('Logged in successfully',category='success')
@@ -25,8 +25,20 @@ def login():
                 return redirect(url_for('main.base'))
             else:
                 flash('Incorrect password,try again',category='error')
+
+        if request.form.get("email")=="admin@gmail.com" and request.form.get("password")=="admin1234":
+            session['logged in']=True
+            return redirect("/admin")
         else:
-            flash('Email does not exist.',category='error')
+            if user:
+                if check_password_hash(user.password, password):
+                    flash('Logged in successfully',category='success')
+                    login_user(user,remember=True)
+                    return redirect(url_for('main.chooseid'))
+                else:
+                    flash('Incorrect password,try again',category='error')
+            else:
+                flash('Email does not exist.',category='error')
     
     return render_template("login.html",user=current_user)
 
@@ -36,6 +48,7 @@ def home():
 
 def file_is_valid(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
+
 
 @bp.route('/sidebar')
 def sidebar():
@@ -95,7 +108,6 @@ def profile():
         return redirect(url_for('main.chooseid'))
 
     return render_template('profile.html')
-
 
 
 
@@ -326,22 +338,9 @@ def booking_history():
     return render_template('booking_history.html', matches=passenger_matches, profile_dict=profile_dict)
 
 
-#@bp.route('/customize_profile', methods=["GET","POST"])
-#def customize_profile():
-    if request.method == "POST":
-        
-        if 'profile_pic' in request.files:
-            profile_pic = request.files['profile_pic']
-            
-            if profile_pic.filename != "":
-                if not file_is_valid(profile_pic.filename):
-                    flash("Invalid File Type: Only .jpg, .jpeg and .png Files Are Allowed.",category="error")
-                
-                else:
-                    cwd = os.getcwd()
-@bp.route('/dashboard')
-@login_required
-def dashboard():
+#@bp.route('/dashboard')
+#@login_required
+#def dashboard():
     # Fetch the user's profile data from the database
     profile = Profile.query.filter_by(user_id=current_user.id).first()
 
@@ -350,3 +349,65 @@ def dashboard():
         return redirect(url_for('main.profile'))
 
     return render_template('dashboard.html', profile=profile)
+
+
+@bp.route('/dashboard', methods=['GET'])
+@login_required
+def dashboard():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+
+    if profile is None:
+        flash("No profile found. Please complete your profile first.", category="error")
+        return redirect(url_for('main.profile'))
+
+    return render_template('dashboard.html', profile=profile)
+
+UPLOAD_FOLDER = '/static/uploads'
+def file_is_valid(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
+
+@bp.route('/update_profile', methods=['POST'])
+@login_required
+def update_profile():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+
+    if not profile:
+        flash("Profile not found.", category="error")
+        return redirect(url_for('main.dashboard'))
+
+    profile.fullName = request.form['fullName']
+    profile.contact = request.form['contact']
+    
+    email = request.form['email']
+    if email != current_user.email:
+        user = User.query.filter_by(id=current_user.id).first()
+        user.email = email
+        db.session.commit()
+
+    file = request.files.get('profile_pic')
+
+    # Handling file upload (if any)
+    if file and file.filename != '':
+        if file_is_valid(file.filename):
+            filename = secure_filename(file.filename)
+            upload_path = os.path.join(UPLOAD_FOLDER)
+
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
+            
+            file_path = os.path.join(upload_path, filename)
+            print("Saving file to:", file_path)  # Debugging: Print file path
+            
+            try:
+                file.save(file_path)
+                profile.profile_pic = filename  # Store the filename in the profile object
+            except Exception as e:
+                flash(f"An error occurred while saving the file: {e}", category="error")
+                return redirect(url_for('main.dashboard'))
+        else:
+            flash("Invalid file type. Only JPG, PNG, and JPEG files are allowed.", category="error")
+            return redirect(url_for('main.dashboard'))
+
+    db.session.commit()
+    flash("Profile updated successfully!", category="success")
+    return redirect(url_for('main.dashboard'))

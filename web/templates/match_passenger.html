@@ -5,6 +5,7 @@
 </head>
 <body>
     <h1>Match Driver</h1>
+    
 
     <h2>Your Information</h2>
     <table border="1">
@@ -22,6 +23,7 @@
             <th>DuitNow ID</th>
             <th>Message</th>
         </tr>
+
         <tr>
             <td>{{ profile_dict[driver.user_id].fullName }}</td>
             <td>{{ profile_dict[driver.user_id].gender }}</td>
@@ -36,6 +38,7 @@
             <td>{{ driver.duitnowid }}</td>
             <td>{{ driver.message }}</td>
         </tr>
+
 
     <h2>Passengers Who Selected You</h2>
     <table border="1">
@@ -67,7 +70,7 @@
         </tr>
         {% endfor %}
 
-    
+
     </table>
 
 

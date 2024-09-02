@@ -17,6 +17,15 @@ def login():
         password=request.form.get('password')
 
         user=User.query.filter_by(email=email).first()
+
+        if user:
+            if check_password_hash(user.password, password):
+                flash('Logged in successfully',category='success')
+                login_user(user,remember=True)
+                return redirect(url_for('main.base'))
+            else:
+                flash('Incorrect password,try again',category='error')
+
         if request.form.get("email")=="admin@gmail.com" and request.form.get("password")=="admin1234":
             session['logged in']=True
             return redirect("/admin")
@@ -39,6 +48,16 @@ def home():
 
 def file_is_valid(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
+
+
+@bp.route('/sidebar')
+def sidebar():
+    return render_template('sidebar.html',user=current_user)
+
+@bp.route('/base')
+def base():
+    return render_template('base.html',user=current_user)
+
 
 @bp.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -204,9 +223,6 @@ def drivers_list():
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
 
-    print("Profile Dict:", profile_dict)
-    for driver in drivers:
-        print(f"Driver ID: {driver.id}, User ID: {driver.user_id}")
 
     return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict)
 
@@ -266,7 +282,7 @@ def select_driver(driver_id):
 @login_required
 def remove_passenger(passenger_id, driver_id):
     passenger_match = PassengerMatch.query.filter_by(passenger_id=passenger_id, driver_id=driver_id).first_or_404()
-    if passenger_match.passenger_id == current_user.id or current_user.has_role('admin'):  # Add a condition to allow admin or the driver
+    if passenger_match.passenger_id == current_user.id or current_user.has_role('admin'):  
         db.session.delete(passenger_match)
         db.session.commit()
         flash('Passenger removed successfully', category='success')
@@ -280,23 +296,8 @@ def change_password():
         new_password = request.form.get('new_password')
         confirm_new_password = request.form.get('confirm_new_password')
 
-        if old_password == new_password:
-            flash("Old Password and New Password Are The Same.", category='error')
-
-        elif new_password != confirm_new_password:
-            flash("New Passwords Don't Match.",category="error")
-
-        elif check_password_hash(current_user.password, old_password):
-            current_user.password = generate_password_hash(new_password,method='scrypt')
-            db.session.commit()
-            flash('Password successfully changed.',category='success')
-
-        else:
-            db.session.rollback()
-            flash("Incorrect old password.",category='error')
 
 
-    return render_template('change_password.html',user=current_user)
 
 
 

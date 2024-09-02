@@ -1,128 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="../static/sidebar.css">
+
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-</head>
+    {% block htmlhead %}
+    {% endblock htmlhead %}
+  </head>
+  <body>
+    {% include 'sidebar.html' %}
+    <div class="right_box">    {% block content %}{% endblock %}</div>
 
-<body>
-    <script src="../static/js/index.js"></script>
-    <div class="sidebar">
-
-      <div class="logo_name">
-        <div class="logo">
-          <ion-icon name="car"></ion-icon>
-          <div class="name">MMU Carpooling</div>
-        </div>
-        <i class='bx bx-menu' id="btn" ></i>
-      </div>
-
-      <ul class="nav_list">
-        <li>
-            <i class='bx bx-search-alt-2' ></i>
-            <input type="text" placeholder="Search...">
-          <span class="tooltip">Search</span>
-        </li>
-
-        <li>
-          <a href="{{ url_for('main.drivers_list') }}">
-            <i class='bx bxs-dashboard'></i>
-            <span class="icon_name">Dashboard</span>
-          </a>
-          <span class="tooltip">Dashboard</span>
-        </li>
-
-        <li>
-          <a href="#">
-            <i class='bx bx-user'></i>
-            <span class="icon_name">Profile</span>
-          </a>
-          <span class="tooltip">Profile</span>
-        </li>
-
-        <li>
-          <a href="{{ url_for('main.googlemap') }}">
-            <i class='bx bx-map' ></i>
-            <span class="icon_name">Google Map</span>
-          </a>
-          <span class="tooltip">Google Map</span>
-        </li>
-
-        <li>
-          <a href="{{ url_for('main.booking_history') }}">
-            <i class='bx bx-history' ></i>
-            <span class="icon_name">Booking History</span>
-          </a>
-          <span class="tooltip">Booking History</span>
-        </li>
-
-        <li>
-          <a href="#">
-            <i class='bx bx-body'></i>
-            <span class="icon_name">Switch Identity</span>
-          </a>
-          <span class="tooltip">Switch Identity</span>
-        </li>
-
-        <li class="mode">
-          <div class="moon-sun">
-            <i class='bx bx-sun icon sun' ></i>
-            <i class='bx bx-moon icon moon' ></i>
-          </div>
-          <span class="mode_name">Dark Mode</span>
-
-          <div class="toggle-switch">
-            <span class="switch"></span>
-          </div>
-        </li>
-      </ul>
-
-      <div class="profile_content">
-        <div class="profile">
-          <div class="profile_details">
-            <img src="{{ profile.profile_pic }}"  width="40px" height="40px" alt="">
-            <div class="name_id">
-              <div class="name">Willie</div>
-              <div class="id">Driver</div>
-            </div>
-          </div>
-          <a href="/">
-            <i class='bx bx-exit' id="logout" ></i>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <div class="right_box">
-        {% block content %}{% endblock %}
-    </div>
-
-    <script>
-      let btn = document.querySelector("#btn");
-      let sidebar = document.querySelector(".sidebar");
-      let searchBtn = document.querySelector(".bx-search-alt-2");
-      let modeSwitch = document.querySelector(".toggle-switch");
-      let modeText = document.querySelector(".mode_name");
-      let body = document.querySelector("body");
-
-      btn.onclick = function(){
-        sidebar.classList.toggle("active");
-      }
-      searchBtn.onclick = function(){
-        sidebar.classList.toggle("active");
-      }
-      modeSwitch.onclick = function(){
-        body.classList.toggle("dark");
-        if(body.classList.contains("dark")){
-          modeText.innerText = "Light Mode"
-        }else{
-          modeText.innerText = "Dark Mode"
-        }
-      }
-    </script>
   </body>
 </html>

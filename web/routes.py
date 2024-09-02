@@ -8,6 +8,7 @@ import os
 
 app = Flask(__name__)
 bp = Blueprint('main', __name__)
+UPLOAD_FOLDER = '/web/static/uploads/'
 app.config['UPLOAD_FOLDER']='/web/static/uploads/'
 
 @bp.route('/login',methods=['GET','POST'])
@@ -36,6 +37,11 @@ def login():
 @bp.route('/')
 def home():
     return render_template('home.html',user=current_user)
+
+@bp.route('/base')
+def base():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    return render_template('base.html',user=current_user)
 
 def file_is_valid(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
@@ -337,18 +343,6 @@ def booking_history():
     return render_template('booking_history.html', matches=passenger_matches, profile_dict=profile_dict)
 
 
-#@bp.route('/dashboard')
-#@login_required
-#def dashboard():
-    # Fetch the user's profile data from the database
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
-
-    if profile is None:
-        flash("No profile found. Please complete your profile first.", category="error")
-        return redirect(url_for('main.profile'))
-
-    return render_template('dashboard.html', profile=profile)
-
 
 @bp.route('/dashboard', methods=['GET'])
 @login_required
@@ -361,9 +355,6 @@ def dashboard():
 
     return render_template('dashboard.html', profile=profile)
 
-UPLOAD_FOLDER = '/static/uploads'
-def file_is_valid(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
 
 @bp.route('/update_profile', methods=['POST'])
 @login_required
@@ -383,30 +374,19 @@ def update_profile():
         user.email = email
         db.session.commit()
 
-    file = request.files.get('profile_pic')
-
-    # Handling file upload (if any)
-    if file and file.filename != '':
-        if file_is_valid(file.filename):
+    if 'profile_pic' in request.files:
+        file = request.files['profile_pic']
+        if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            upload_path = os.path.join(UPLOAD_FOLDER)
-
-            if not os.path.exists(upload_path):
-                os.makedirs(upload_path)
-            
+            upload_path = os.path.join('web', 'static', 'uploads')
             file_path = os.path.join(upload_path, filename)
             print("Saving file to:", file_path)  # Debugging: Print file path
-            
-            try:
-                file.save(file_path)
-                profile.profile_pic = filename  # Store the filename in the profile object
-            except Exception as e:
-                flash(f"An error occurred while saving the file: {e}", category="error")
-                return redirect(url_for('main.dashboard'))
-        else:
-            flash("Invalid file type. Only JPG, PNG, and JPEG files are allowed.", category="error")
-            return redirect(url_for('main.dashboard'))
-
+            profile.profile_pic = filename
+            db.session.commit()
+    
     db.session.commit()
     flash("Profile updated successfully!", category="success")
     return redirect(url_for('main.dashboard'))
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}

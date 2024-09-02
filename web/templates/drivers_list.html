@@ -1,49 +1,69 @@
 {% extends "base.html" %}
-{% block title %}DriversList{% endblock %}
+{% block title %}Driver List{% endblock %}
 {% block content %}
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DriversList</title>
+    <link rel="stylesheet" href="../static/drivers_list.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
 </head>
+ 
 <body>
-    <h1>DriverList</h1>
-    <table border="1">
-        <tr>
-            <th>Full Name</th>
-            <th>Gender</th>
-            <th>Contact</th>
-            <th>DateandTime</th>
-            <th>Pick-Up Location</th>
-            <th>Drop-Off Location</th>
-            <th>Car Platet</th>
-            <th>Car Model</th>
-            <th>Maximum Number of Passengers</th>
-            <th>Fees</th>
-            <th>DuitNow ID</th>
-            <th>Message</th>
-        </tr>
-        {% for driver in drivers %}
-        <tr>
-            <td>{{ profile_dict[driver.user_id].fullName if profile_dict[driver.user_id] else 'N/A' }}</td>
-            <td>{{ profile_dict[driver.user_id].gender if profile_dict[driver.user_id] else 'N/A' }}</td>
-            <td>{{ profile_dict[driver.user_id].contact if profile_dict[driver.user_id] else 'N/A' }}</td>
-            <td>{{ driver.dateandTime }}</td>
-            <td>{{ driver.pickup }}</td>
-            <td>{{ driver.dropoff }}</td>
-            <td>{{ driver.carplate }}</td>
-            <td>{{ driver.carmodel }}</td>
-            <td>{{ driver.totalperson }}</td>
-            <td>{{ driver.fees }}</td>
-            <td>{{ driver.duitnowid }}</td>
-            <td>{{ driver.message }}</td>
-            <td><form action="{{ url_for('main.select_driver', driver_id=driver.id) }}" method="POST">
-                    <input type="submit" value="Select Driver" class="btn">
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <main class="table">
+
+        <section class="table_header">
+            <h1>Driver List</h1>
+        </section>
+
+        <section class="table_body">
+            <table border="1">
+                <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Gender</th>
+                    <th>Contact</th>
+                    <th>Date and Time</th>
+                    <th>Pick-Up Location</th>
+                    <th>Drop-Off Location</th>
+                    <th>Car Plate</th>
+                    <th>Car Model</th>
+                    <th>Maximum Number of Passengers</th>
+                    <th>Fees</th>
+                    <th>DuitNow ID</th>
+                    <th>Message</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for driver in drivers %}
+                <tr>
+                    <td>{{ profile_dict[driver.user_id].fullName if profile_dict[driver.user_id] else 'N/A' }}</td>
+                    <td>{{ profile_dict[driver.user_id].gender if profile_dict[driver.user_id] else 'N/A' }}</td>
+                    <td>{{ profile_dict[driver.user_id].contact if profile_dict[driver.user_id] else 'N/A' }}</td>
+                    <td>{{ driver.dateandTime }}</td>
+                    <td>{{ driver.pickup }}</td>
+                    <td>{{ driver.dropoff }}</td>
+                    <td>{{ driver.carplate }}</td>
+                    <td>{{ driver.carmodel }}</td>
+                    <td>{{ driver.totalperson }}</td>
+                    <td>{{ driver.fees }}</td>
+                    <td>{{ driver.duitnowid }}</td>
+                    <td>{{ driver.message }}</td>
+                    <td><form action="{{ url_for('main.select_driver', driver_id=driver.id) }}" method="POST">
+                            <input type="submit" value="Select Driver" class="btn">
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
 </body>
 </html>
 {% endblock %}

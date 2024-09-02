@@ -37,7 +37,10 @@ def home():
 def file_is_valid(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
 
-<<<<<<< HEAD
+@bp.route('/forgotpassword')
+def forgotpassword():
+    return render_template('forgotpassword.html',user=current_user)
+
 @bp.route('/sidebar')
 def sidebar():
     return render_template('sidebar.html',user=current_user)
@@ -46,11 +49,8 @@ def sidebar():
 def base():
     return render_template('base.html',user=current_user)
 
-@bp.route('/profile',methods=['GET', 'POST'])
-=======
 @bp.route('/profile', methods=['GET', 'POST'])
 @login_required
->>>>>>> master
 def profile():
     if request.method == 'POST':
         fullName = request.form['fullName']
@@ -108,7 +108,7 @@ def chooseid():
     if request.method == 'POST':
         role = request.form.get('role')
         if role == 'passenger':
-            return redirect(url_for('main.sidebar'))
+            return redirect(url_for('main.base'))
         elif role == 'driver':
             return redirect(url_for('main.driver_post'))
     return render_template('chooseid.html')
@@ -347,19 +347,7 @@ def booking_history():
     return render_template('booking_history.html', matches=passenger_matches, profile_dict=profile_dict)
 
 
-#@bp.route('/customize_profile', methods=["GET","POST"])
-#def customize_profile():
-    if request.method == "POST":
-        
-        if 'profile_pic' in request.files:
-            profile_pic = request.files['profile_pic']
-            
-            if profile_pic.filename != "":
-                if not file_is_valid(profile_pic.filename):
-                    flash("Invalid File Type: Only .jpg, .jpeg and .png Files Are Allowed.",category="error")
-                
-                else:
-                    cwd = os.getcwd()
+
 @bp.route('/dashboard')
 @login_required
 def dashboard():

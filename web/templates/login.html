@@ -97,62 +97,6 @@
           vid.playbackRate = 2;
         </script>
 
-        <div class="right">
-          <div class="right-word">
-            <h2 align="center">Log In</h2>
-
-            <form method="POST">
-            <form name="input" action="#" method="get">
-
-              <div class="typing">
-                <i class='bx bxs-envelope'></i>
-                <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" required>
-              </div>
-
-              <div class="typing">
-                <i class='bx bxs-lock-alt' ></i>
-                <ion-icon name="eye-off-outline" id="eyeicon"></ion-icon>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-              </div>
-
-              <script>
-                let eyeicon = document.getElementById("eyeicon");
-                let password = document.getElementById("password");
-
-                eyeicon.onclick = function(){
-                  if(password.type == "password"){
-                    password.type = "text";
-                    eyeicon.setAttribute('name', 'eye-outline');
-                  }else{
-                    password.type = "password";
-                    eyeicon.setAttribute('name', 'eye-off-outline')
-                  }
-                }
-              </script>
-
-              <div class="rmb-forgot">
-                  <label for="remember">
-                      <input type="checkbox" id="remember">
-                      Remember Me
-                  </label>
-                  <a href="/forgotpassword">Forgot Password?</a>
-              </div>
-
-              <a href="/dashboard">
-                  <button type="submit" class="btn">Log In</button>
-              </a>
-
-              <p class ="signup">
-                Don't have an account?
-                <a href="/signup">Sign Up</a>
-              </p>
-            </form>
-            </form>
-          </div>
-        </div>
-      </div>
-
-    </div>
 
     <style>
         .flashes {

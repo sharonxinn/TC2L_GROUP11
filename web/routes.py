@@ -1,14 +1,14 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask
+from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask,session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import User, Driverspost, Profile,PassengerMatch
 from . import db
 from werkzeug.utils import secure_filename
 import os
-# from PIL import Image
 
 app = Flask(__name__)
 bp = Blueprint('main', __name__)
+UPLOAD_FOLDER = '/web/static/uploads/'
 app.config['UPLOAD_FOLDER']='/web/static/uploads/'
 
 @bp.route('/login',methods=['GET','POST'])
@@ -18,15 +18,28 @@ def login():
         password=request.form.get('password')
 
         user=User.query.filter_by(email=email).first()
+
         if user:
             if check_password_hash(user.password, password):
                 flash('Logged in successfully',category='success')
                 login_user(user,remember=True)
-                return redirect(url_for('main.chooseid'))
+                return redirect(url_for('main.base'))
             else:
                 flash('Incorrect password,try again',category='error')
+
+        if request.form.get("email")=="admin@gmail.com" and request.form.get("password")=="admin1234":
+            session['logged in']=True
+            return redirect("/admin")
         else:
-            flash('Email does not exist.',category='error')
+            if user:
+                if check_password_hash(user.password, password):
+                    flash('Logged in successfully',category='success')
+                    login_user(user,remember=True)
+                    return redirect(url_for('main.chooseid'))
+                else:
+                    flash('Incorrect password,try again',category='error')
+            else:
+                flash('Email does not exist.',category='error')
     
     return render_template("login.html",user=current_user)
 
@@ -34,20 +47,19 @@ def login():
 def home():
     return render_template('home.html',user=current_user)
 
+@bp.route('/base')
+def base():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    return render_template('base.html',user=current_user,profile=profile)
+
 def file_is_valid(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
 
-@bp.route('/forgotpassword')
-def forgotpassword():
-    return render_template('forgotpassword.html',user=current_user)
 
 @bp.route('/sidebar')
 def sidebar():
     return render_template('sidebar.html',user=current_user)
 
-@bp.route('/base')
-def base():
-    return render_template('base.html',user=current_user)
 
 @bp.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -98,7 +110,6 @@ def profile():
         return redirect(url_for('main.chooseid'))
 
     return render_template('profile.html')
-
 
 
 
@@ -214,9 +225,6 @@ def drivers_list():
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
 
-    print("Profile Dict:", profile_dict)
-    for driver in drivers:
-        print(f"Driver ID: {driver.id}, User ID: {driver.user_id}")
 
     return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict)
 
@@ -276,7 +284,7 @@ def select_driver(driver_id):
 @login_required
 def remove_passenger(passenger_id, driver_id):
     passenger_match = PassengerMatch.query.filter_by(passenger_id=passenger_id, driver_id=driver_id).first_or_404()
-    if passenger_match.passenger_id == current_user.id or current_user.has_role('admin'):  # Add a condition to allow admin or the driver
+    if passenger_match.passenger_id == current_user.id or current_user.has_role('admin'):  
         db.session.delete(passenger_match)
         db.session.commit()
         flash('Passenger removed successfully', category='success')
@@ -284,30 +292,25 @@ def remove_passenger(passenger_id, driver_id):
 
 # define route for changing password
 @bp.route('/change_password',methods=['GET','POST'])
+@login_required
 def change_password():
     if request.method == "POST":
         old_password = request.form.get('old_password')
         new_password = request.form.get('new_password')
         confirm_new_password = request.form.get('confirm_new_password')
-
         if old_password == new_password:
             flash("Old Password and New Password Are The Same.", category='error')
-
         elif new_password != confirm_new_password:
             flash("New Passwords Don't Match.",category="error")
-
         elif check_password_hash(current_user.password, old_password):
             current_user.password = generate_password_hash(new_password,method='scrypt')
             db.session.commit()
             flash('Password successfully changed.',category='success')
-
         else:
             db.session.rollback()
             flash("Incorrect old password.",category='error')
 
-
     return render_template('change_password.html',user=current_user)
-
 
 
 @bp.route('/complete_match/<int:match_id>', methods=['POST'])
@@ -348,10 +351,9 @@ def booking_history():
 
 
 
-@bp.route('/dashboard')
+@bp.route('/dashboard', methods=['GET'])
 @login_required
 def dashboard():
-    # Fetch the user's profile data from the database
     profile = Profile.query.filter_by(user_id=current_user.id).first()
 
     if profile is None:
@@ -359,3 +361,45 @@ def dashboard():
         return redirect(url_for('main.profile'))
 
     return render_template('dashboard.html', profile=profile)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
+
+@bp.route('/update_profile', methods=['POST'])
+@login_required
+def update_profile():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+
+    if not profile:
+        flash("Profile not found.", category="error")
+        return redirect(url_for('main.dashboard'))
+
+    profile.fullName = request.form['fullName']
+    profile.contact = request.form['contact']
+    
+    email = request.form['email']
+    if email != current_user.email:
+        user = User.query.filter_by(id=current_user.id).first()
+        user.email = email
+        db.session.commit()
+
+    # Handle profile picture upload
+    if 'profile_pic' in request.files:
+        file = request.files['profile_pic']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            upload_path = os.path.join('web', 'static', 'uploads')
+
+            # Ensure upload directory exists
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
+
+            file_path = os.path.join(upload_path, filename)
+            file.save(file_path)
+
+            # Store relative path or URL to access it easily
+            profile.profile_pic = f'static/uploads/{filename}'
+
+    db.session.commit()
+    flash("Profile updated successfully!", category="success")
+    return redirect(url_for('main.dashboard'))

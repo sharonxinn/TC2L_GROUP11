@@ -85,18 +85,32 @@
                         <input type="number" id="totalperson" name="totalperson" required>
                     </div>
 
+                    
+                    <script>
+                        function feesFunction() {
+                            var fees = document.getElementById("fees").value;
+                            var duitnowid = document.getElementById("duitnowid");
+                
+                            if (fees === "RM1") {
+                                duitnowid.style.display = "block";
+                            } else {
+                                duitnowid.style.display = "none";
+                            }
+                        }
+                    </script>
+
                     <div class="inner-center">
                         <label for="fees">Fees</label>
                         <br>
-                        <select id="fees" name="fees">
-                            <option value="Free">Free</option>
+                        <select id="fees" name="fees" onchange="feesFunction()">
                             <option value="RM1" >RM1 per person</option>
+                            <option value="Free">Free</option>
                         </select><br>
                     </div>
 
+
                     <div class="inner-center">
-                        <label for="duitnowid">DuitNow ID</label>
-                        <br><input type="text" id="duitnowid"  name="duitnowid" placeholder="Enter Your ID"><br><br>
+                        <br><input type="text" id="duitnowid"  name="duitnowid" placeholder="Enter Your DuitNow ID"><br><br>
                     </div>
 
                     <div class="inner-center">

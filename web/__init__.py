@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask,redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager
-# import urllib.request
+from flask_login import LoginManager,logout_user,login_required
+from flask_admin import Admin,expose,BaseView
+from flask_admin.contrib.sqla import ModelView
 import os
 
 db = SQLAlchemy()
@@ -24,7 +25,7 @@ def create_app():
     
     db.init_app(app)
     login_manager.init_app(app)
-    login_manager.login_view = 'login'
+    login_manager.login_view = 'main.home'
 
     from .models import User, Driverspost, Profile, PassengerMatch
 
@@ -37,5 +38,25 @@ def create_app():
 
     from .routes import bp as main_bp
     app.register_blueprint(main_bp)
+    # Admin Logout View
+    class AdminLogoutView(BaseView):
+        @expose('/')
+        @login_required
+        def index(self):
+            logout_user()
+            flash("Logged Out Successfully!", category='success')
+            return redirect(url_for('main.home'))
+
+    # Setup Flask-Admin
+    admin = Admin(app)
+    admin.add_view(ModelView(User, db.session))
+    admin.add_view(ModelView(Driverspost, db.session))
+    admin.add_view(ModelView(Profile, db.session))
+    admin.add_view(ModelView(PassengerMatch, db.session))
+    admin.add_view(AdminLogoutView(name="Log Out",endpoint="logout"))
+
+
+
+
 
     return app

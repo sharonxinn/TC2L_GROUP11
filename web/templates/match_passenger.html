@@ -51,6 +51,7 @@
         {% for passenger in passengers %}
         <tr>
             <td>{{ profile_dict[passenger.passenger_id].fullName }}</td>
+            <td>{{ profile_dict[passenger.passenger_id].contact }}</td>
             <td>{{ profile_dict[passenger.passenger_id].gender }}</td>
             <td>
                 <form action="{{ url_for('main.remove_passenger', passenger_id=passenger.passenger_id, driver_id=driver.id) }}" method="POST">
@@ -58,6 +59,7 @@
                 </form>
                 <form action="{{ url_for('main.complete_match', match_id=passenger.id) }}" method="POST">
                     <input type="submit" value="Complete">
+                </form>                
                 </form>
                 <form action="{{ url_for('main.cancel_match', match_id=passenger.id) }}" method="POST">
                     <input type="submit" value="Cancel">

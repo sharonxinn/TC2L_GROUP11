@@ -21,7 +21,7 @@ class Driverspost(db.Model):
     fees = db.Column(db.String(100), nullable=False)
     duitnowid = db.Column(db.String(100), nullable=False)
     message = db.Column(db.String(100), nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='ongoing')
+    status = db.Column(db.String(20), nullable=False, default='in_progress')
     
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     passenger_matches = db.relationship('PassengerMatch', foreign_keys='PassengerMatch.driver_id', backref='driver_post', lazy=True)
@@ -32,6 +32,7 @@ class Profile(db.Model):
     gender = db.Column(db.String(100), nullable=False)
     birthyear=db.Column(db.String(15), nullable=False)
     contact = db.Column(db.String(15), nullable=False)
+    birthyear = db.Column(db.String(15), nullable=False)
     profile_pic = db.Column(db.String(200), default="default.jpg")  # Make sure this column is present
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
@@ -39,7 +40,7 @@ class PassengerMatch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     passenger_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     driver_id = db.Column(db.Integer, db.ForeignKey('driverspost.id'), nullable=False)
-    status = db.Column(db.String(20), nullable=False, default='ongoing')
+    status = db.Column(db.String(20), nullable=False, default='in_progress')
     
     passenger = db.relationship('User', foreign_keys=[passenger_id], backref='matches_as_passenger')
     driver = db.relationship('Driverspost', foreign_keys=[driver_id], backref='matches_as_driver')

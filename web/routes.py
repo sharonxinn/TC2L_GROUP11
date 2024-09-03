@@ -70,6 +70,7 @@ def profile():
     if request.method == 'POST':
         fullName = request.form['fullName']
         gender = request.form['gender']
+        birthyear = request.form['birthyear']
         contact = request.form['contact']
         file = request.files.get('file')
 
@@ -97,6 +98,7 @@ def profile():
             fullName=fullName,
             gender=gender,
             contact=contact,
+            birthyear=birthyear,
             user_id=current_user.id,
             profile_pic=image_url  # Assigning the image_url to profile_pic
         )

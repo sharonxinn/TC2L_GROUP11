@@ -87,7 +87,7 @@
           <div class="profile_details">
             <img src="{{ profile.profile_pic }}"  width="40px" height="40px" alt="Profile Picture">
             <div class="name_id">
-              <div class="name">Willie</div>
+              <div class="name">{{ profile.fullName }}</div>
               <div class="id">Driver</div>
             </div>
           </div>
@@ -98,9 +98,9 @@
       </div>
     </div>
 
-    <!-- <div class="right_box">
+    <div class="right_box">
         {% block content %}{% endblock %}
-    </div> -->
+    </div>
 
 
     <script>

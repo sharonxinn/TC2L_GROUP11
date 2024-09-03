@@ -25,7 +25,7 @@ def create_app():
     
     db.init_app(app)
     login_manager.init_app(app)
-    login_manager.login_view = 'main.login'
+    login_manager.login_view = 'main.home'
 
     from .models import User, Driverspost, Profile, PassengerMatch
 
@@ -45,7 +45,7 @@ def create_app():
         def index(self):
             logout_user()
             flash("Logged Out Successfully!", category='success')
-            return redirect(url_for('main.login'))
+            return redirect(url_for('main.home'))
 
     # Setup Flask-Admin
     admin = Admin(app)

@@ -62,7 +62,7 @@ def sidebar():
 
 @bp.route('/base')
 def base():
-    return render_template('base.html',user=current_user)
+    return render_template('base.html',user=current_user,profile=profile)
 
 
 @bp.route('/profile', methods=['GET', 'POST'])
@@ -238,7 +238,7 @@ def drivers_list():
     profile_dict = {profile.user_id: profile for profile in profiles}
 
 
-    return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict)
+    return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict,profile=profile)
 
 @bp.route('/user_list')
 @login_required
@@ -253,7 +253,7 @@ def profile_list():
     profiles = Profile.query.all()
 
     return render_template('profile_list.html', profiles=profiles)
-
+ 
 
 
 @bp.route('/match_passenger/<int:driver_id>')
@@ -296,10 +296,24 @@ def select_driver(driver_id):
 @login_required
 def remove_passenger(passenger_id, driver_id):
     passenger_match = PassengerMatch.query.filter_by(passenger_id=passenger_id, driver_id=driver_id).first_or_404()
-    if passenger_match.passenger_id == current_user.id or current_user.has_role('admin'):  
+    
+    # Allow the passenger, the driver, or an admin to remove the passenger
+    driver_post = Driverspost.query.get_or_404(driver_id)
+    if (passenger_match.passenger_id == current_user.id or
+        driver_post.user_id == current_user.id or
+        current_user.has_role('admin')):
+        
         db.session.delete(passenger_match)
         db.session.commit()
         flash('Passenger removed successfully', category='success')
+        
+        # Redirect depending on who performed the removal
+        if current_user.id == driver_post.user_id:
+            return redirect(url_for('main.match_driver', driver_id=driver_id))
+        else:
+            return redirect(url_for('main.match_passenger', driver_id=driver_id))
+    
+    flash('You do not have permission to remove this passenger.', category='error')
     return redirect(url_for('main.match_passenger', driver_id=driver_id))
 
 # define route for changing password
@@ -335,6 +349,27 @@ def cancel_match(match_id):
         flash('Match canceled successfully', category='success')
     return redirect(url_for('main.booking_history', driver_id=match.driver_id))
 
+
+@bp.route('/riderpost_history')
+@login_required
+def riderpost_history():
+    
+    passenger_matches = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
+                                            .join(Driverspost, PassengerMatch.driver_id == Driverspost.id) \
+                                            .filter((PassengerMatch.passenger_id == current_user.id) | 
+                                                    (Driverspost.user_id == current_user.id)) \
+                                            .all()
+    
+    profiles = Profile.query.all()
+    profile_dict = {profile.user_id: profile for profile in profiles}
+
+    return render_template('riderpost_history.html', matches=passenger_matches, profile_dict=profile_dict)
+
+@bp.route('/view_detail/<int:match_id>', methods=['GET', 'POST'])
+@login_required
+def view_detail(match_id):
+    match = PassengerMatch.query.get_or_404(match_id)
+    return redirect(url_for('main.match_passenger', driver_id=match.driver_id))
 
 @bp.route('/booking_history')
 @login_required

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Payment Proof</title>
+</head>
+<body>
+    <h1>Upload Payment Proof</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div>
+            <label for="passenger_name">Passenger Name</label>
+            {{ form.passenger_name }}
+        </div>
+        <div>
+            <label for="payment_proof">Payment Proof</label>
+            {{ form.payment_proof }}
+        </div>
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>

@@ -1,8 +1,6 @@
 from . import db
 from flask_login import UserMixin
 
-
-
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(150), unique=True)
@@ -46,5 +44,8 @@ class PassengerMatch(db.Model):
     passenger = db.relationship('User', foreign_keys=[passenger_id], backref='matches_as_passenger')
     driver = db.relationship('Driverspost', foreign_keys=[driver_id], backref='matches_as_driver')
 
-
+class PaymentProof(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    passenger_name = db.Column(db.String(100), nullable=False)
+    file_name = db.Column(db.String(100), nullable=False)
 

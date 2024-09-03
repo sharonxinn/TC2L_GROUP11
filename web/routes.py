@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask,session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
-from .models import User, Driverspost, Profile,PassengerMatch
+from .models import User, Driverspost, Profile,PassengerMatch,PaymentProof
+from .form import PaymentForm
 from . import db
 from werkzeug.utils import secure_filename
 import os
@@ -10,6 +11,7 @@ app = Flask(__name__)
 bp = Blueprint('main', __name__)
 UPLOAD_FOLDER = '/web/static/uploads/'
 app.config['UPLOAD_FOLDER']='/web/static/uploads/'
+app.config['UPLOAD_PAYMENT']='/web/static/payment/'
 
 #set up login page
 @bp.route('/login',methods=['GET','POST'])
@@ -388,3 +390,29 @@ def update_profile():
     db.session.commit()
     flash("Profile updated successfully!", category="success")
     return redirect(url_for('main.dashboard'))
+
+import os
+
+@bp.route('/upload', methods=['GET', 'POST'])
+def upload_payment_proof():
+    form = PaymentForm()
+    if form.validate_on_submit():
+        file = form.payment_proof.data
+        filename = secure_filename(file.filename)
+        upload_path = os.path.join('web', 'static', 'payment')
+
+        # Ensure upload directory exists
+        if not os.path.exists(upload_path):
+            os.makedirs(upload_path)
+
+        file_path = os.path.join(upload_path, filename)
+        file.save(file_path)
+
+        # Save the payment proof details to the database
+        payment_proof = PaymentProof(passenger_name=form.passenger_name.data, file_name=filename)
+        db.session.add(payment_proof)
+        db.session.commit()
+
+        flash('Payment proof uploaded successfully!', 'success')
+        return redirect(url_for('main.upload_payment_proof'))
+    return render_template('upload.html', form=form)

@@ -15,6 +15,8 @@ def login():
     if request.method=='POST':
         email=request.form.get('email')
         password=request.form.get('password')
+        entered_captcha = request.form.get('text')
+        generated_captcha = request.form.get('captcha_code')
 
         user=User.query.filter_by(email=email).first()
 
@@ -29,6 +31,10 @@ def login():
         if request.form.get("email")=="admin@gmail.com" and request.form.get("password")=="admin1234":
             session['logged in']=True
             return redirect("/admin")
+        
+        elif entered_captcha is None or entered_captcha.lower() != generated_captcha:
+            flash('Verification Code Error!', category='error')
+
         else:
             if user:
                 if check_password_hash(user.password, password):
@@ -66,6 +72,7 @@ def profile():
         fullName = request.form['fullName']
         gender = request.form['gender']
         contact = request.form['contact']
+        birthyear = request.form['birthyear']
         file = request.files.get('file')
 
         # Handling file upload (if any)
@@ -98,6 +105,7 @@ def profile():
             fullName=fullName,
             gender=gender,
             contact=contact,
+            birthyear=birthyear,
             user_id=current_user.id,
             profile_pic=image_url  # Assigning the image_url to profile_pic
         )
@@ -117,7 +125,7 @@ def chooseid():
     if request.method == 'POST':
         role = request.form.get('role')
         if role == 'passenger':
-            return redirect(url_for('main.sidebar'))
+            return redirect(url_for('main.base'))
         elif role == 'driver':
             return redirect(url_for('main.driver_post'))
     return render_template('chooseid.html')
@@ -141,6 +149,8 @@ def sign_up():
         email=request.form.get('email')
         password1=request.form.get('password1')
         password2=request.form.get('password2')
+        entered_captcha = request.form.get('text')
+        generated_captcha = request.form.get('captcha_code')
 
         user=User.query.filter_by(email=email).first()
         if user:
@@ -153,6 +163,8 @@ def sign_up():
             flash('Password does not match.',category='error')
         elif len(password1)<7:
             flash('Password must be greater than 6 characters.',category='error')
+        elif entered_captcha is None or entered_captcha.lower() != generated_captcha:
+            flash('Verification Code Error!', category='error')
         else:
             new_user=User(email=email,password=generate_password_hash(password1,method='pbkdf2:sha256'))
             db.session.add(new_user)
@@ -177,6 +189,8 @@ def sign_up():
 
 
 
+
+
 @bp.route('/driver_post', methods=['GET', 'POST'])
 @login_required
 def driver_post():
@@ -191,7 +205,7 @@ def driver_post():
         fees = request.form['fees']
         duitnowid = request.form['duitnowid']
         message = request.form['message']
-        status = 'ongoing'
+        status = 'in_progress'
 
         new_Driverspost = Driverspost(
             dateandTime=dateandTime,
@@ -219,7 +233,7 @@ def driver_post():
 @bp.route('/drivers_list')
 @login_required
 def drivers_list():
-    drivers = Driverspost.query.filter_by(status='ongoing')
+    drivers = Driverspost.query.filter_by(status='in_progress')
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
 
@@ -248,7 +262,7 @@ def match_passenger(driver_id):
     driver = Driverspost.query.get_or_404(driver_id)
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
-    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='ongoing').all()  
+    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='in_progress').all()  
     return render_template('match_passenger.html', driver=driver, passengers=passengers, profile_dict=profile_dict)
 
 @bp.route('/match_driver/<int:driver_id>')
@@ -257,7 +271,7 @@ def match_driver(driver_id):
     driver = Driverspost.query.get_or_404(driver_id)
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
-    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='ongoing').all() 
+    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='in_progress').all() 
     return render_template('match_driver.html', driver=driver, passengers=passengers, profile_dict=profile_dict)
 
 @bp.route('/select_driver/<int:driver_id>', methods=['POST'])
@@ -265,7 +279,7 @@ def match_driver(driver_id):
 def select_driver(driver_id):
     selected_driver = Driverspost.query.get_or_404(driver_id)
     
-    existing_match = PassengerMatch.query.filter_by(passenger_id=current_user.id, driver_id=driver_id).first()
+    existing_match = PassengerMatch.query.filter_by(passenger_id=current_user.id, driver_id=driver_id, status="in_progress").first()
     if existing_match:
         flash('You have already selected this driver.', 'info')
         return redirect(url_for('main.drivers_list'))

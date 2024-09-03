@@ -56,7 +56,4 @@ def create_app():
     admin.add_view(AdminLogoutView(name="Log Out",endpoint="logout"))
 
 
-
-
-
     return app

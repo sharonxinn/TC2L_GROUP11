@@ -1,5 +1,4 @@
 from . import db
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
 
@@ -33,6 +32,7 @@ class Profile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     fullName = db.Column(db.String(150))
     gender = db.Column(db.String(100), nullable=False)
+    birthyear=db.Column(db.String(15), nullable=False)
     contact = db.Column(db.String(15), nullable=False)
     profile_pic = db.Column(db.String(200), default="default.jpg")  # Make sure this column is present
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)

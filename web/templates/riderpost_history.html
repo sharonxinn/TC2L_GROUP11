@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RiderPost History</title>
+</head>
+<body>
+    <h1>Booking History</h1>
+    <table border="1">
+        <tr>
+            <th>Driver Name</th>
+            <th>Date and Time</th>
+            <th>Pick-Up Location</th>
+            <th>Drop-Off Location</th>
+            <th>Passenger Name</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+        {% for match in matches %}
+        <tr>
+            <td>{{ profile_dict[match.driver.user.user_id].fullName if profile_dict[match.driver.user.user_id] else 'N/A' }}</td>
+            <td>{{ match.driver.dateandTime }}</td>
+            <td>{{ match.driver.pickup }}</td>
+            <td>{{ match.driver.dropoff }}</td>
+            <td>{{ profile_dict[match.passenger_id].fullName if profile_dict[match.passenger_id] else 'N/A' }}</td>
+            <td>{{ match.status }}</td>
+            <td>
+                <form action="{{ url_for('main.view_detail', match_id=match.id) }}" method="POST">
+                    <input type="submit" value="View Detail">
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

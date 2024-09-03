@@ -70,9 +70,10 @@
                         </script>
 
                         <div class="typing">
-                            <input id="text" type="text" value="" placeholder="Enter the Verification Code" class="input-val"><br>
+                            <input id="text" type="text" name="text" placeholder="Enter the Verification Code" required>
                         </div>
-                            <canvas id="canvas" width="100" height="40" onclick="dj()" style="border: 1px solid #ccc; border-radius: 5px;"></canvas>
+                        <canvas id="canvas" width="100" height="40" onclick="dj()" style="border: 1px solid #ccc; border-radius: 5px;"></canvas>
+                        <input type="hidden" id="captcha_code" name="captcha_code">
 
 
 
@@ -81,73 +82,81 @@
                                 draw(show_num);
 
                                 function dj() {
-                                    draw(show_num);
+                                draw(show_num);
                                 }
 
                                 function sublim(){
-                                    var val = document.getElementById("text").value;
-                                    var num = show_num.join('');
-                                    if (val == '') {
+                                var val = document.getElementById("text").value;
+                                var num = show_num.join('');
+                                if (val == '') {
                                     alert('Please Enter Vertification Code');
-                                    } else if (val == num){
-                                        alert('Summit Success!');
-                                        document.getElementById(".input-val").val('');
-                                        draw(show_num);
+                                } else if (val == num){
+                                    alert('Summit Success!');
+                                    document.getElementById(".input-val").val('');
+                                    draw(show_num);
 
-                                    }else{
+                                }else{
                                     alert('Vertification Code Error!')
                                     document.getElementById('text').value = '';
                                     draw(show_num);
+                                }
+                                }
+
+                                function draw(show_num) {
+                                    var canvas_width = document.getElementById('canvas').clientWidth;
+                                    var canvas_height = document.getElementById('canvas').clientHeight;
+                                    var canvas = document.getElementById("canvas");
+                                    var context = canvas.getContext("2d");
+                                    canvas.width = canvas_width;
+                                    canvas.height = canvas_height;
+                                    var sCode = "a,b,c,d,e,f,g,h,i,j,k,m,n,p,q,r,s,t,u,v,w,x,y,z,A,B,C,E,F,G,H,J,K,L,M,N,P,Q,R,S,T,W,X,Y,Z,1,2,3,4,5,6,7,8,9,0";
+                                    var aCode = sCode.split(",");
+                                    var aLength = aCode.length;
+
+                                    var captchaValue = "";
+
+                                    for (var i = 0; i < 4; i++) {
+                                        var j = Math.floor(Math.random() * aLength);
+
+                                        var deg = Math.random() - 0.5;
+                                        var txt = aCode[j];
+                                        show_num[i] = txt.toLowerCase();
+                                        captchaValue += txt.toLowerCase();  
+
+                                        var x = 10 + i * 20;
+                                        var y = 20 + Math.random() * 8;
+                                        context.font = "bold 25px serif";
+
+                                        context.translate(x, y);
+                                        context.rotate(deg);
+
+                                        context.fillStyle = randomColor();
+                                        context.fillText(txt, 0, 0);
+
+                                        context.rotate(-deg);
+                                        context.translate(-x, -y);
+                                    }
+
+                                    document.getElementById("captcha_code").value = captchaValue;
+
+                                    for (var i = 0; i <= 5; i++) {
+                                        context.strokeStyle = randomColor();
+                                        context.beginPath();
+                                        context.moveTo(Math.random() * canvas_width, Math.random() * canvas_height);
+                                        context.lineTo(Math.random() * canvas_width, Math.random() * canvas_height);
+                                        context.stroke();
+                                    }
+                                    for (var i = 0; i <= 30; i++) {
+                                        context.strokeStyle = randomColor();
+                                        context.beginPath();
+                                        var x = Math.random() * canvas_width;
+                                        var y = Math.random() * canvas_height;
+                                        context.moveTo(x, y);
+                                        context.lineTo(x + 1, y + 1);
+                                        context.stroke();
                                     }
                                 }
 
-                            function draw(show_num) {
-                                var canvas_width=document.getElementById('canvas').clientWidth;
-                                var canvas_height=document.getElementById('canvas').clientHeight;
-                                var canvas = document.getElementById("canvas");
-                                var context = canvas.getContext("2d");
-                                canvas.width = canvas_width;
-                                canvas.height = canvas_height;
-                                var sCode = "a,b,c,d,e,f,g,h,i,j,k,m,n,p,q,r,s,t,u,v,w,x,y,z,A,B,C,E,F,G,H,J,K,L,M,N,P,Q,R,S,T,W,X,Y,Z,1,2,3,4,5,6,7,8,9,0";
-                                var aCode = sCode.split(",");
-                                var aLength = aCode.length;
-                                
-                                for (var i = 0; i < 4; i++) {  
-                                    var j = Math.floor(Math.random() * aLength);
-
-                                    var deg = Math.random() - 0.5; 
-                                    var txt = aCode[j];
-                                    show_num[i] = txt.toLowerCase();
-                                    var x = 10 + i * 20;
-                                    var y = 20 + Math.random() * 8;
-                                    context.font = "bold 25px serif";
-
-                                    context.translate(x, y);
-                                    context.rotate(deg);
-
-                                    context.fillStyle = randomColor();
-                                    context.fillText(txt, 0, 0);
-
-                                    context.rotate(-deg);
-                                    context.translate(-x, -y);
-                                }
-                                for (var i = 0; i <= 5; i++) { 
-                                    context.strokeStyle = randomColor();
-                                    context.beginPath();
-                                    context.moveTo(Math.random() * canvas_width, Math.random() * canvas_height);
-                                    context.lineTo(Math.random() * canvas_width, Math.random() * canvas_height);
-                                    context.stroke();
-                                }
-                                for (var i = 0; i <= 30; i++) {
-                                    context.strokeStyle = randomColor();
-                                    context.beginPath();
-                                    var x = Math.random() * canvas_width;
-                                    var y = Math.random() * canvas_height;
-                                    context.moveTo(x, y);
-                                    context.lineTo(x + 1, y + 1);
-                                    context.stroke();
-                                }
-                            }
 
 
                             function randomColor() {

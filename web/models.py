@@ -46,6 +46,5 @@ class PassengerMatch(db.Model):
 
 class PaymentProof(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    passenger_name = db.Column(db.String(100), nullable=False)
     file_name = db.Column(db.String(100), nullable=False)
 

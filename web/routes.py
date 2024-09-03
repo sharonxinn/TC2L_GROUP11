@@ -311,7 +311,8 @@ def complete_match(match_id):
     if match.driver.user_id == current_user.id or match.passenger_id == current_user.id:
         match.status = 'completed'
         db.session.commit()
-        flash('Match completed successfully', category='success')
+        flash('Match completed successfully. Please make the payment.', category='success')
+        return redirect(url_for('main.upload_payment_proof'))
     return redirect(url_for('main.booking_history', driver_id=match.driver_id))
 
 #set up cancel match page
@@ -391,28 +392,35 @@ def update_profile():
     flash("Profile updated successfully!", category="success")
     return redirect(url_for('main.dashboard'))
 
-import os
-
+#upload payment proof
 @bp.route('/upload', methods=['GET', 'POST'])
 def upload_payment_proof():
     form = PaymentForm()
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
     if form.validate_on_submit():
-        file = form.payment_proof.data
-        filename = secure_filename(file.filename)
-        upload_path = os.path.join('web', 'static', 'payment')
+        payment_method = form.payment_method.data
 
-        # Ensure upload directory exists
-        if not os.path.exists(upload_path):
-            os.makedirs(upload_path)
+        if payment_method == 'upload':
+            file = form.payment_proof.data
+            filename = secure_filename(file.filename)
+            upload_path = os.path.join('web', 'static', 'payment')
 
-        file_path = os.path.join(upload_path, filename)
-        file.save(file_path)
+            # Ensure upload directory exists
+            if not os.path.exists(upload_path):
+                os.makedirs(upload_path)
 
-        # Save the payment proof details to the database
-        payment_proof = PaymentProof(passenger_name=form.passenger_name.data, file_name=filename)
-        db.session.add(payment_proof)
-        db.session.commit()
+            file_path = os.path.join(upload_path, filename)
+            file.save(file_path)
 
-        flash('Payment proof uploaded successfully!', 'success')
-        return redirect(url_for('main.upload_payment_proof'))
-    return render_template('upload.html', form=form)
+            # Save the payment proof details to the database
+            payment_proof = PaymentProof(file_name=filename)
+            db.session.add(payment_proof)
+            db.session.commit()
+
+            flash('Payment proof uploaded successfully!', 'success')
+        elif payment_method == 'cash':
+            flash('You have chosen to pay by cash.', 'info')
+
+        return redirect(url_for('main.booking_history'))
+    
+    return render_template('upload.html', form=form,profile=profile)

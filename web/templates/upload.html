@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Payment Proof</title>
+    <script>
+        function toggleUploadField() {
+            var paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+            var uploadField = document.getElementById('upload_field');
+            uploadField.style.display = paymentMethod === 'upload' ? 'block' : 'none';
+        }
+    </script>
 </head>
 <body>
     <h1>Upload Payment Proof</h1>
@@ -11,13 +18,23 @@
         {{ form.hidden_tag() }}
         <div>
             <label for="passenger_name">Passenger Name</label>
-            {{ form.passenger_name }}
+            <p>{{ profile.fullName }}</p>
         </div>
         <div>
+            <label for="payment_method">Payment Method</label>
+            <div>
+                <input type="radio" name="payment_method" value="upload" checked onclick="toggleUploadField()"> Upload Payment Proof
+                <input type="radio" name="payment_method" value="cash" onclick="toggleUploadField()"> Pay by Cash
+            </div>
+        </div>
+        <div id="upload_field">
             <label for="payment_proof">Payment Proof</label>
             {{ form.payment_proof }}
         </div>
-        <button type="submit">Upload</button>
+        <button type="submit">Submit</button>
     </form>
+    <script>
+        toggleUploadField();
+    </script>
 </body>
 </html>

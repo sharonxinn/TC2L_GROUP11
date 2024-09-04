@@ -291,7 +291,7 @@ def select_driver(driver_id):
     db.session.commit()
     
     flash('Driver selected successfully.', category='success')
-    return redirect(url_for('main.match_driver', driver_id=driver_id))
+    return redirect(url_for('main.booking_history', driver_id=driver_id))
 
 #set up remove passenger page
 @bp.route('/remove_passenger/<int:passenger_id>/<int:driver_id>', methods=['POST'])
@@ -330,64 +330,64 @@ def change_password():
 
 
 
-#set up complete match page
 @bp.route('/complete_match/<int:match_id>', methods=['POST'])
-@login_required
 def complete_match(match_id):
-    match = PassengerMatch.query.get_or_404(match_id)
-    if match.driver.user_id == current_user.id or match.passenger_id == current_user.id:
-        match.status = 'completed'
+    match = PassengerMatch.query.get(match_id)
+    if match:
+        match.status = 'complete'
         db.session.commit()
-        flash('Match completed successfully', category='success')
-    return redirect(url_for('main.booking_history', driver_id=match.driver_id))
 
-#set up cancel match page
+        driver_post = match.driver_post
+        driver_post.status = ' completed '
+        db.session.commit()
+
+    return redirect(url_for('main.booking_history'))
+
 @bp.route('/cancel_match/<int:match_id>', methods=['POST'])
-@login_required
 def cancel_match(match_id):
-    match = PassengerMatch.query.get_or_404(match_id)
-    if match.driver.user_id == current_user.id or match.passenger_id == current_user.id:
+    match = PassengerMatch.query.get(match_id)
+    if match:
         match.status = 'canceled'
         db.session.commit()
-        flash('Match canceled successfully', category='success')
-    return redirect(url_for('main.booking_history', driver_id=match.driver_id))
+
+        driver_post = match.driver_post
+        driver_post.status = 'canceled'
+        db.session.commit()
+
+    return redirect(url_for('main.booking_history'))
 
 
-@bp.route('/riderpost_history')
+
+
+@bp.route('/view_detail_d/<int:match_id>', methods=['GET', 'POST'])
 @login_required
-def riderpost_history():
-    
-    passenger_matches = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
-                                            .join(Driverspost, PassengerMatch.driver_id == Driverspost.id) \
-                                            .filter((PassengerMatch.passenger_id == current_user.id) | 
-                                                    (Driverspost.user_id == current_user.id)) \
-                                            .all()
-    
-    profiles = Profile.query.all()
-    profile_dict = {profile.user_id: profile for profile in profiles}
-
-    return render_template('riderpost_history.html', matches=passenger_matches, profile_dict=profile_dict)
-
-@bp.route('/view_detail/<int:match_id>', methods=['GET', 'POST'])
-@login_required
-def view_detail(match_id):
+def view_detail_d(match_id):
     match = PassengerMatch.query.get_or_404(match_id)
     return redirect(url_for('main.match_passenger', driver_id=match.driver_id))
+
+@bp.route('/view_detail_p/<int:match_id>', methods=['GET', 'POST'])
+@login_required
+def view_detail_p(match_id):
+    match = PassengerMatch.query.get_or_404(match_id)
+    return redirect(url_for('main.match_driver', driver_id=match.driver_id))
 
 #set up bookinh history page
 @bp.route('/booking_history')
 @login_required
-def booking_history():
+def riderpost_history():
+    # Get all matches where the current user is a passenger
     passenger_matches = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
                                             .join(Driverspost, PassengerMatch.driver_id == Driverspost.id) \
-                                            .filter((PassengerMatch.passenger_id == current_user.id) | 
-                                                    (Driverspost.user_id == current_user.id)) \
+                                            .filter(PassengerMatch.passenger_id == current_user.id) \
                                             .all()
-    
+
+    # Get all drivers posts where the current user is the driver
+    driver_posts = Driverspost.query.filter_by(user_id=current_user.id).all()
+
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
 
-    return render_template('booking_history.html', matches=passenger_matches, profile_dict=profile_dict)
+    return render_template('booking_history.html', passenger_matches=passenger_matches, driver_posts=driver_posts, profile_dict=profile_dict)
 
 
 #@bp.route('/dashboard')

@@ -110,6 +110,14 @@
     font-size: 15px;
   }
 
+  .typing canvas{
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
+
   .rmb-forgot{
     display: flex;
     justify-content: space-between;

@@ -1,0 +1,83 @@
+{% extends "base_passenger.html" %}
+{% block title %}Edit Profile{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="../static/editprofile.css">
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function(){
+                const output = document.getElementById('profilePicPreview');
+                output.src = reader.result;
+                output.style.display = 'block'; // Ensure the image is visible
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Edit Profile</h1>
+
+        <div class="details">
+            <form action="{{ url_for('main.editprofile') }}" method="POST" enctype="multipart/form-data">
+
+                <div class="pic">
+                    <!-- Show uploaded profile picture -->
+                    {% if profile.profile_pic %}
+                        <img id="profilePicPreview" src="{{ url_for('static', filename=profile.profile_pic.split('static/')[-1]) }}" alt="Profile Picture" style="max-width: 150px; max-height: 150px;">
+                    {% else %}
+                        <img id="profilePicPreview" src="#" alt="Profile Picture" style="display: none; max-width: 150px; max-height: 150px;">
+                    {% endif %}
+
+                    <div class="change">
+                        <!-- Profile picture upload -->
+                        <input type="file" id="profile_pic" name="profile_pic" onchange="previewImage(event)">
+                    </div>
+                </div>
+
+                <div class="info">
+                    <div class="row">
+                        <div class="title">Full Name</div>
+                        <div class="ans">
+                            <input type="text" id="fullName" name="fullName" value="{{ profile.fullName }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="title">Contact</div>
+                        <div class="ans">
+                            <input type="text" id="contact" name="contact" value="{{ profile.contact }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="title">Email</div>
+                        <div class="ans">
+                            <input type="email" id="email" name="email" value="{{ current_user.email }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="title">Change Password</div>
+                        <div class="ans">
+                            <a href="{{ url_for('main.change_password') }}">
+                                <button type="button" class="btn1">Change Password</button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn">Confirm Edit</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}

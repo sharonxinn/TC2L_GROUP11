@@ -1,5 +1,4 @@
-
-{% extends "base.html" %}
+{% extends "base_passenger.html" %}
 {% block title %}Driver List{% endblock %}
 {% block content %}
 <!DOCTYPE html>
@@ -9,8 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DriversList</title>
     <link rel="stylesheet" href="../static/drivers_list.css">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
  
 <body>
@@ -20,8 +18,22 @@
             <h1>Driver List</h1>
         </section>
 
+        <div class="search">
+            <div class="selection">
+                <select id="columnSelect">
+                    <option value="all">All Columns</option>
+                    <option value="5">Pick-Up Location</option>
+                    <option value="6">Drop-Off Location</option>
+                </select>
+            </div>
+            
+            <div class="searchbar">
+                <input id="columnSearch" type="text" placeholder="Search Location">
+            </div>
+        </div>
+
         <section class="table_body">
-            <table border="1">
+            <table border="1" id="myTable">
                 <thead>
                 <tr>
                     <th>Full Name</th>
@@ -63,6 +75,69 @@
                 </tbody>
             </table>
         </section>
+
+        <script>
+            $(document).ready(function () {
+                // Function to filter table based on search input and selected column
+                function filterTable(columnValue, selectedColumn) {
+                    $("#myTable tr").each(function (index) {
+                        if (index === 0) return; // Skip the header row
+
+                        let matchColumn = true;
+
+                        if (selectedColumn !== "all" && columnValue !== "") {
+                            let columnIndex = parseInt(selectedColumn, 10);
+                            let columnData = $(this).find("td:nth-child(" + columnIndex + ")").text().toLowerCase();
+                            matchColumn = columnData.indexOf(columnValue) > -1;
+                        }
+
+                        $(this).toggle(matchColumn);
+                    });
+                }
+
+                // Listen to the column search input
+                $("#columnSearch").on("keyup", function () {
+                    let columnValue = $(this).val().toLowerCase();
+                    let selectedColumn = $("#columnSelect").val();
+                    filterTable(columnValue, selectedColumn);
+                });
+
+                // Listen to the sidebar search input
+                $("#sidebarSearch").on("keyup", function () {
+                    let columnValue = $(this).val().toLowerCase();
+                    let selectedColumn = $("#columnSelect").val();
+                    $("#columnSearch").val(columnValue); // Sync with column search input
+                    filterTable(columnValue, selectedColumn);
+                });
+
+                // You can also trigger the search when the column select dropdown changes
+                $("#columnSelect").on("change", function () {
+                    let columnValue = $("#sidebarSearch").val().toLowerCase();
+                    let selectedColumn = $(this).val();
+                    filterTable(columnValue, selectedColumn);
+                });
+            });
+            // $(document).ready(function () {
+            //     $("#columnSearch").on("keyup", function () {
+            //         let columnValue = $("#columnSearch").val().toLowerCase();
+            //         let selectedColumn = $("#columnSelect").val();
+                    
+            //         $("#myTable tr").each(function (index) {
+            //             if (index === 0) return;
+    
+            //             let matchColumn = true;
+    
+            //             if (selectedColumn !== "all" && columnValue !== "") {
+            //                 let columnIndex = parseInt(selectedColumn, 10);
+            //                 let columnData = $(this).find("td:nth-child(" + columnIndex + ")").text().toLowerCase();
+            //                 matchColumn = columnData.indexOf(columnValue) > -1;
+            //             }
+    
+            //             $(this).toggle(matchColumn);
+            //         });
+            //     });
+            // });
+        </script>
     </main>
 </body>
 </main>

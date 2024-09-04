@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
-
+    <link rel="stylesheet" href="../static/sidebar.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-</head>
+  </head>
 
 <body>
     <div class="sidebar">
@@ -23,7 +23,7 @@
       <ul class="nav_list">
         <li>
             <i class='bx bx-search-alt-2' ></i>
-            <input type="text" placeholder="Search...">
+            <input type="text" id="sidebarSearch" placeholder="Search Location">
           <span class="tooltip">Search</span>
         </li>
 
@@ -83,9 +83,9 @@
       <div class="profile_content">
         <div class="profile">
           <div class="profile_details">
-            <img src="../static/pic&video/profilepic.png" alt="Profile Picture" width="40px" height="40px">
+            <img src="{{ profile.profile_pic }}"  width="40px" height="40px" alt="Profile Picture">
             <div class="name_id">
-              <div class="name">Willie</div>
+              <div class="name">{{ profile.fullName }}</div>
               <div class="id">Driver</div>
             </div>
           </div>
@@ -108,18 +108,31 @@
       let modeText = document.querySelector(".mode_name");
       let body = document.querySelector("body");
 
+      if(localStorage.getItem("dark-mode") === "enabled"){
+        body.classList.add("dark");
+        modeText.innerText = "Light Mode";
+      }
+
+      if(localStorage.getItem("sidebar-active") === "true"){
+        sidebar.classList.add("active");
+      }
+
       btn.onclick = function(){
         sidebar.classList.toggle("active");
+        localStorage.setItem("sidebar-active", sidebar.classList.contains("active"));
       }
       searchBtn.onclick = function(){
         sidebar.classList.toggle("active");
+        localStorage.setItem("sidebar-active", sidebar.classList.contains("active"));
       }
       modeSwitch.onclick = function(){
         body.classList.toggle("dark");
         if(body.classList.contains("dark")){
-          modeText.innerText = "Light Mode"
+          modeText.innerText = "Light Mode";
+          localStorage.setItem("dark-mode", "enabled");
         }else{
-          modeText.innerText = "Dark Mode"
+          modeText.innerText = "Dark Mode";
+          localStorage.setItem("dark-mode", "disabled");
         }
       }
     </script>

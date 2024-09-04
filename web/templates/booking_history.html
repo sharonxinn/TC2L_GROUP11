@@ -1,28 +1,44 @@
-{% extends "base.html" %}
+{% extends "base_passenger.html" %}
 {% block title %}Booking History{% endblock %}
 {% block content %}
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking History</title>
+    <link rel="stylesheet" href="../static/booking_history.css">
 </head>
 <body>
-    <h1>Booking History</h1>
-    <table border="1">
-        <tr>
-            <th>Driver Name</th>
-            <th>Passenger Name</th>
-            <th>Status</th>
-        </tr>
-        {% for match in matches %}
-        <tr>
-            <td>{{ profile_dict[match.driver.user_id].fullName if profile_dict[match.driver.user_id] else 'N/A' }}</td>
-            <td>{{ profile_dict[match.passenger_id].fullName if profile_dict[match.passenger_id] else 'N/A' }}</td>
-            <td>{{ match.status }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="container">
+
+        <div class="header">
+            <h1>Booking History</h1>
+        </div>
+
+        <div class="table_body">
+            <table border="1">
+                <thead>
+                <tr>
+                    <th>Driver Name</th>
+                    <th>Passenger Name</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for match in matches %}
+                <tr>
+                    <td>{{ profile_dict[match.driver.user_id].fullName if profile_dict[match.driver.user_id] else 'N/A' }}</td>
+                    <td>{{ profile_dict[match.passenger_id].fullName if profile_dict[match.passenger_id] else 'N/A' }}</td>
+                    <td>{{ match.status }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </body>
 </html>
 

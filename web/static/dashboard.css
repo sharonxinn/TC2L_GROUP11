@@ -42,7 +42,7 @@
     /* overflow: hidden; */
   }
 
-  main.table{
+  .container{
     position: absolute;
     top: 20px;
     bottom: 20px;
@@ -52,91 +52,88 @@
     border-radius: 50px;
     transition: all 0.5s ease;
     /* z-index: -1; */
-  }
-
-  .sidebar.active ~ .right_box main.table {
-    left: 300px;
-}
-
-  .table_header{
-    font-size: 22px;
-    color: var(--text-color);
-    padding-top: 10px;
-    padding-left: 60px;
-    pointer-events: none;
-  }
-
-  .search{
-    display: flex;
-    justify-content: right;
-    width: 95%;
-    gap: 10px;
-  }
-
-  .table_body{
-    width: 95%;
-    max-height: calc(85% - .8rem);
-    margin: .8rem auto;
-    color: var(--text-color);
-    overflow: auto;
-    border-radius: 30px;
-    /* text-overflow: ellipsis; */
-  }
-
-  .table_body::-webkit-scrollbar{
-    width: 0.5rem;
-    height: 0.5rem;
-  }
-
-  .table_body::-webkit-scrollbar-thumb{
-    border-radius: .5rem;
-    background-color: #0004;
-    visibility: hidden;
-  }
-
-  .table_body:hover::-webkit-scrollbar-thumb{
-    visibility: visible;
-  }
-
-  table{
-    width: 100%;
-    font-size: 15px;
     text-align: center;
   }
 
-  table, th, td{
-    border: 1px solid #CCC;
-    border-collapse: collapse;
-    padding: 8px 5px;
-    border: none;
-    overflow: hidden;
-  }
+  .sidebar.active ~ .right_box .container {
+    left: 300px;
+}
 
-  thead th{
-    position: sticky;
-    top: 0;
-    left: 0;
-    background-color: var(--table-header);
+h1{
+    font-size: 43px;
+    padding: 15px;
+    color: var(--text-color);
     pointer-events: none;
-  }
+}
 
-  tbody tr:nth-child(even){
-    background: var(--table-data);
-  }
+.details img{
+    border-radius: 100px;
+}
 
-  tbody tr:hover{
-    background: var(--table-hover);
-    transition: all 0.2s ease;
-  }
+.info{
+    padding: 30px;
+    font-size: 20px;
+    color: var(--text-color);
+    pointer-events: none;
+    width: 45%;
+    margin: 0 auto;
+    /* background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); */
+}
 
-  .btn{
-    width: 100%;
-    height: 40px;
+.row{
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1.5px solid var(--table-header);
+}
+
+.title{
+    font-weight: 600;
+    padding-left: 30px;
+}
+
+.ans{
+    width: 50%;
+    font-weight: 300;
+    text-align: left;
+    padding-right: 30px;
+}
+
+.btn{
+    width: 25%;
+    height: 50px;
     background: var(--btn);
     border: none;
-    border-radius: 20px;
+    border-radius: 50px;
     color: var(--toggle-color);
     cursor: pointer;
     font-weight: 600;
     padding: 0 15px;
+    font-size: 19px;
+    margin: 5px;
   }
+
+/* <h2>Edit Profile</h2>
+<form action="{{ url_for('main.update_profile') }}" method="POST" enctype="multipart/form-data">
+    <label for="fullName">Full Name:</label>
+    <input type="text" id="fullName" name="fullName" value="{{ profile.fullName }}" required>
+    
+    <label for="contact">Contact:</label>
+    <input type="text" id="contact" name="contact" value="{{ profile.contact }}" required>
+
+    <label for="contact">Birth Year:</label>
+    <input type="text" id="birthyear" name="birthyear" value="" required>
+    
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" value="{{ current_user.email }}" required>
+    
+    <label for="profile_pic">Profile Picture:</label>
+    <input type="file" id="profile_pic" name="profile_pic">
+    
+    <button type="submit">Update</button>
+</form> 

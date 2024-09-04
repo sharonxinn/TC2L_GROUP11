@@ -25,7 +25,7 @@ def login():
             if check_password_hash(user.password, password):
                 flash('Logged in successfully',category='success')
                 login_user(user,remember=True)
-                return redirect(url_for('main.base'))
+                return redirect(url_for('main.chooseid'))
             else:
                 flash('Incorrect password,try again',category='error')
 
@@ -55,6 +55,19 @@ def home():
     return render_template('home.html',user=current_user)
 
 
+
+#set up base page
+@bp.route('/base_passenger')
+def base_passenger():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    return render_template('base_passenger.html',user=current_user,profile=profile)
+
+@bp.route('/base_driver')
+def base_driver():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    return render_template('base_driver.html',user=current_user,profile=profile)
+
+#set up profile page
 def file_is_valid(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
 
@@ -130,7 +143,9 @@ def chooseid():
     if request.method == 'POST':
         role = request.form.get('role')
         if role == 'passenger':
-            return redirect(url_for('main.base'))
+
+            return redirect(url_for('main.base_passenger'))
+
         elif role == 'driver':
             return redirect(url_for('main.driver_post'))
     return render_template('chooseid.html')
@@ -139,7 +154,8 @@ def chooseid():
 @bp.route('/googlemap')
 @login_required
 def googlemap():
-    return render_template('googlemap.html', user=current_user)
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    return render_template('googlemap.html', user=current_user,profile=profile)
 
 #set up logout page
 @bp.route('/logout')
@@ -220,7 +236,7 @@ def driver_post():
         db.session.add(new_Driverspost)
         db.session.commit()
 
-        return redirect(url_for('main.base',driver_id=current_user.id))
+        return redirect(url_for('main.base_driver',driver_id=current_user.id))
 
     return render_template('driver_post.html')
 
@@ -231,9 +247,15 @@ def drivers_list():
     drivers = Driverspost.query.filter_by(status='in_progress')
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
-
-
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
     return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict,profile=profile)
+
+# @bp.route('/user_list')
+# @login_required
+# def user_list():
+#     users = User.query.all()
+
+
 
 
 
@@ -253,6 +275,17 @@ def profile_list():
 #     profiles = Profile.query.all()
 
 #     return render_template('profile_list.html', profiles=profiles)
+
+
+#     return render_template('user_list.html', users=users)
+
+# @bp.route('/profile_list')
+# @login_required
+# def profile_list():
+#     profiles = Profile.query.all()
+
+#     return render_template('profile_list.html', profiles=profiles)
+
 
 #set up match_passsenger page
 @bp.route('/match_passenger/<int:driver_id>')

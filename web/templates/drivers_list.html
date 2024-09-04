@@ -1,82 +1,144 @@
-
-
-
-
+{% extends "base_passenger.html" %}
+{% block title %}Driver List{% endblock %}
+{% block content %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DriversList</title>
+    <link rel="stylesheet" href="../static/drivers_list.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 </head>
-<main>
+ 
 <body>
-    <h1>DriverList</h1>
-    <select id="columnSelect">
-        <option value="all">All Columns</option>
-        <option value="5">Pick-Up Location</option>
-        <option value="6">Drop-Off Location</option>
-    </select>
+    <main class="table">
 
-    <input id="columnSearch" type="text" placeholder="Search column">
-    <table border="1" id="myTable">
-        <tr>
-            <th>Full Name</th>
-            <th>Gender</th>
-            <th>Contact</th>
-            <th>Date and Time</th>
-            <th>Pick-Up Location</th>
-            <th>Drop-Off Location</th>
-            <th>Car Plate</th>
-            <th>Car Model</th>
-            <th>Maximum Number of Passengers</th>
-            <th>Fees</th>
-            <th>DuitNow ID</th>
-            <th>Message</th>
-        </tr>
-        {% for driver in drivers %}
-        <tr>
-            <td>{{ profile_dict[driver.user_id].fullName if profile_dict[driver.user_id] else 'N/A' }}</td>
-            <td>{{ profile_dict[driver.user_id].gender if profile_dict[driver.user_id] else 'N/A' }}</td>
-            <td>{{ profile_dict[driver.user_id].contact if profile_dict[driver.user_id] else 'N/A' }}</td>
-            <td>{{ driver.dateandTime }}</td>
-            <td>{{ driver.pickup }}</td>
-            <td>{{ driver.dropoff }}</td>
-            <td>{{ driver.carplate }}</td>
-            <td>{{ driver.carmodel }}</td>
-            <td>{{ driver.totalperson }}</td>
-            <td>{{ driver.fees }}</td>
-            <td>{{ driver.duitnowid }}</td>
-            <td>{{ driver.message }}</td>
-            <td><form action="{{ url_for('main.select_driver', driver_id=driver.id) }}" method="POST">
-                    <input type="submit" value="Select Driver" class="btn">
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+        <section class="table_header">
+            <h1>Driver List</h1>
+        </section>
 
-    <script>
-        $(document).ready(function () {
-            $("#columnSearch").on("keyup", function () {
-                let columnValue = $("#columnSearch").val().toLowerCase();
-                let selectedColumn = $("#columnSelect").val();
-                
-                $("#myTable tr").each(function (index) {
-                    if (index === 0) return;
+        <div class="search">
+            <div class="selection">
+                <select id="columnSelect">
+                    <option value="all">All Columns</option>
+                    <option value="5">Pick-Up Location</option>
+                    <option value="6">Drop-Off Location</option>
+                </select>
+            </div>
+            
+            <div class="searchbar">
+                <input id="columnSearch" type="text" placeholder="Search Location">
+            </div>
+        </div>
 
-                    let matchColumn = true;
+        <section class="table_body">
+            <table border="1" id="myTable">
+                <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Gender</th>
+                    <th>Contact</th>
+                    <th>Date and Time</th>
+                    <th>Pick-Up Location</th>
+                    <th>Drop-Off Location</th>
+                    <th>Car Plate</th>
+                    <th>Car Model</th>
+                    <th>Maximum Number of Passengers</th>
+                    <th>Fees</th>
+                    <th>DuitNow ID</th>
+                    <th>Message</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for driver in drivers %}
+                <tr>
+                    <td>{{ profile_dict[driver.user_id].fullName if profile_dict[driver.user_id] else 'N/A' }}</td>
+                    <td>{{ profile_dict[driver.user_id].gender if profile_dict[driver.user_id] else 'N/A' }}</td>
+                    <td>{{ profile_dict[driver.user_id].contact if profile_dict[driver.user_id] else 'N/A' }}</td>
+                    <td>{{ driver.dateandTime }}</td>
+                    <td>{{ driver.pickup }}</td>
+                    <td>{{ driver.dropoff }}</td>
+                    <td>{{ driver.carplate }}</td>
+                    <td>{{ driver.carmodel }}</td>
+                    <td>{{ driver.totalperson }}</td>
+                    <td>{{ driver.fees }}</td>
+                    <td>{{ driver.duitnowid }}</td>
+                    <td>{{ driver.message }}</td>
+                    <td><form action="{{ url_for('main.select_driver', driver_id=driver.id) }}" method="POST">
+                            <input type="submit" value="Select Driver" class="btn">
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </section>
 
-                    if (selectedColumn !== "all" && columnValue !== "") {
-                        let columnIndex = parseInt(selectedColumn, 10);
-                        let columnData = $(this).find("td:nth-child(" + columnIndex + ")").text().toLowerCase();
-                        matchColumn = columnData.indexOf(columnValue) > -1;
-                    }
+        <script>
+            $(document).ready(function () {
+                // Function to filter table based on search input and selected column
+                function filterTable(columnValue, selectedColumn) {
+                    $("#myTable tr").each(function (index) {
+                        if (index === 0) return; // Skip the header row
 
-                    $(this).toggle(matchColumn);
+                        let matchColumn = true;
+
+                        if (selectedColumn !== "all" && columnValue !== "") {
+                            let columnIndex = parseInt(selectedColumn, 10);
+                            let columnData = $(this).find("td:nth-child(" + columnIndex + ")").text().toLowerCase();
+                            matchColumn = columnData.indexOf(columnValue) > -1;
+                        }
+
+                        $(this).toggle(matchColumn);
+                    });
+                }
+
+                // Listen to the column search input
+                $("#columnSearch").on("keyup", function () {
+                    let columnValue = $(this).val().toLowerCase();
+                    let selectedColumn = $("#columnSelect").val();
+                    filterTable(columnValue, selectedColumn);
+                });
+
+                // Listen to the sidebar search input
+                $("#sidebarSearch").on("keyup", function () {
+                    let columnValue = $(this).val().toLowerCase();
+                    let selectedColumn = $("#columnSelect").val();
+                    $("#columnSearch").val(columnValue); // Sync with column search input
+                    filterTable(columnValue, selectedColumn);
+                });
+
+                // You can also trigger the search when the column select dropdown changes
+                $("#columnSelect").on("change", function () {
+                    let columnValue = $("#sidebarSearch").val().toLowerCase();
+                    let selectedColumn = $(this).val();
+                    filterTable(columnValue, selectedColumn);
                 });
             });
-        });
-    </script>
+            // $(document).ready(function () {
+            //     $("#columnSearch").on("keyup", function () {
+            //         let columnValue = $("#columnSearch").val().toLowerCase();
+            //         let selectedColumn = $("#columnSelect").val();
+                    
+            //         $("#myTable tr").each(function (index) {
+            //             if (index === 0) return;
+    
+            //             let matchColumn = true;
+    
+            //             if (selectedColumn !== "all" && columnValue !== "") {
+            //                 let columnIndex = parseInt(selectedColumn, 10);
+            //                 let columnData = $(this).find("td:nth-child(" + columnIndex + ")").text().toLowerCase();
+            //                 matchColumn = columnData.indexOf(columnValue) > -1;
+            //             }
+    
+            //             $(this).toggle(matchColumn);
+            //         });
+            //     });
+            // });
+        </script>
+    </main>
 </body>
 </main>
 </html>

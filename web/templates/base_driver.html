@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="../static/sidebar.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-</head>
+  </head>
 
 <body>
     <div class="sidebar">
@@ -28,7 +28,7 @@
         </li>
 
         <li>
-          <a href="{{ url_for('main.drivers_list') }}">
+          <a href="{{ url_for('main.match_passenger',driver_id=current_user.id) }}" >
             <i class='bx bxs-dashboard'></i>
             <span class="icon_name">Dashboard</span>
           </a>
@@ -36,7 +36,7 @@
         </li>
 
         <li>
-          <a href="{{ url_for('main.dashboard') }}">
+          <a href="{{ url_for('main.dashboard') }}" >
             <i class='bx bx-user'></i>
             <span class="icon_name">Profile</span>
           </a>
@@ -44,7 +44,7 @@
         </li>
 
         <li>
-          <a href="{{ url_for('main.googlemap') }}">
+          <a href="{{ url_for('main.googlemap') }}" >
             <i class='bx bx-map' ></i>
             <span class="icon_name">Google Map</span>
           </a>
@@ -52,17 +52,15 @@
         </li>
 
         <li>
-          <a href="{{ url_for('main.booking_history') }}">
+          <a href="{{ url_for('main.booking_history') }}" >
             <i class='bx bx-history' ></i>
             <span class="icon_name">Booking History</span>
           </a>
           <span class="tooltip">Booking History</span>
         </li>
 
-
-
         <li>
-          <a href="#">
+          <a href="/chooseid">
             <i class='bx bx-body'></i>
             <span class="icon_name">Switch Identity</span>
           </a>
@@ -97,6 +95,12 @@
         </div>
       </div>
     </div>
+
+
+    <div class="right_box">
+        {% block content %}{% endblock %}
+    </div>
+
     <script>
       let btn = document.querySelector("#btn");
       let sidebar = document.querySelector(".sidebar");
@@ -105,18 +109,31 @@
       let modeText = document.querySelector(".mode_name");
       let body = document.querySelector("body");
 
+      if(localStorage.getItem("dark-mode") === "enabled"){
+        body.classList.add("dark");
+        modeText.innerText = "Light Mode";
+      }
+
+      if(localStorage.getItem("sidebar-active") === "true"){
+        sidebar.classList.add("active");
+      }
+
       btn.onclick = function(){
         sidebar.classList.toggle("active");
+        localStorage.setItem("sidebar-active", sidebar.classList.contains("active"));
       }
       searchBtn.onclick = function(){
         sidebar.classList.toggle("active");
+        localStorage.setItem("sidebar-active", sidebar.classList.contains("active"));
       }
       modeSwitch.onclick = function(){
         body.classList.toggle("dark");
         if(body.classList.contains("dark")){
-          modeText.innerText = "Light Mode"
+          modeText.innerText = "Light Mode";
+          localStorage.setItem("dark-mode", "enabled");
         }else{
-          modeText.innerText = "Dark Mode"
+          modeText.innerText = "Dark Mode";
+          localStorage.setItem("dark-mode", "disabled");
         }
       }
     </script>

@@ -1,38 +1,9 @@
+<<<<<<< HEAD
 <h1>Booking History</h1>
 <table border="1">
-    <tr>
-        <th>Role</th>
-        <th>Driver Name</th>
-        <th>Date and Time</th>
-        <th>Pick-Up Location</th>
-        <th>Drop-Off Location</th>
-        <th>Passenger Name</th>
-        <th>Status</th>
-        <th>Action</th>
-    </tr>
 
-    {% for match in passenger_matches %}
-    <tr>
-        <td>Passenger</td>
-        <td>{{ profile_dict[match.driver.user_id].fullName }}</td>
-        <td>{{ match.driver.dateandTime }}</td>
-        <td>{{ match.driver.pickup }}</td>
-        <td>{{ match.driver.dropoff }}</td>
-        <td>{{ profile_dict[match.passenger_id].fullName }}</td>
-        <td>{{ match.status }}</td>
-        <td>
-            <form action="{{ url_for('main.view_detail_p', match_id=match.id) }}" method="POST">
-                <input type="submit" value="View Detail">
-            </form> 
-            <form action="{{ url_for('main.complete_match', match_id=match.id) }}" method="POST">
-                <input type="submit" value="Complete">
-            </form>  
-            <form action="{{ url_for('main.cancel_match', match_id=match.id) }}" method="POST">
-                <input type="submit" value="Cancel">
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
+
+
 
     {% for driver_post in driver_posts %}
     <tr>
@@ -51,3 +22,87 @@
     </tr>
     {% endfor %}
 </table>
+
+{% extends "base_passenger.html" %}
+{% block title %}Booking History{% endblock %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking History</title>
+    <link rel="stylesheet" href="../static/booking_history.css">
+</head>
+<body>
+    <div class="container">
+
+        <div class="header">
+            <h1>Booking History</h1>
+        </div>
+
+        <div class="table_body">
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Driver Name</th>
+                        <th>Date and Time</th>
+                        <th>Pick-Up Location</th>
+                        <th>Drop-Off Location</th>
+                        <th>Passenger Name</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for match in passenger_matches %}
+                    <tr>
+                        <td>Passenger</td>
+                        <td>{{ profile_dict[match.driver.user_id].fullName }}</td>
+                        <td>{{ match.driver.dateandTime }}</td>
+                        <td>{{ match.driver.pickup }}</td>
+                        <td>{{ match.driver.dropoff }}</td>
+                        <td>{{ profile_dict[match.passenger_id].fullName }}</td>
+                        <td>{{ match.status }}</td>
+                        <td>
+                            <form action="{{ url_for('main.view_detail_p', match_id=match.id) }}" method="POST">
+                                <input type="submit" value="View Detail">
+                            </form> 
+                            <form action="{{ url_for('main.complete_match', match_id=match.id) }}" method="POST">
+                                <input type="submit" value="Complete">
+                            </form>  
+                            <form action="{{ url_for('main.cancel_match', match_id=match.id) }}" method="POST">
+                                <input type="submit" value="Cancel">
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% for driver_post in driver_posts %}
+                    <tr>
+                        <td>Driver</td>
+                        <td>{{ profile_dict[driver_post.user_id].fullName }}</td>
+                        <td>{{ driver_post.dateandTime }}</td>
+                        <td>{{ driver_post.pickup }}</td>
+                        <td>{{ driver_post.dropoff }}</td>
+                        <td>-</td>
+                        <td>{{ driver_post.status }}</td>
+                        <td>
+                            <form action="{{ url_for('main.view_detail', driver_post_id=driver_post.id) }}" method="POST">
+                                <input type="submit" value="View Detail">
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+
+{% endblock %}
+

@@ -102,14 +102,16 @@
                         <label for="fees">Fees</label>
                         <br>
                         <select id="fees" name="fees" onchange="feesFunction()">
-                            <option value="RM1" >RM1 per person</option>
                             <option value="Free">Free</option>
+                            <option value="RM1" >RM1 per person</option>
                         </select><br>
                     </div>
 
 
-                    <div class="inner-center">
-                        <br><input type="text" id="duitnowid"  name="duitnowid" placeholder="Enter Your DuitNow ID"><br><br>
+                    <div class="inner-center" id="duitnowid" style="display: none;">
+                        <label for="duitnowid">DuitNow ID</label>
+                        <br>
+                        <input type="text" name="duitnowid" placeholder="Enter Your DuitNow ID"><br>
                     </div>
 
                     <div class="inner-center">
@@ -117,7 +119,7 @@
                         <textarea id="message" name="message" rows="10" cols="30" placeholder="Enter Note..."></textarea><br><br>
                     </div>
 
-                    <a href="#">
+                    <a href="/base_driver">
                         <input type="submit" value="Submit" class="btn">
                     </a>
                 </form>

@@ -23,12 +23,18 @@
         <td>
             <form action="{{ url_for('main.view_detail_p', match_id=match.id) }}" method="POST">
                 <input type="submit" value="View Detail">
+            </form> 
+            <form action="{{ url_for('main.complete_match', match_id=match.id) }}" method="POST">
+                <input type="submit" value="Complete">
+            </form>  
+            <form action="{{ url_for('main.cancel_match', match_id=match.id) }}" method="POST">
+                <input type="submit" value="Cancel">
             </form>
         </td>
     </tr>
     {% endfor %}
 
-    <!-- {% for driver_post in driver_posts %}
+    {% for driver_post in driver_posts %}
     <tr>
         <td>Driver</td>
         <td>{{ profile_dict[driver_post.user_id].fullName }}</td>
@@ -38,10 +44,10 @@
         <td>-</td>
         <td>{{ driver_post.status }}</td>
         <td>
-            <form action="{{ url_for('main.view_detail', driver_id=driver_id) }}" method="POST">
+            <form action="{{ url_for('main.view_detail', driver_post_id=driver_post.id) }}" method="POST">
                 <input type="submit" value="View Detail">
             </form>
         </td>
     </tr>
-    {% endfor %} -->
+    {% endfor %}
 </table>

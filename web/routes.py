@@ -374,7 +374,7 @@ def view_detail_p(match_id):
 #set up bookinh history page
 @bp.route('/booking_history')
 @login_required
-def riderpost_history():
+def booking_history():
     # Get all matches where the current user is a passenger
     passenger_matches = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
                                             .join(Driverspost, PassengerMatch.driver_id == Driverspost.id) \
@@ -382,12 +382,12 @@ def riderpost_history():
                                             .all()
 
     # Get all drivers posts where the current user is the driver
-    driver_posts = Driverspost.query.filter_by(user_id=current_user.id).all()
+    driver_post = Driverspost.query.filter_by(user_id=current_user.id).all()
 
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
 
-    return render_template('booking_history.html', passenger_matches=passenger_matches, driver_posts=driver_posts, profile_dict=profile_dict)
+    return render_template('booking_history.html', passenger_matches=passenger_matches, profile_dict=profile_dict,driver_post=driver_post)
 
 
 #@bp.route('/dashboard')

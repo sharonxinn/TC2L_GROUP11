@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask,session
+from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask,session,jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import User, Driverspost, Profile,PassengerMatch,PaymentProof
@@ -165,7 +165,7 @@ def sidebar():
 @bp.route('/base_passenger')
 def base_passenger():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
-    return render_template('base_passenger.html',user=current_user,profile=profile)
+    return render_template('base_passenger.html', user=current_user, profile=profile)
 
 @bp.route('/base_driver')
 def base_driver():
@@ -316,20 +316,39 @@ def driver_post():
 
     return render_template('driver_post.html')
 
+    # Fetch the driver's post information from the database
+    driver_post = Driverspost.query.get_or_404(driver_id)
+    # Pass the driver's pickup location (latitude and longitude) to the template
+    pickup_lat = driver_post.pickup_lat  # Assuming latitude is stored in pickup_lat
+    pickup_lng = driver_post.pickup_lng  # Assuming longitude is stored in pickup_lon
+    return render_template('googlemap.html', pickup_lat=pickup_lat, pickup_lng=pickup_lng)
 
-#set up google map page
+#@bp.route('/googlemap/<int:driver_id>')
+#@login_required
+#def googlemap(driver_id):
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    driver_post = Driverspost.query.get_or_404(driver_id)
+    pickup_lat = driver_post.pickup_lat
+    pickup_lng = driver_post.pickup_lng
+    return render_template('googlemap.html', pickup_lat=pickup_lat, pickup_lng=pickup_lng,profile=profile)
+
 @bp.route('/googlemap')
 @login_required
 def googlemap():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
-    return render_template('googlemap.html', user=current_user,profile=profile)
+    driver_posts = Driverspost.query.all()
+    # Prepare a list of drivers' pickup locations
+    drivers_data = [{'lat': dp.pickup_lat, 'lng': dp.pickup_lng} for dp in driver_posts]
+    pickup_lat = 0
+    pickup_lng = 0
+    return render_template('googlemap.html', drivers_data=drivers_data, pickup_lat=pickup_lat, pickup_lng=pickup_lng,profile=profile)
 
 #set up driver list page
 @bp.route('/drivers_list')
 @login_required
 def drivers_list():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
-    drivers = Driverspost.query.filter_by(status='ongoing')
+    drivers = Driverspost.query.filter_by(status='in_progress')
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
     profile = Profile.query.filter_by(user_id=current_user.id).first()
@@ -339,21 +358,38 @@ def drivers_list():
 @bp.route('/match_passenger/<int:driver_id>')
 @login_required
 def match_passenger(driver_id):
+    # Fetch the profile of the current user
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    # Fetch the driver details
     driver = Driverspost.query.get_or_404(driver_id)
+    # Fetch all profiles and create a dictionary with user_id as the key
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
-    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='ongoing').all()  
-    return render_template('match_passenger.html', driver=driver, passengers=passengers, profile_dict=profile_dict)
+    # Fetch ongoing passenger matches for the given driver_id
+    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='ongoing').all()
+    # Debugging: print to check contents
+    print(f"Profile dict keys: {profile_dict.keys()}")
+    print(f"Driver user ID: {driver.user_id}")
+    
+    # Render the template with context
+    return render_template(
+        'match_passenger.html',
+        driver=driver,
+        passengers=passengers,
+        profile_dict=profile_dict,
+        profile=profile
+    )
 
 #set up match driver page
 @bp.route('/match_driver/<int:driver_id>')
 @login_required
 def match_driver(driver_id):
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
     driver = Driverspost.query.get_or_404(driver_id)
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
     passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='in_progress').all() 
-    return render_template('match_driver.html', driver=driver, passengers=passengers, profile_dict=profile_dict)
+    return render_template('match_driver.html', driver=driver, passengers=passengers, profile_dict=profile_dict,profile=profile)
 
 #set up select driver page
 @bp.route('/select_driver/<int:driver_id>', methods=['POST'])

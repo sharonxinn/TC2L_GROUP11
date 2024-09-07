@@ -20,10 +20,11 @@
             <div class="middle-box">
                 <form action="{{ url_for('main.profile') }}" method="post" enctype="multipart/form-data">
 
-
-                    <input type="text" class="form-control" id="fullName" name="fullName" placeholder="Full Name" required>
+                    <div class="left-right">
+                        <div class="inner-center">
+                            Full Name<br><input type="text" class="form-control" id="fullName" name="fullName" placeholder="Enter Full Name" required><br>
+                        </div>
                             
-
                         <div class="inner-gender">
                             Gender
                             <div class="choose-gender">
@@ -39,17 +40,19 @@
                     </div>
 
                     <div class="inner-center">
-                        Birth Year<br><input type="text" name="birthyear" id="birthyear" placeholder="Enter Birth Year"><br>
+                        Birth Year<br><input type="text" name="birthyear" id="birthyear" placeholder="Enter Birth Year" required><br>
                     </div>
 
                     <div class="inner-center">
-                        Contact Number<br><input type="text" name="contact" id="contact" placeholder="Enter Contact Number"><br>
+                        Contact Number<br><input type="text" name="contact" id="contact" placeholder="Enter Contact Number" required><br>
                     </div>
-
 
                     <div class="inner-center">
                         Profile Picture<br><input type="file" name="file" class="form-control">
                     </div>
+
+
+                    <br><br>
 
                     <a href="/chooseid">
                         <input type="submit" value="Submit" class="btn">
@@ -58,7 +61,4 @@
             </div>
         </div>
     </body>
-
 </html>
-
-

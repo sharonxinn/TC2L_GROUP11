@@ -1,76 +1,85 @@
+{% extends "base_driver.html" %}
+{% block title %}Match Passenger{% endblock %}
+{% block content %}
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Match Rider</title>
-</head>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match with Passenger</title>
+    <link rel="stylesheet" href="../static/match_passenger.css">
+  </head>
+
 <body>
-    <h1>Match Rider</h1>
-    
+    <div class="container">
 
-    <h2>Your Information</h2>
-    <table border="1">
-        <tr>
-            <th>Full Name</th>
-            <th>Gender</th>
-            <th>Contact</th>
-            <th>DateandTime</th>
-            <th>Starting Point</th>
-            <th>Drop-Off Point</th>
-            <th>Car Platet</th>
-            <th>Car Model</th>
-            <th>Maximum Number of Passengers</th>
-            <th>Fees</th>
-            <th>DuitNow ID</th>
-            <th>Message</th>
-        </tr>
+        <div class="header">
+            <h1>Your Information</h1>
+        </div>
 
-        <tr>
-            <td>{{ profile_dict[driver.user_id].fullName }}</td>
-            <td>{{ profile_dict[driver.user_id].gender }}</td>
-            <td>{{ profile_dict[driver.user_id].contact }}</td>
-            <td>{{ driver.dateandTime }}</td>
-            <td>{{ driver.pickup }}</td>
-            <td>{{ driver.dropoff }}</td>
-            <td>{{ driver.carplate }}</td>
-            <td>{{ driver.carmodel }}</td>
-            <td>{{ driver.totalperson }}</td>
-            <td>{{ driver.fees }}</td>
-            <td>{{ driver.duitnowid }}</td>
-            <td>{{ driver.message }}</td>
-        </tr>
+        <table border="1">
+            <tr>
+                <th>Full Name</th>
+                <th>Gender</th>
+                <th>Contact</th>
+                <th>Date and Time</th>
+                <th>Pick-Up Location</th>
+                <th>Drop-Off Location</th>
+                <th>Car Plate</th>
+                <th>Car Model</th>
+                <th>Maximum Number of Passengers</th>
+                <th>Fees</th>
+                <th>DuitNow ID</th>
+                <th>Message</th>
+            </tr>
+
+            <tr>
+                <td>{{ profile_dict[driver.user_id].fullName }}</td>
+                <td>{{ profile_dict[driver.user_id].gender }}</td>
+                <td>{{ profile_dict[driver.user_id].contact }}</td>
+                <td>{{ driver.dateandTime }}</td>
+                <td>{{ driver.pickup }}</td>
+                <td>{{ driver.dropoff }}</td>
+                <td>{{ driver.carplate }}</td>
+                <td>{{ driver.carmodel }}</td>
+                <td>{{ driver.totalperson }}</td>
+                <td>{{ driver.fees }}</td>
+                <td>{{ driver.duitnowid }}</td>
+                <td>{{ driver.message }}</td>
+            </tr>
 
 
-    <h2>Passengers Who Selected You</h2>
-    <table border="1">
-        <tr>
-            <th>Full Name</th>
-            <th>Gender</th>
-            <th>Contact</th>
-            <th>Action</th>
-        </tr>
-        {% for passenger in passengers %}
-        <tr>
-            <td>{{ profile_dict[passenger.passenger_id].fullName }}</td>
-            <td>{{ profile_dict[passenger.passenger_id].contact }}</td>
-            <td>{{ profile_dict[passenger.passenger_id].gender }}</td>
-            <td>
-                <form action="{{ url_for('main.remove_passenger', passenger_id=passenger.passenger_id, driver_id=driver.id) }}" method="POST">
-                    <input type="submit" value="Remove Passenger" class="btn">
-                </form>
-                <form action="{{ url_for('main.complete_match', match_id=passenger.id) }}" method="POST">
-                    <input type="submit" value="Complete">
-                </form>                
-                </form>
-                <form action="{{ url_for('main.cancel_match', match_id=passenger.id) }}" method="POST">
-                    <input type="submit" value="Cancel">
-                </form>
-            </td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="4">No passengers found</td>
-        </tr>
-        {% endfor %}
-    </table>
+        <h2>Waiting List</h2>
+        <table border="1">
+            <tr>
+                <th>Full Name</th>
+                <th>Gender</th>
+                <th>Contact</th>
+                <th>Action</th>
+            </tr>
+            {% for passenger in passengers %}
+            <tr>
+                <td>{{ profile_dict[passenger.passenger_id].fullName }}</td>
+                <td>{{ profile_dict[passenger.passenger_id].gender }}</td>
+                <td>
+                    <form action="{{ url_for('main.remove_passenger', passenger_id=passenger.passenger_id, driver_id=driver.id) }}" method="POST">
+                        <input type="submit" value="Remove Passenger" class="btn">
+                    </form>
+                    <form action="{{ url_for('main.complete_match', match_id=passenger.id) }}" method="POST">
+                        <input type="submit" value="Complete">
+                    </form>
+                    <form action="{{ url_for('main.cancel_match', match_id=passenger.id) }}" method="POST">
+                        <input type="submit" value="Cancel">
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4">No passengers found</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 </body>
 </html>
+{% endblock %}

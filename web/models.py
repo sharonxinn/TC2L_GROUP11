@@ -35,6 +35,8 @@ class Profile(db.Model):
     birthyear = db.Column(db.String(15), nullable=False)
     profile_pic = db.Column(db.String(200), default="default.jpg")  # Make sure this column is present
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    birthyear = db.Column(db.String(15), nullable=False)
+
 
 class PassengerMatch(db.Model):
     id = db.Column(db.Integer, primary_key=True)

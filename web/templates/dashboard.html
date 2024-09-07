@@ -1,40 +1,59 @@
-<!doctype html>
+{% extends "base_passenger.html" %}
+{% block title %}User Profile{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
+    <title>User Profile</title>
+    <link rel="stylesheet" href="../static/dashboard.css">
 </head>
 <body>
-    <h1>Dashboard</h1>
-    <p><strong>Full Name:</strong> {{ profile.fullName }}</p>
-    <p><strong>Gender:</strong> {{ profile.gender }}</p>
-    <p><strong>Contact:</strong> {{ profile.contact }}</p>
-    <p><strong>Birth Date:</strong>{{ profile.birthyear }}</p>
-    <p><strong>Email:</strong> {{ current_user.email }}</p>
-    <p><strong>Profile Picture:</strong></p>
-    {% if profile.profile_pic %}
-        <img src="{{ profile.profile_pic }}" alt="Profile Picture" style="width:100px;height:100px;">
-    {% else %}
-        <p>No profile picture uploaded.</p>
-    {% endif %}
+    <div class="container">
+        <h1>Profile</h1>
 
-    <h2>Edit Profile</h2>
-    <form action="{{ url_for('main.update_profile') }}" method="POST" enctype="multipart/form-data">
-        <label for="fullName">Full Name:</label>
-        <input type="text" id="fullName" name="fullName" value="{{ profile.fullName }}" required>
-        
-        <label for="contact">Contact:</label>
-        <input type="text" id="contact" name="contact" value="{{ profile.contact }}" required>
-        
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" value="{{ current_user.email }}" required>
-        
-        <label for="profile_pic">Profile Picture:</label>
-        <input type="file" id="profile_pic" name="profile_pic">
-        
-        <button type="submit">Update</button>
-    </form>
+        <div class="details">
+            {% if profile.profile_pic %}
+                <img src="{{ profile.profile_pic }}" alt="Profile Picture" style="width:150px;height:150px;">
+            {% else %}
+                <p>No profile picture uploaded.</p>
+            {% endif %}
+            <div class="info">
+                <div class="row">
+                    <div class="title">Full Name</div>
+                    <div class="ans">{{ profile.fullName }}</div>
+                </div>
+
+                <div class="row">
+                    <div class="title">Gender</div>
+                    <div class="ans">{{ profile.gender }}</div>
+                </div>
+
+                <div class="row">
+                    <div class="title">Birth Year</div>
+                    <div class="ans">{{ profile.birthyear }}</div>
+                </div>
+
+                <div class="row">
+                    <div class="title">Contact</div>
+                    <div class="ans">{{ profile.contact }}</div>
+                </div>
+
+                <div class="row">
+                    <div class="title">Email</div>
+                    <div class="ans">{{ current_user.email }}</div>
+                </div>
+            </div>
+        </div>
+
+        <a href="{{ url_for('main.editprofile') }}">
+            <button type="submit" class="btn">Edit Profile</button>
+        </a>
+
+    </div>
 </body>
 </html>
+{% endblock %}
 

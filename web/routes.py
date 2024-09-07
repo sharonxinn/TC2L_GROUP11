@@ -13,6 +13,40 @@ UPLOAD_FOLDER = '/web/static/uploads/'
 app.config['UPLOAD_FOLDER']='/web/static/uploads/'
 app.config['UPLOAD_PAYMENT']='/web/static/payment/'
 
+#set up sign up page
+@bp.route('/signup',methods=['GET','POST'])
+def sign_up():
+    if request.method=='POST':
+        email=request.form.get('email')
+        password1=request.form.get('password1')
+        password2=request.form.get('password2')
+
+        user=User.query.filter_by(email=email).first()
+        if user:
+            flash('Email already exists',category='error')
+        elif len(email)<4:
+            flash('Email must be greater than 3 characters.',category='error')
+        # elif len(first_name)<2:
+        #     flash('First Name must be greater than 1 characters.',category='error')
+        elif password1 != password2:
+            flash('Password does not match.',category='error')
+        elif len(password1)<7:
+            flash('Password must be greater than 6 characters.',category='error')
+        else:
+            new_user=User(email=email,password=generate_password_hash(password1,method='pbkdf2:sha256'))
+            db.session.add(new_user)
+            db.session.commit()
+            user = User.query.filter_by(email=email).first()
+
+            if user:  # Check if user is found
+                login_user(user, remember=True)
+                flash('Account created successfully!', category='success')
+                return redirect(url_for('main.profile'))
+            else:
+                flash('Error during user creation. Please try again.', category='error')
+
+    return render_template("signup.html",user=current_user)
+
 #set up login page
 @bp.route('/login',methods=['GET','POST'])
 def login():
@@ -26,7 +60,7 @@ def login():
             if check_password_hash(user.password, password):
                 flash('Logged in successfully',category='success')
                 login_user(user,remember=True)
-                return redirect(url_for('main.base'))
+                return redirect(url_for('main.chooseid'))
             else:
                 flash('Incorrect password,try again',category='error')
 
@@ -46,21 +80,17 @@ def login():
     
     return render_template("login.html",user=current_user)
 
+#set up logout page
+@bp.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('main.login'))
+
 #set up home page
 @bp.route('/')
 def home():
     return render_template('home.html',user=current_user)
-
-#set up base page
-@bp.route('/base')
-def base():
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
-    return render_template('base.html',user=current_user,profile=profile)
-
-#set up sidebar page
-@bp.route('/sidebar')
-def sidebar():
-    return render_template('sidebar.html',user=current_user)
 
 #set up profile page
 def file_is_valid(filename):
@@ -119,58 +149,122 @@ def chooseid():
     if request.method == 'POST':
         role = request.form.get('role')
         if role == 'passenger':
-            return redirect(url_for('main.sidebar'))
+
+            return redirect(url_for('main.base_passenger'))
+
         elif role == 'driver':
             return redirect(url_for('main.driver_post'))
     return render_template('chooseid.html')
 
-#set up google map page
-@bp.route('/googlemap')
+#set up sidebar page
+@bp.route('/sidebar')
+def sidebar():
+    return render_template('sidebar.html',user=current_user)
+
+#set up base page
+@bp.route('/base_passenger')
+def base_passenger():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    return render_template('base_passenger.html',user=current_user,profile=profile)
+
+@bp.route('/base_driver')
+def base_driver():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    return render_template('base_driver.html',user=current_user,profile=profile)
+
+#set up dashboard page
+@bp.route('/dashboard', methods=['GET'])
 @login_required
-def googlemap():
-    return render_template('googlemap.html', user=current_user)
+def dashboard():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    if profile is None:
+        flash("No profile found. Please complete your profile first.", category="error")
+        return redirect(url_for('main.profile'))
 
-#set up logout page
-@bp.route('/logout')
+    return render_template('dashboard.html', profile=profile)
+
+#set up update profile page
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
+
+@bp.route('/editprofile', methods=['GET', 'POST'])
 @login_required
-def logout():
-    logout_user()
-    return redirect(url_for('main.login'))
+def editprofile():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
 
-#set up sign up page
-@bp.route('/signup',methods=['GET','POST'])
-def sign_up():
-    if request.method=='POST':
-        email=request.form.get('email')
-        password1=request.form.get('password1')
-        password2=request.form.get('password2')
+    if request.method == 'GET':
+        # Render the profile edit page
+        if not profile:
+            flash("Profile not found.", category="error")
+            return redirect(url_for('main.dashboard'))
+        
+        return render_template('editprofile.html', profile=profile)
 
-        user=User.query.filter_by(email=email).first()
-        if user:
-            flash('Email already exists',category='error')
-        elif len(email)<4:
-            flash('Email must be greater than 3 characters.',category='error')
-        # elif len(first_name)<2:
-        #     flash('First Name must be greater than 1 characters.',category='error')
-        elif password1 != password2:
-            flash('Password does not match.',category='error')
-        elif len(password1)<7:
-            flash('Password must be greater than 6 characters.',category='error')
-        else:
-            new_user=User(email=email,password=generate_password_hash(password1,method='pbkdf2:sha256'))
-            db.session.add(new_user)
+    elif request.method == 'POST':
+        # Handle form data with appropriate checks
+        fullName = request.form.get('fullName')
+        contact = request.form.get('contact')
+        email = request.form.get('email')
+
+        # Check if the fields exist in the form
+        if not fullName or not contact or not email:
+            flash("Please fill in all required fields.", category="error")
+            return redirect(url_for('main.editprofile'))
+
+        profile.fullName = fullName
+        profile.contact = contact
+
+        if email != current_user.email:
+            current_user.email = email
             db.session.commit()
-            user = User.query.filter_by(email=email).first()
 
-            if user:  # Check if user is found
-                login_user(user, remember=True)
-                flash('Account created successfully!', category='success')
-                return redirect(url_for('main.profile'))
-            else:
-                flash('Error during user creation. Please try again.', category='error')
+        # Handle profile picture upload
+        if 'profile_pic' in request.files:
+            file = request.files['profile_pic']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                upload_path = os.path.join('web', 'static', 'uploads')
 
-    return render_template("signup.html",user=current_user)
+                # Ensure upload directory exists
+                if not os.path.exists(upload_path):
+                    os.makedirs(upload_path)
 
+                file_path = os.path.join(upload_path, filename)
+                file.save(file_path)
+
+                # Store relative path or URL to access it easily
+                profile.profile_pic = f'static/uploads/{filename}'
+
+        db.session.commit()
+        flash("Profile updated successfully!", category="success")
+        return redirect(url_for('main.dashboard'))
+
+
+# define route for changing password
+@bp.route('/change_password',methods=['GET','POST'])
+@login_required
+def change_password():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    if request.method == "POST":
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        confirm_new_password = request.form.get('confirm_new_password')
+        if old_password == new_password:
+            flash("Old Password and New Password Are The Same.", category='error')
+        elif new_password != confirm_new_password:
+            flash("New Passwords Don't Match.",category="error")
+        elif check_password_hash(current_user.password, old_password):
+            current_user.password = generate_password_hash(new_password,method='scrypt')
+            db.session.commit()
+            flash('Password successfully changed.',category='success')
+        else:
+            db.session.rollback()
+            flash("Incorrect old password.",category='error')
+
+    return render_template('change_password.html',user=current_user,profile=profile)
+
+
+####DATA#######################################################################
 #set up driver post page
 @bp.route('/driver_post', methods=['GET', 'POST'])
 @login_required
@@ -204,9 +298,16 @@ def driver_post():
         db.session.add(new_Driverspost)
         db.session.commit()
 
-        return redirect(url_for('main.base',driver_id=current_user.id))
+        return redirect(url_for('main.base_driver',driver_id=current_user.id))
 
     return render_template('driver_post.html')
+
+#set up google map page
+@bp.route('/googlemap')
+@login_required
+def googlemap():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    return render_template('googlemap.html', user=current_user,profile=profile)
 
 #set up driver list page
 @bp.route('/drivers_list')
@@ -216,21 +317,8 @@ def drivers_list():
     drivers = Driverspost.query.filter_by(status='ongoing')
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
     return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict,profile=profile)
-
-# @bp.route('/user_list')
-# @login_required
-# def user_list():
-#     users = User.query.all()
-
-#     return render_template('user_list.html', users=users)
-
-# @bp.route('/profile_list')
-# @login_required
-# def profile_list():
-#     profiles = Profile.query.all()
-
-#     return render_template('profile_list.html', profiles=profiles)
 
 #set up match_passsenger page
 @bp.route('/match_passenger/<int:driver_id>')
@@ -269,7 +357,7 @@ def select_driver(driver_id):
     db.session.commit()
     
     flash('Driver selected successfully.', category='success')
-    return redirect(url_for('main.match_driver', driver_id=driver_id))
+    return redirect(url_for('main.booking_history', driver_id=driver_id))
 
 #set up remove passenger page
 @bp.route('/remove_passenger/<int:passenger_id>/<int:driver_id>', methods=['POST'])
@@ -282,137 +370,62 @@ def remove_passenger(passenger_id, driver_id):
         flash('Passenger removed successfully', category='success')
     return redirect(url_for('main.match_passenger', driver_id=driver_id))
 
-# define route for changing password
-@bp.route('/change_password',methods=['GET','POST'])
-@login_required
-def change_password():
-    if request.method == "POST":
-        old_password = request.form.get('old_password')
-        new_password = request.form.get('new_password')
-        confirm_new_password = request.form.get('confirm_new_password')
-        if old_password == new_password:
-            flash("Old Password and New Password Are The Same.", category='error')
-        elif new_password != confirm_new_password:
-            flash("New Passwords Don't Match.",category="error")
-        elif check_password_hash(current_user.password, old_password):
-            current_user.password = generate_password_hash(new_password,method='scrypt')
-            db.session.commit()
-            flash('Password successfully changed.',category='success')
-        else:
-            db.session.rollback()
-            flash("Incorrect old password.",category='error')
-
-    return render_template('change_password.html',user=current_user)
-
-#set up complete match page
 @bp.route('/complete_match/<int:match_id>', methods=['POST'])
-@login_required
 def complete_match(match_id):
-    match = PassengerMatch.query.get_or_404(match_id)
-    if match.driver.user_id == current_user.id or match.passenger_id == current_user.id:
-        match.status = 'completed'
+    match = PassengerMatch.query.get(match_id)
+    if match:
+        match.status = 'complete'
         db.session.commit()
-        flash('Match completed successfully. Please make the payment.', category='success')
-        return redirect(url_for('main.upload_payment_proof'))
-    return redirect(url_for('main.booking_history', driver_id=match.driver_id))
 
-#set up cancel match page
+        driver_post = match.driver_post
+        driver_post.status = ' completed '
+        db.session.commit()
+
+    return redirect(url_for('main.booking_history'))
+
 @bp.route('/cancel_match/<int:match_id>', methods=['POST'])
-@login_required
 def cancel_match(match_id):
-    match = PassengerMatch.query.get_or_404(match_id)
-    if match.driver.user_id == current_user.id or match.passenger_id == current_user.id:
+    match = PassengerMatch.query.get(match_id)
+    if match:
         match.status = 'canceled'
         db.session.commit()
-        flash('Match canceled successfully', category='success')
-    return redirect(url_for('main.booking_history', driver_id=match.driver_id))
 
-@bp.route('/riderpost_history')
+        driver_post = match.driver_post
+        driver_post.status = 'canceled'
+        db.session.commit()
+
+    return redirect(url_for('main.booking_history'))
+
+@bp.route('/view_detail_d/<int:match_id>', methods=['GET', 'POST'])
 @login_required
-def riderpost_history():
-    
-    passenger_matches = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
-                                            .join(Driverspost, PassengerMatch.driver_id == Driverspost.id) \
-                                            .filter((PassengerMatch.passenger_id == current_user.id) | 
-                                                    (Driverspost.user_id == current_user.id)) \
-                                            .all()
-    
-    profiles = Profile.query.all()
-    profile_dict = {profile.user_id: profile for profile in profiles}
-
-    return render_template('riderpost_history.html', matches=passenger_matches, profile_dict=profile_dict)
-
-@bp.route('/view_detail/<int:match_id>', methods=['GET', 'POST'])
-@login_required
-def view_detail(match_id):
+def view_detail_d(match_id):
     match = PassengerMatch.query.get_or_404(match_id)
     return redirect(url_for('main.match_passenger', driver_id=match.driver_id))
+
+@bp.route('/view_detail_p/<int:match_id>', methods=['GET', 'POST'])
+@login_required
+def view_detail_p(match_id):
+    match = PassengerMatch.query.get_or_404(match_id)
+    return redirect(url_for('main.match_driver', driver_id=match.driver_id))
 
 #set up bookinh history page
 @bp.route('/booking_history')
 @login_required
 def booking_history():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    # Get all matches where the current user is a passenger
     passenger_matches = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
                                             .join(Driverspost, PassengerMatch.driver_id == Driverspost.id) \
-                                            .filter((PassengerMatch.passenger_id == current_user.id) | 
-                                                    (Driverspost.user_id == current_user.id)) \
+                                            .filter(PassengerMatch.passenger_id == current_user.id) \
                                             .all()
-    
+
+    # Get all drivers posts where the current user is the driver
+    driver_post = Driverspost.query.filter_by(user_id=current_user.id).all()
+
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
 
-    return render_template('booking_history.html', matches=passenger_matches, profile_dict=profile_dict)
-
-#set up dashboard page
-@bp.route('/dashboard', methods=['GET'])
-@login_required
-def dashboard():
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
-    if profile is None:
-        flash("No profile found. Please complete your profile first.", category="error")
-        return redirect(url_for('main.profile'))
-
-    return render_template('dashboard.html', profile=profile)
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
-
-#set up update profile page
-@bp.route('/update_profile', methods=['POST'])
-@login_required
-def update_profile():
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
-    if not profile:
-        flash("Profile not found.", category="error")
-        return redirect(url_for('main.dashboard'))
-    profile.fullName = request.form['fullName']
-    profile.contact = request.form['contact']
-    email = request.form['email']
-    if email != current_user.email:
-        user = User.query.filter_by(id=current_user.id).first()
-        user.email = email
-        db.session.commit()
-
-    # Handle profile picture upload
-    if 'profile_pic' in request.files:
-        file = request.files['profile_pic']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            upload_path = os.path.join('web', 'static', 'uploads')
-
-            # Ensure upload directory exists
-            if not os.path.exists(upload_path):
-                os.makedirs(upload_path)
-
-            file_path = os.path.join(upload_path, filename)
-            file.save(file_path)
-
-            # Store relative path or URL to access it easily
-            profile.profile_pic = f'static/uploads/{filename}'
-
-    db.session.commit()
-    flash("Profile updated successfully!", category="success")
-    return redirect(url_for('main.dashboard'))
+    return render_template('booking_history.html', passenger_matches=passenger_matches, profile_dict=profile_dict,driver_post=driver_post,profile=profile)
 
 #upload payment proof
 @bp.route('/upload', methods=['GET', 'POST'])
@@ -447,3 +460,18 @@ def upload_payment_proof():
         return redirect(url_for('main.booking_history'))
     
     return render_template('upload.html', form=form,profile=profile)
+
+
+
+# @bp.route('/user_list')
+# @login_required
+# def user_list():
+#     users = User.query.all()
+#     return render_template('user_list.html', users=users)
+
+#@bp.route('/profile_list')
+#@login_required
+#def profile_list():
+    profiles = Profile.query.all()
+
+    return render_template('profile_list.html', profiles=profiles)

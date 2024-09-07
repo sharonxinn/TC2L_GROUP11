@@ -33,13 +33,13 @@
         // Update map and hidden fields based on the selected pickup location
         function updateMapLocation() {
             const locations = {
-                "HB1": { lat: 2.9233, lng: 101.6521 },
-                "HB2": { lat: 2.9244, lng: 101.6542 },
-                "HB3": { lat: 2.9255, lng: 101.6563 },
-                "HB4": { lat: 2.9266, lng: 101.6584 },
-                "FCI": { lat: 2.9287, lng: 101.6605 },
-                "STADIUM": { lat: 2.9298, lng: 101.6626 },
-                "DTC": { lat: 2.9319, lng: 101.6647 },
+                "Taman Wawasan": { lat: 2.9233, lng: 101.6521 },
+                "Taman Puchong Prima": { lat: 2.9244, lng: 101.6542 },
+                "Taman Kinrara": { lat: 2.9255, lng: 101.6563 },
+                "MRT Cyberjaya Utara": { lat: 2.9266, lng: 101.6584 },
+                "MRT Cyberjaya Centre": { lat: 2.9287, lng: 101.6605 },
+                "Garden Plaza": { lat: 2.9298, lng: 101.6626 },
+                "Lakefront Residence": { lat: 2.9319, lng: 101.6647 },
                 "Dpulze": { lat: 2.9340, lng: 101.6668 },
                 "TamarindSquare": { lat: 2.9361, lng: 101.6689 },
                 "MutiaraVille": { lat: 2.9382, lng: 101.6710 },
@@ -84,13 +84,13 @@
                         <label for="pickup">Starting Point</label>
                         <br>
                         <select name="pickup" id="pickup" onchange="updateMapLocation()" required>
-                            <option value="HB1">HB1</option>
-                            <option value="HB2">HB2</option>
-                            <option value="HB3">HB3</option>
-                            <option value="HB4">HB4</option>
-                            <option value="FCI">FCI</option>
-                            <option value="STADIUM">STADIUM MMU</option>
-                            <option value="DTC">DTC</option>
+                            <option value="Taman Wawasan">Taman Wawasan</option>
+                            <option value="Taman Puchong Prima">Taman Puchong</option>
+                            <option value="Taman Kinrara">Taman Kinrara</option>
+                            <option value="MRT Cyberjaya Utara">MRT Cyberjaya Utara</option>
+                            <option value="MRT Cyberjaya Centre">MRT Cyeberjaya Centre</option>
+                            <option value="Garden Plaza Residence">Garden Plaza Residence</option>
+                            <option value="Lakefront Residence">Lakefront Residence</option>
                             <option value="Dpulze">Dpulze</option>
                             <option value="TamarindSquare">Tamarind Square</option>
                             <option value="MutiaraVille">Mutiara Ville</option>
@@ -104,17 +104,16 @@
                         <label for="dropoff">Drop-Off Point</label>
                         <br>
                         <select name="dropoff" id="dropoff" required>
-                            <option value="HB1">HB1</option>
-                            <option value="HB2">HB2</option>
-                            <option value="HB3">HB3</option>
-                            <option value="HB4">HB4</option>
+                            <option value="Guard House">Guard House</option>
                             <option value="FCI">FCI</option>
+                            <option value="FCM">FCM</option>
+                            <option value="FOE">FOE</option>
+                            <option value="FCM">FCM</option>
+                            <option value="STC">STC</option>
                             <option value="MMUSTADIUM">MMU STADIUM</option>
                             <option value="DTC">DTC</option>
-                            <option value="Dpulze">Dpulze</option>
-                            <option value="TamarindSquare">Tamarind Square</option>
-                            <option value="MutiaraVille">Mutiara Ville</option>
-                            <option value="TheArc">The Arc</option>
+                            <option value="HB4">HB4</option>
+                            <option value="HB2">HB2</option>
                         </select><br>
                         <input type="hidden" id="dropoff_lat" name="dropoff_lat">
                         <input type="hidden" id="dropoff_lng" name="dropoff_lng">

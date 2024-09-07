@@ -342,11 +342,12 @@ def googlemap():
         'lat': dp.pickup_lat,
         'lng': dp.pickup_lng,
         'dropoff': dp.dropoff,
+        'dateandTime':dp.dateandTime,
         'totalperson': dp.totalperson,
         'fees': dp.fees,
         'message': dp.message,
         'status': dp.status,
-        'id': dp.id,  # Ensure the driver ID is included if needed
+        'id': dp.id,  
     } for dp in driver_posts]
     pickup_lat = 0
     pickup_lng = 0

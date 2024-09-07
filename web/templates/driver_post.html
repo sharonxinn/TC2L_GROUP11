@@ -33,17 +33,17 @@
         // Update map and hidden fields based on the selected pickup location
         function updateMapLocation() {
             const locations = {
-                "Taman Wawasan": { lat: 2.9233, lng: 101.6521 },
-                "Taman Puchong Prima": { lat: 2.9244, lng: 101.6542 },
-                "Taman Kinrara": { lat: 2.9255, lng: 101.6563 },
-                "MRT Cyberjaya Utara": { lat: 2.9266, lng: 101.6584 },
-                "MRT Cyberjaya Centre": { lat: 2.9287, lng: 101.6605 },
-                "Garden Plaza": { lat: 2.9298, lng: 101.6626 },
-                "Lakefront Residence": { lat: 2.9319, lng: 101.6647 },
-                "Dpulze": { lat: 2.9340, lng: 101.6668 },
-                "TamarindSquare": { lat: 2.9361, lng: 101.6689 },
-                "MutiaraVille": { lat: 2.9382, lng: 101.6710 },
-                "TheArc": { lat: 2.9403, lng: 101.6731 }
+                "Taman Puchong Utama": { lat: 2.9917, lng: 101.6156 },
+                "Taman Puchong Prima": { lat: 2.9818, lng: 101.5999 },
+                "Taman Kinrara": { lat: 3.0643, lng: 101.6396 },
+                "MRT Cyberjaya Utara": { lat: 2.9505, lng: 101.6568 },
+                "MRT Cyberjaya Centre": { lat: 2.9402, lng: 101.6654 },
+                "Garden Plaza Residence": { lat: 2.9494, lng: 101.6646 },
+                "Lakefront Residence": { lat: 2.9323, lng: 101.6305 },
+                "Dpulze": { lat: 2.9221, lng: 101.6510 },
+                "TamarindSquare": { lat: 2.9214, lng: 101.6365 },
+                "MutiaraVille": { lat: 2.9239, lng: 101.6339 },
+                "TheArc": { lat: 2.926, lng: 101.6360 }
             };
 
             const selectedLocation = document.getElementById("pickup").value;
@@ -84,8 +84,8 @@
                         <label for="pickup">Starting Point</label>
                         <br>
                         <select name="pickup" id="pickup" onchange="updateMapLocation()" required>
-                            <option value="Taman Wawasan">Taman Wawasan</option>
-                            <option value="Taman Puchong Prima">Taman Puchong</option>
+                            <option value="Taman Puchong Utama">Taman Puchong Utama</option>
+                            <option value="Taman Puchong Prima">Taman Puchong Prima</option>
                             <option value="Taman Kinrara">Taman Kinrara</option>
                             <option value="MRT Cyberjaya Utara">MRT Cyberjaya Utara</option>
                             <option value="MRT Cyberjaya Centre">MRT Cyeberjaya Centre</option>

@@ -337,8 +337,17 @@ def driver_post():
 def googlemap():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
     driver_posts = Driverspost.query.all()
-    # Prepare a list of drivers' pickup locations
-    drivers_data = [{'lat': dp.pickup_lat, 'lng': dp.pickup_lng} for dp in driver_posts]
+    # Prepare a list of drivers' details
+    drivers_data = [{
+        'lat': dp.pickup_lat,
+        'lng': dp.pickup_lng,
+        'dropoff': dp.dropoff,
+        'totalperson': dp.totalperson,
+        'fees': dp.fees,
+        'message': dp.message,
+        'status': dp.status,
+        'id': dp.id,  # Ensure the driver ID is included if needed
+    } for dp in driver_posts]
     pickup_lat = 0
     pickup_lng = 0
     return render_template('googlemap.html', drivers_data=drivers_data, pickup_lat=pickup_lat, pickup_lng=pickup_lng,profile=profile)

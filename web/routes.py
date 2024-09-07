@@ -266,6 +266,7 @@ def change_password():
 
 ####DATA#######################################################################
 #set up driver post page
+#set up driver post page
 @bp.route('/driver_post', methods=['GET', 'POST'])
 @login_required
 def driver_post():
@@ -279,7 +280,7 @@ def driver_post():
         fees = request.form['fees']
         duitnowid = request.form['duitnowid']
         message = request.form['message']
-        status = 'ongoing'
+        status = 'in_progress'
 
         new_Driverspost = Driverspost(
             dateandTime=dateandTime,

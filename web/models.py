@@ -26,6 +26,7 @@ class Driverspost(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     passenger_matches = db.relationship('PassengerMatch', foreign_keys='PassengerMatch.driver_id', backref='driver_post', lazy=True)
 
+
 class Profile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     fullName = db.Column(db.String(150))

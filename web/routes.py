@@ -273,35 +273,49 @@ def driver_post():
     if request.method == 'POST':
         dateandTime = request.form['dateandTime']
         pickup = request.form['pickup']
+        pickup_lat = request.form.get('pickup_lat')
+        pickup_lng = request.form.get('pickup_lng')
         dropoff = request.form['dropoff']
+        dropoff_lat = request.form.get('dropoff_lat', None)
+        dropoff_lng = request.form.get('dropoff_lng', None)
         carplate = request.form['carplate']
         carmodel = request.form['carmodel']
         totalperson = request.form['totalperson']
         fees = request.form['fees']
-        duitnowid = request.form['duitnowid']
+        duitnowid = request.form['duitnowid'] if 'duitnowid' in request.form else None
         message = request.form['message']
         status = 'in_progress'
+
+        # Convert empty strings to None
+        pickup_lat = float(pickup_lat) if pickup_lat else None
+        pickup_lng = float(pickup_lng) if pickup_lng else None
+        dropoff_lat = float(dropoff_lat) if dropoff_lat else None
+        dropoff_lng = float(dropoff_lng) if dropoff_lng else None
 
         new_Driverspost = Driverspost(
             dateandTime=dateandTime,
             pickup=pickup,
+            pickup_lat=pickup_lat,
+            pickup_lng=pickup_lng,
             dropoff=dropoff,
+            dropoff_lat=dropoff_lat,
+            dropoff_lng=dropoff_lng,
             carplate=carplate,
             carmodel=carmodel,
             totalperson=totalperson,
             fees=fees,
             duitnowid=duitnowid,
             message=message,
-            status= status,
-            user_id=current_user.id
+            status=status,
+            user_id=current_user.id,
         )
-
         db.session.add(new_Driverspost)
         db.session.commit()
 
-        return redirect(url_for('main.base_driver',driver_id=current_user.id))
+        return redirect(url_for('main.base_driver'))
 
     return render_template('driver_post.html')
+
 
 #set up google map page
 @bp.route('/googlemap')

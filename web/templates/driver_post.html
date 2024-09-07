@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../static/driver_post.css">
+    <!-- <link rel="stylesheet" href="../static/driver_post.css"> -->
     <title>Rider Post</title>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&callback=initMap&libraries=places&v=beta" async defer></script>
     <script>
@@ -24,9 +24,13 @@
                 map: map,
                 title: "Pickup Location"
             });
+
+            // Set default hidden fields for pickup location
+            document.getElementById("pickup_lat").value = defaultLocation.lat;
+            document.getElementById("pickup_lng").value = defaultLocation.lng;
         }
 
-        // Update map based on the selected pickup location
+        // Update map and hidden fields based on the selected pickup location
         function updateMapLocation() {
             const locations = {
                 "HB1": { lat: 2.9233, lng: 101.6521 },
@@ -48,6 +52,10 @@
             if (newLocation) {
                 map.setCenter(newLocation);
                 marker.setPosition(newLocation);
+
+                // Update hidden fields
+                document.getElementById("pickup_lat").value = newLocation.lat;
+                document.getElementById("pickup_lng").value = newLocation.lng;
             }
         }
     </script>
@@ -88,6 +96,8 @@
                             <option value="MutiaraVille">Mutiara Ville</option>
                             <option value="TheArc">The Arc</option>
                         </select><br>
+                        <input type="hidden" id="pickup_lat" name="pickup_lat">
+                        <input type="hidden" id="pickup_lng" name="pickup_lng">
                     </div>
 
                     <div class="inner-center">
@@ -106,6 +116,8 @@
                             <option value="MutiaraVille">Mutiara Ville</option>
                             <option value="TheArc">The Arc</option>
                         </select><br>
+                        <input type="hidden" id="dropoff_lat" name="dropoff_lat">
+                        <input type="hidden" id="dropoff_lng" name="dropoff_lng">
                     </div>
                 </div>
 

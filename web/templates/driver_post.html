@@ -1,129 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="../static/driver_post.css">
-        <title>Rider Post</title>
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="../static/driver_post.css"> -->
+    <title>Rider Post</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&callback=initMap&libraries=places&v=beta" async defer></script>
+    <script>
+        let map;
+        let marker;
 
-    <body>
-        <div class="logout">
-            <a href="/">
-                <input type="image" src="../static/pic&video/logout icon.png" width="50px" height="50px">
-            </a>
-        </div>
+        function initMap() {
+            const defaultLocation = { lat: 2.9276, lng: 101.6420 }; // Default location (Example: MMU Cyberjaya)
+            
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: defaultLocation,
+                zoom: 15
+            });
 
-        <div class="outside-center">
-            <h1 align="center">Rider Post</h1>
-            <div class="middle-box">
-                <form action="{{ url_for('main.driver_post') }}" method="post">
-                    
+            marker = new google.maps.Marker({
+                position: defaultLocation,
+                map: map,
+                title: "Pickup Location"
+            });
 
+            // Set default hidden fields for pickup location
+            document.getElementById("pickup_lat").value = defaultLocation.lat;
+            document.getElementById("pickup_lng").value = defaultLocation.lng;
+        }
+
+        // Update map and hidden fields based on the selected pickup location
+        function updateMapLocation() {
+            const locations = {
+                "Taman Puchong Utama": { lat: 2.9917, lng: 101.6156 },
+                "Taman Puchong Prima": { lat: 2.9818, lng: 101.5999 },
+                "Taman Kinrara": { lat: 3.0643, lng: 101.6396 },
+                "MRT Cyberjaya Utara": { lat: 2.9505, lng: 101.6568 },
+                "MRT Cyberjaya Centre": { lat: 2.9402, lng: 101.6654 },
+                "Garden Plaza Residence": { lat: 2.9494, lng: 101.6646 },
+                "Lakefront Residence": { lat: 2.9323, lng: 101.6305 },
+                "Dpulze": { lat: 2.9221, lng: 101.6510 },
+                "TamarindSquare": { lat: 2.9214, lng: 101.6365 },
+                "MutiaraVille": { lat: 2.9239, lng: 101.6339 },
+                "TheArc": { lat: 2.926, lng: 101.6360 }
+            };
+
+            const selectedLocation = document.getElementById("pickup").value;
+            const newLocation = locations[selectedLocation];
+
+            if (newLocation) {
+                map.setCenter(newLocation);
+                marker.setPosition(newLocation);
+
+                // Update hidden fields
+                document.getElementById("pickup_lat").value = newLocation.lat;
+                document.getElementById("pickup_lng").value = newLocation.lng;
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <div class="logout">
+        <a href="/">
+            <input type="image" src="../static/pic&video/logout icon.png" width="50px" height="50px">
+        </a>
+    </div>
+
+    <div class="outside-center">
+        <h1 align="center">Rider Post</h1>
+        <div class="middle-box">
+            <form action="{{ url_for('main.driver_post') }}" method="post">
+
+                <div class="inner-center">
+                    <label for="dateandTime">Date & Time</label>
+                    <br>
+                    <input type="datetime-local" id="dateandTime" name="dateandTime" required><br>
+                </div>
+
+                <div class="left-right">
                     <div class="inner-center">
-                        <label for="dateandTime">Date & Time</label>
+                        <label for="pickup">Starting Point</label>
                         <br>
-                        <input type="datetime-local" id="dateandTime" name="dateandTime" required><br>
-                    </div>
-
-                    <div class="left-right">
-                        <div class="inner-center">
-                            <label for="pickup"> Starting Point</label>
-                            <br>
-                            <select name="pickup" id="pickup" required>
-                                <option value="HB1">HB1</option>
-                                <option value="HB2">HB2</option>
-                                <option value="HB3">HB3</option>
-                                <option value="HB4">HB4</option>
-                                <option value="FCI">FCI</option>
-                                <option value="STADIUM">STADIUM MMU</option>
-                                <option value="DTC">DTC</option>
-                                <option value="Dpulze">Dpulze</option>
-                                <option value="TamarindSquare">Tamarind Square</option>
-                                <option value="MutiaraVille">Mutiara Ville</option>
-                                <option value="TheArc">The Arc</option>
-                            </select><br>
-                        </div>
-
-                        <div class="inner-center">
-                            <label for="dropoff">Drop-Off Point</label>
-                            <br>
-                            <select name="dropoff" id="dropoff" required>
-                                <option value="HB1">HB1</option>
-                                <option value="HB2">HB2</option>
-                                <option value="HB3">HB3</option>
-                                <option value="HB4">HB4</option>
-                                <option value="FCI">FCI</option>
-                                <option value="MMUSTADIUM">MMU STADIUM</option>
-                                <option value="DTC">DTC</option>
-                                <option value="Dpulze">Dpulze</option>
-                                <option value="TamarindSquare">Tamarind Square</option>
-                                <option value="MutiaraVille">Mutiara Ville</option>
-                                <option value="TheArc">The Arc</option>
-                            </select><br>
-                        </div>
-                    </div>
-
-                    <div class="left-right">
-                        <div class="inner-center">
-                            <label for="carplate">Car Plate</label>
-                             <br>
-                            <input id="carplate" type="text" name="carplate" required placeholder="Enter Car Plate"><br>
-                        </div>
-                            
-                        <div class="inner-center">
-                            <label for="carmodel">Car Model</label>
-                             <br><input id="carmodel" type="text" name="carmodel" required placeholder="Enter Car Model"><br>
-                        </div>
-                    </div>
-
-                    <div class="inner-center">
-                        <label for="totalperson">Maximum Number of Passengers</label>
-                        <br>
-                        <input type="number" id="totalperson" name="totalperson" required>
-                    </div>
-
-                    
-                    <script>
-                        function feesFunction() {
-                            var fees = document.getElementById("fees").value;
-                            var duitnowid = document.getElementById("duitnowid");
-                
-                            if (fees === "RM1") {
-                                duitnowid.style.display = "block";
-                            } else {
-                                duitnowid.style.display = "none";
-                            }
-                        }
-                    </script>
-
-                    <div class="inner-center">
-                        <label for="fees">Fees</label>
-                        <br>
-                        <select id="fees" name="fees" onchange="feesFunction()">
-                            <option value="Free">Free</option>
-                            <option value="RM1" >RM1 per person</option>
+                        <select name="pickup" id="pickup" onchange="updateMapLocation()" required>
+                            <option value="Taman Puchong Utama">Taman Puchong Utama</option>
+                            <option value="Taman Puchong Prima">Taman Puchong Prima</option>
+                            <option value="Taman Kinrara">Taman Kinrara</option>
+                            <option value="MRT Cyberjaya Utara">MRT Cyberjaya Utara</option>
+                            <option value="MRT Cyberjaya Centre">MRT Cyeberjaya Centre</option>
+                            <option value="Garden Plaza Residence">Garden Plaza Residence</option>
+                            <option value="Lakefront Residence">Lakefront Residence</option>
+                            <option value="Dpulze">Dpulze</option>
+                            <option value="TamarindSquare">Tamarind Square</option>
+                            <option value="MutiaraVille">Mutiara Ville</option>
+                            <option value="TheArc">The Arc</option>
                         </select><br>
-                    </div>
-
-
-                    <div class="inner-center" id="duitnowid" style="display: none;">
-                        <label for="duitnowid">DuitNow ID</label>
-                        <br>
-                        <input type="text" name="duitnowid" placeholder="Enter Your DuitNow ID"><br>
+                        <input type="hidden" id="pickup_lat" name="pickup_lat">
+                        <input type="hidden" id="pickup_lng" name="pickup_lng">
                     </div>
 
                     <div class="inner-center">
-                        <label for="message">Note</label>
-                        <textarea id="message" name="message" rows="10" cols="30" placeholder="Enter Note..."></textarea><br><br>
+                        <label for="dropoff">Drop-Off Point</label>
+                        <br>
+                        <select name="dropoff" id="dropoff" required>
+                            <option value="Guard House">Guard House</option>
+                            <option value="FCI">FCI</option>
+                            <option value="FCM">FCM</option>
+                            <option value="FOE">FOE</option>
+                            <option value="FCM">FCM</option>
+                            <option value="STC">STC</option>
+                            <option value="MMUSTADIUM">MMU STADIUM</option>
+                            <option value="DTC">DTC</option>
+                            <option value="HB4">HB4</option>
+                            <option value="HB2">HB2</option>
+                        </select><br>
+                        <input type="hidden" id="dropoff_lat" name="dropoff_lat">
+                        <input type="hidden" id="dropoff_lng" name="dropoff_lng">
+                    </div>
+                </div>
+
+                <div class="left-right">
+                    <div class="inner-center">
+                        <label for="carplate">Car Plate</label>
+                        <br>
+                        <input id="carplate" type="text" name="carplate" required placeholder="Enter Car Plate"><br>
                     </div>
 
-                    <a href="/base_driver">
-                        <input type="submit" value="Submit" class="btn">
-                    </a>
-                </form>
-            </div>
+                    <div class="inner-center">
+                        <label for="carmodel">Car Model</label>
+                        <br><input id="carmodel" type="text" name="carmodel" required placeholder="Enter Car Model"><br>
+                    </div>
+                </div>
+
+                <div class="inner-center">
+                    <label for="totalperson">Maximum Number of Passengers</label>
+                    <br>
+                    <input type="number" id="totalperson" name="totalperson" required>
+                </div>
+
+                <script>
+                    function feesFunction() {
+                        var fees = document.getElementById("fees").value;
+                        var duitnowid = document.getElementById("duitnowid");
+
+                        if (fees === "RM1") {
+                            duitnowid.style.display = "block";
+                        } else {
+                            duitnowid.style.display = "none";
+                        }
+                    }
+                </script>
+
+                <div class="inner-center">
+                    <label for="fees">Fees</label>
+                    <br>
+                    <select id="fees" name="fees" onchange="feesFunction()">
+                        <option value="Free">Free</option>
+                        <option value="RM1">RM1 per person</option>
+                    </select><br>
+                </div>
+
+                <div class="inner-center" id="duitnowid" style="display: none;">
+                    <label for="duitnowid">DuitNow ID</label>
+                    <br>
+                    <input type="text" name="duitnowid" placeholder="Enter Your DuitNow ID"><br>
+                </div>
+
+                <div class="inner-center">
+                    <label for="message">Note</label>
+                    <textarea id="message" name="message" rows="10" cols="30" placeholder="Enter Note..."></textarea><br><br>
+                </div>
+
+                <a href="/base_driver">
+                    <input type="submit" value="Submit" class="btn">
+                </a>
+            </form>
+
+            <!-- Google Map displaying pickup location -->
+            <div id="map" style="height: 400px; width: 100%;"></div>
+
         </div>
-    </body>
+    </div>
+</body>
+
 </html>

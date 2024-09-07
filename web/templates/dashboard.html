@@ -11,21 +11,6 @@
     <link rel="stylesheet" href="../static/dashboard.css">
 </head>
 <body>
-    <h1>Dashboard</h1>
-    <p><strong>Full Name:</strong> {{ profile.fullName }}</p>
-    <p><strong>Gender:</strong> {{ profile.gender }}</p>
-    <p><strong>Contact:</strong> {{ profile.contact }}</p>
-    <p><strong>Birth Date:</strong>{{ profile.birthyear }}</p>
-    <p><strong>Email:</strong> {{ current_user.email }}</p>
-    <p><strong>Profile Picture:</strong></p>
-    {% if profile.profile_pic %}
-        <img src="{{ profile.profile_pic }}" alt="Profile Picture" style="width:100px;height:100px;">
-    {% else %}
-        <p>No profile picture uploaded.</p>
-    {% endif %}
-
-
-<body>
     <div class="container">
         <h1>Profile</h1>
 

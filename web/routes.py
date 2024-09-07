@@ -1,14 +1,51 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask,session
+from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask,session,jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
-from .models import User, Driverspost, Profile,PassengerMatch
+from .models import User, Driverspost, Profile,PassengerMatch,PaymentProof
+from .form import PaymentForm
 from . import db
 from werkzeug.utils import secure_filename
 import os
 
 app = Flask(__name__)
 bp = Blueprint('main', __name__)
+UPLOAD_FOLDER = '/web/static/uploads/'
 app.config['UPLOAD_FOLDER']='/web/static/uploads/'
+app.config['UPLOAD_PAYMENT']='/web/static/payment/'
+
+#set up sign up page
+@bp.route('/signup',methods=['GET','POST'])
+def sign_up():
+    if request.method=='POST':
+        email=request.form.get('email')
+        password1=request.form.get('password1')
+        password2=request.form.get('password2')
+
+        user=User.query.filter_by(email=email).first()
+        if user:
+            flash('Email already exists',category='error')
+        elif len(email)<4:
+            flash('Email must be greater than 3 characters.',category='error')
+        # elif len(first_name)<2:
+        #     flash('First Name must be greater than 1 characters.',category='error')
+        elif password1 != password2:
+            flash('Password does not match.',category='error')
+        elif len(password1)<7:
+            flash('Password must be greater than 6 characters.',category='error')
+        else:
+            new_user=User(email=email,password=generate_password_hash(password1,method='pbkdf2:sha256'))
+            db.session.add(new_user)
+            db.session.commit()
+            user = User.query.filter_by(email=email).first()
+
+            if user:  # Check if user is found
+                login_user(user, remember=True)
+                flash('Account created successfully!', category='success')
+                return redirect(url_for('main.profile'))
+            else:
+                flash('Error during user creation. Please try again.', category='error')
+
+    return render_template("signup.html",user=current_user)
 
 #set up login page
 @bp.route('/login',methods=['GET','POST'])
@@ -16,8 +53,6 @@ def login():
     if request.method=='POST':
         email=request.form.get('email')
         password=request.form.get('password')
-        entered_captcha = request.form.get('text')
-        generated_captcha = request.form.get('captcha_code')
 
         user=User.query.filter_by(email=email).first()
 
@@ -32,10 +67,6 @@ def login():
         if request.form.get("email")=="admin@gmail.com" and request.form.get("password")=="admin1234":
             session['logged in']=True
             return redirect("/admin")
-        
-        elif entered_captcha is None or entered_captcha.lower() != generated_captcha:
-            flash('Verification Code Error!', category='error')
-
         else:
             if user:
                 if check_password_hash(user.password, password):
@@ -49,45 +80,21 @@ def login():
     
     return render_template("login.html",user=current_user)
 
+#set up logout page
+@bp.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('main.login'))
+
 #set up home page
 @bp.route('/')
 def home():
     return render_template('home.html',user=current_user)
 
-
-
-#set up base page
-@bp.route('/base_passenger')
-def base_passenger():
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
-    return render_template('base_passenger.html',user=current_user,profile=profile)
-
-@bp.route('/base_driver')
-def base_driver():
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
-    return render_template('base_driver.html',user=current_user,profile=profile)
-
 #set up profile page
 def file_is_valid(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
-
-
-
-#set up sidebar page
-
-@bp.route('/sidebar')
-def sidebar():
-    return render_template('sidebar.html',user=current_user)
-
-@bp.route('/base')
-def base():
-    return render_template('base.html',user=current_user,profile=profile)
-
-
-#set up profile page
-def file_is_valid(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
-
 
 @bp.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -97,7 +104,6 @@ def profile():
         gender = request.form['gender']
         birthyear = request.form['birthyear']
         contact = request.form['contact']
-        birthyear = request.form['birthyear']
         file = request.files.get('file')
 
         # Handling file upload (if any)
@@ -150,59 +156,116 @@ def chooseid():
             return redirect(url_for('main.driver_post'))
     return render_template('chooseid.html')
 
-#set up google map page
-@bp.route('/googlemap')
-@login_required
-def googlemap():
+#set up sidebar page
+@bp.route('/sidebar')
+def sidebar():
+    return render_template('sidebar.html',user=current_user)
+
+#set up base page
+@bp.route('/base_passenger')
+def base_passenger():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
-    return render_template('googlemap.html', user=current_user,profile=profile)
+    return render_template('base_passenger.html', user=current_user, profile=profile)
 
-#set up logout page
-@bp.route('/logout')
+@bp.route('/base_driver')
+def base_driver():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    return render_template('base_driver.html',user=current_user,profile=profile)
+
+#set up dashboard page
+@bp.route('/dashboard', methods=['GET'])
 @login_required
-def logout():
-    logout_user()
-    return redirect(url_for('main.login'))
+def dashboard():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    if profile is None:
+        flash("No profile found. Please complete your profile first.", category="error")
+        return redirect(url_for('main.profile'))
 
-#set up sign up page
-@bp.route('/signup',methods=['GET','POST'])
-def sign_up():
-    if request.method=='POST':
-        email=request.form.get('email')
-        password1=request.form.get('password1')
-        password2=request.form.get('password2')
-        entered_captcha = request.form.get('text')
-        generated_captcha = request.form.get('captcha_code')
+    return render_template('dashboard.html', profile=profile)
 
-        user=User.query.filter_by(email=email).first()
-        if user:
-            flash('Email already exists',category='error')
-        elif len(email)<4:
-            flash('Email must be greater than 3 characters.',category='error')
-        # elif len(first_name)<2:
-        #     flash('First Name must be greater than 1 characters.',category='error')
-        elif password1 != password2:
-            flash('Password does not match.',category='error')
-        elif len(password1)<7:
-            flash('Password must be greater than 6 characters.',category='error')
-        elif entered_captcha is None or entered_captcha.lower() != generated_captcha:
-            flash('Verification Code Error!', category='error')
-        else:
-            new_user=User(email=email,password=generate_password_hash(password1,method='pbkdf2:sha256'))
-            db.session.add(new_user)
+#set up update profile page
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
+
+@bp.route('/editprofile', methods=['GET', 'POST'])
+@login_required
+def editprofile():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+
+    if request.method == 'GET':
+        # Render the profile edit page
+        if not profile:
+            flash("Profile not found.", category="error")
+            return redirect(url_for('main.dashboard'))
+        
+        return render_template('editprofile.html', profile=profile)
+
+    elif request.method == 'POST':
+        # Handle form data with appropriate checks
+        fullName = request.form.get('fullName')
+        contact = request.form.get('contact')
+        email = request.form.get('email')
+
+        # Check if the fields exist in the form
+        if not fullName or not contact or not email:
+            flash("Please fill in all required fields.", category="error")
+            return redirect(url_for('main.editprofile'))
+
+        profile.fullName = fullName
+        profile.contact = contact
+
+        if email != current_user.email:
+            current_user.email = email
             db.session.commit()
-            user = User.query.filter_by(email=email).first()
 
-            if user:  # Check if user is found
-                login_user(user, remember=True)
-                flash('Account created successfully!', category='success')
-                return redirect(url_for('main.profile'))
-            else:
-                flash('Error during user creation. Please try again.', category='error')
+        # Handle profile picture upload
+        if 'profile_pic' in request.files:
+            file = request.files['profile_pic']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                upload_path = os.path.join('web', 'static', 'uploads')
 
-    return render_template("signup.html",user=current_user)
+                # Ensure upload directory exists
+                if not os.path.exists(upload_path):
+                    os.makedirs(upload_path)
+
+                file_path = os.path.join(upload_path, filename)
+                file.save(file_path)
+
+                # Store relative path or URL to access it easily
+                profile.profile_pic = f'static/uploads/{filename}'
+
+        db.session.commit()
+        flash("Profile updated successfully!", category="success")
+        return redirect(url_for('main.dashboard'))
 
 
+# define route for changing password
+@bp.route('/change_password',methods=['GET','POST'])
+@login_required
+def change_password():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    if request.method == "POST":
+        old_password = request.form.get('old_password')
+        new_password = request.form.get('new_password')
+        confirm_new_password = request.form.get('confirm_new_password')
+        if old_password == new_password:
+            flash("Old Password and New Password Are The Same.", category='error')
+        elif new_password != confirm_new_password:
+            flash("New Passwords Don't Match.",category="error")
+        elif check_password_hash(current_user.password, old_password):
+            current_user.password = generate_password_hash(new_password,method='scrypt')
+            db.session.commit()
+            flash('Password successfully changed.',category='success')
+        else:
+            db.session.rollback()
+            flash("Incorrect old password.",category='error')
+
+    return render_template('change_password.html',user=current_user,profile=profile)
+
+
+####DATA#######################################################################
+#set up driver post page
 #set up driver post page
 @bp.route('/driver_post', methods=['GET', 'POST'])
 @login_required
@@ -210,102 +273,133 @@ def driver_post():
     if request.method == 'POST':
         dateandTime = request.form['dateandTime']
         pickup = request.form['pickup']
+        pickup_lat = request.form.get('pickup_lat')
+        pickup_lng = request.form.get('pickup_lng')
         dropoff = request.form['dropoff']
+        dropoff_lat = request.form.get('dropoff_lat', None)
+        dropoff_lng = request.form.get('dropoff_lng', None)
         carplate = request.form['carplate']
         carmodel = request.form['carmodel']
         totalperson = request.form['totalperson']
         fees = request.form['fees']
-        duitnowid = request.form['duitnowid']
+        duitnowid = request.form['duitnowid'] if 'duitnowid' in request.form else None
         message = request.form['message']
         status = 'in_progress'
+
+        # Convert empty strings to None
+        pickup_lat = float(pickup_lat) if pickup_lat else None
+        pickup_lng = float(pickup_lng) if pickup_lng else None
+        dropoff_lat = float(dropoff_lat) if dropoff_lat else None
+        dropoff_lng = float(dropoff_lng) if dropoff_lng else None
 
         new_Driverspost = Driverspost(
             dateandTime=dateandTime,
             pickup=pickup,
+            pickup_lat=pickup_lat,
+            pickup_lng=pickup_lng,
             dropoff=dropoff,
+            dropoff_lat=dropoff_lat,
+            dropoff_lng=dropoff_lng,
             carplate=carplate,
             carmodel=carmodel,
             totalperson=totalperson,
             fees=fees,
             duitnowid=duitnowid,
             message=message,
-            status= status,
-            user_id=current_user.id
+            status=status,
+            user_id=current_user.id,
         )
-
         db.session.add(new_Driverspost)
         db.session.commit()
 
-        return redirect(url_for('main.base_driver',driver_id=current_user.id))
+        return redirect(url_for('main.base_driver'))
 
     return render_template('driver_post.html')
+
+    # Fetch the driver's post information from the database
+    driver_post = Driverspost.query.get_or_404(driver_id)
+    # Pass the driver's pickup location (latitude and longitude) to the template
+    pickup_lat = driver_post.pickup_lat  # Assuming latitude is stored in pickup_lat
+    pickup_lng = driver_post.pickup_lng  # Assuming longitude is stored in pickup_lon
+    return render_template('googlemap.html', pickup_lat=pickup_lat, pickup_lng=pickup_lng)
+
+#@bp.route('/googlemap/<int:driver_id>')
+#@login_required
+#def googlemap(driver_id):
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    driver_post = Driverspost.query.get_or_404(driver_id)
+    pickup_lat = driver_post.pickup_lat
+    pickup_lng = driver_post.pickup_lng
+    return render_template('googlemap.html', pickup_lat=pickup_lat, pickup_lng=pickup_lng,profile=profile)
+
+@bp.route('/googlemap')
+@login_required
+def googlemap():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    driver_posts = Driverspost.query.all()
+    # Prepare a list of drivers' details
+    drivers_data = [{
+        'lat': dp.pickup_lat,
+        'lng': dp.pickup_lng,
+        'dropoff': dp.dropoff,
+        'dateandTime':dp.dateandTime,
+        'totalperson': dp.totalperson,
+        'fees': dp.fees,
+        'message': dp.message,
+        'status': dp.status,
+        'id': dp.id,  
+    } for dp in driver_posts]
+    pickup_lat = 0
+    pickup_lng = 0
+    return render_template('googlemap.html', drivers_data=drivers_data, pickup_lat=pickup_lat, pickup_lng=pickup_lng,profile=profile)
 
 #set up driver list page
 @bp.route('/drivers_list')
 @login_required
 def drivers_list():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
     drivers = Driverspost.query.filter_by(status='in_progress')
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
     profile = Profile.query.filter_by(user_id=current_user.id).first()
     return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict,profile=profile)
 
-# @bp.route('/user_list')
-# @login_required
-# def user_list():
-#     users = User.query.all()
-
-
-
-
-
-@bp.route('/profile_list')
-@login_required
-def profile_list():
-    profiles = Profile.query.all()
-
-    return render_template('profile_list.html', profiles=profiles)
- 
-
-#     return render_template('user_list.html', users=users)
-
-# @bp.route('/profile_list')
-# @login_required
-# def profile_list():
-#     profiles = Profile.query.all()
-
-#     return render_template('profile_list.html', profiles=profiles)
-
-
-#     return render_template('user_list.html', users=users)
-
-# @bp.route('/profile_list')
-# @login_required
-# def profile_list():
-#     profiles = Profile.query.all()
-
-#     return render_template('profile_list.html', profiles=profiles)
-
-
 #set up match_passsenger page
 @bp.route('/match_passenger/<int:driver_id>')
 @login_required
 def match_passenger(driver_id):
+    # Fetch the profile of the current user
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    # Fetch the driver details
     driver = Driverspost.query.get_or_404(driver_id)
+    # Fetch all profiles and create a dictionary with user_id as the key
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
-    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='in_progress').all()  
-    return render_template('match_passenger.html', driver=driver, passengers=passengers, profile_dict=profile_dict)
+    # Fetch ongoing passenger matches for the given driver_id
+    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='ongoing').all()
+    # Debugging: print to check contents
+    print(f"Profile dict keys: {profile_dict.keys()}")
+    print(f"Driver user ID: {driver.user_id}")
+    
+    # Render the template with context
+    return render_template(
+        'match_passenger.html',
+        driver=driver,
+        passengers=passengers,
+        profile_dict=profile_dict,
+        profile=profile
+    )
 
 #set up match driver page
 @bp.route('/match_driver/<int:driver_id>')
 @login_required
 def match_driver(driver_id):
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
     driver = Driverspost.query.get_or_404(driver_id)
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
     passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='in_progress').all() 
-    return render_template('match_driver.html', driver=driver, passengers=passengers, profile_dict=profile_dict)
+    return render_template('match_driver.html', driver=driver, passengers=passengers, profile_dict=profile_dict,profile=profile)
 
 #set up select driver page
 @bp.route('/select_driver/<int:driver_id>', methods=['POST'])
@@ -313,7 +407,7 @@ def match_driver(driver_id):
 def select_driver(driver_id):
     selected_driver = Driverspost.query.get_or_404(driver_id)
     
-    existing_match = PassengerMatch.query.filter_by(passenger_id=current_user.id, driver_id=driver_id, status="in_progress").first()
+    existing_match = PassengerMatch.query.filter_by(passenger_id=current_user.id, driver_id=driver_id).first()
     if existing_match:
         flash('You have already selected this driver.', 'info')
         return redirect(url_for('main.drivers_list'))
@@ -331,37 +425,11 @@ def select_driver(driver_id):
 @login_required
 def remove_passenger(passenger_id, driver_id):
     passenger_match = PassengerMatch.query.filter_by(passenger_id=passenger_id, driver_id=driver_id).first_or_404()
-    
-    # Allow the passenger, the driver, or an admin to remove the passenger
-    driver_post = Driverspost.query.get_or_404(driver_id)
-    if (passenger_match.passenger_id == current_user.id or
-        driver_post.user_id == current_user.id or
-        current_user.has_role('admin')):
-        
+    if passenger_match.passenger_id == current_user.id or current_user.has_role('admin'):  
         db.session.delete(passenger_match)
         db.session.commit()
         flash('Passenger removed successfully', category='success')
-        
-        # Redirect depending on who performed the removal
-        if current_user.id == driver_post.user_id:
-            return redirect(url_for('main.match_driver', driver_id=driver_id))
-        else:
-            return redirect(url_for('main.match_passenger', driver_id=driver_id))
-    
-    flash('You do not have permission to remove this passenger.', category='error')
     return redirect(url_for('main.match_passenger', driver_id=driver_id))
-
-# define route for changing password
-@bp.route('/change_password',methods=['GET','POST'])
-def change_password():
-    if request.method == "POST":
-        old_password = request.form.get('old_password')
-        new_password = request.form.get('new_password')
-        confirm_new_password = request.form.get('confirm_new_password')
-
-
-
-
 
 @bp.route('/complete_match/<int:match_id>', methods=['POST'])
 def complete_match(match_id):
@@ -389,9 +457,6 @@ def cancel_match(match_id):
 
     return redirect(url_for('main.booking_history'))
 
-
-
-
 @bp.route('/view_detail_d/<int:match_id>', methods=['GET', 'POST'])
 @login_required
 def view_detail_d(match_id):
@@ -408,6 +473,7 @@ def view_detail_p(match_id):
 @bp.route('/booking_history')
 @login_required
 def booking_history():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
     # Get all matches where the current user is a passenger
     passenger_matches = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
                                             .join(Driverspost, PassengerMatch.driver_id == Driverspost.id) \
@@ -420,78 +486,53 @@ def booking_history():
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
 
-    return render_template('booking_history.html', passenger_matches=passenger_matches, profile_dict=profile_dict,driver_post=driver_post)
+    return render_template('booking_history.html', passenger_matches=passenger_matches, profile_dict=profile_dict,driver_post=driver_post,profile=profile)
 
-
-#@bp.route('/dashboard')
-#@login_required
-#def dashboard():
-    # Fetch the user's profile data from the database
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
-
-    if profile is None:
-        flash("No profile found. Please complete your profile first.", category="error")
-        return redirect(url_for('main.profile'))
-
-    return render_template('dashboard.html', profile=profile)
-
-
-
-#set up dashboard page
-@bp.route('/dashboard', methods=['GET'])
+#upload payment proof
+@bp.route('/upload', methods=['GET', 'POST'])
 @login_required
-def dashboard():
+def upload_payment_proof():
+    form = PaymentForm()
     profile = Profile.query.filter_by(user_id=current_user.id).first()
-    if profile is None:
-        flash("No profile found. Please complete your profile first.", category="error")
-        return redirect(url_for('main.profile'))
+    if form.validate_on_submit():
+        payment_method = form.payment_method.data
 
-    return render_template('dashboard.html', profile=profile)
-
-UPLOAD_FOLDER = '/static/uploads'
-def file_is_valid(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in {'jpg', 'png', 'jpeg'}
-
-#set up update profile page
-@bp.route('/update_profile', methods=['POST'])
-@login_required
-def update_profile():
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
-    if not profile:
-        flash("Profile not found.", category="error")
-        return redirect(url_for('main.dashboard'))
-    profile.fullName = request.form['fullName']
-    profile.contact = request.form['contact']
-    email = request.form['email']
-    if email != current_user.email:
-        user = User.query.filter_by(id=current_user.id).first()
-        user.email = email
-        db.session.commit()
-
-    file = request.files.get('profile_pic')
-
-    # Handling file upload (if any)
-    if file and file.filename != '':
-        if file_is_valid(file.filename):
+        if payment_method == 'upload':
+            file = form.payment_proof.data
             filename = secure_filename(file.filename)
-            upload_path = os.path.join(UPLOAD_FOLDER)
+            upload_path = os.path.join('web', 'static', 'payment')
 
+            # Ensure upload directory exists
             if not os.path.exists(upload_path):
                 os.makedirs(upload_path)
-            
-            file_path = os.path.join(upload_path, filename)
-            print("Saving file to:", file_path)  # Debugging: Print file path
-            
-            try:
-                file.save(file_path)
-                profile.profile_pic = filename  # Store the filename in the profile object
-            except Exception as e:
-                flash(f"An error occurred while saving the file: {e}", category="error")
-                return redirect(url_for('main.dashboard'))
-        else:
-            flash("Invalid file type. Only JPG, PNG, and JPEG files are allowed.", category="error")
-            return redirect(url_for('main.dashboard'))
 
-    db.session.commit()
-    flash("Profile updated successfully!", category="success")
-    return redirect(url_for('main.dashboard'))
+            file_path = os.path.join(upload_path, filename)
+            file.save(file_path)
+
+            # Save the payment proof details to the database
+            payment_proof = PaymentProof(file_name=filename)
+            db.session.add(payment_proof)
+            db.session.commit()
+
+            flash('Payment proof uploaded successfully!', 'success')
+        elif payment_method == 'cash':
+            flash('You have chosen to pay by cash.', 'info')
+
+        return redirect(url_for('main.booking_history'))
+    
+    return render_template('upload.html', form=form,profile=profile)
+
+
+
+# @bp.route('/user_list')
+# @login_required
+# def user_list():
+#     users = User.query.all()
+#     return render_template('user_list.html', users=users)
+
+#@bp.route('/profile_list')
+#@login_required
+#def profile_list():
+    profiles = Profile.query.all()
+
+    return render_template('profile_list.html', profiles=profiles)

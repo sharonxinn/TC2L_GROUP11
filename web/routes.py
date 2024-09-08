@@ -316,9 +316,9 @@ def driver_post():
 
     return render_template('driver_post.html')
 
-@bp.route('/googlemap')
+@bp.route('/findaroute')
 @login_required
-def googlemap():
+def findaroute():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
     driver_posts = Driverspost.query.all()
     # Prepare a list of drivers' details
@@ -335,8 +335,9 @@ def googlemap():
     } for dp in driver_posts]
     pickup_lat = 0
     pickup_lng = 0
-    return render_template('googlemap.html', drivers_data=drivers_data, pickup_lat=pickup_lat, pickup_lng=pickup_lng,profile=profile)
+    return render_template('findaroute.html', drivers_data=drivers_data, pickup_lat=pickup_lat, pickup_lng=pickup_lng,profile=profile)
 
+#set up driver list
 @bp.route('/drivers_list')
 @login_required
 def drivers_list():

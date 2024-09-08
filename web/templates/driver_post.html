@@ -1,33 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="stylesheet" href="../static/driver_post.css"> -->
     <title>Rider Post</title>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&callback=initMap&libraries=places&v=beta" async defer></script>
     <script>
         let map;
         let marker;
+        let originalLocation;
 
         function initMap() {
-            const defaultLocation = { lat: 2.9276, lng: 101.6420 }; // Default location (Example: MMU Cyberjaya)
+            originalLocation = { lat: 2.9276, lng: 101.6420 }; // Default location (Example: MMU Cyberjaya)
             
             map = new google.maps.Map(document.getElementById("map"), {
-                center: defaultLocation,
+                center: originalLocation,
                 zoom: 15
             });
 
             marker = new google.maps.Marker({
-                position: defaultLocation,
+                position: originalLocation,
                 map: map,
-                title: "Pickup Location"
+                title: "Pickup Location",
+                draggable: true
             });
 
-            // Set default hidden fields for pickup location
-            document.getElementById("pickup_lat").value = defaultLocation.lat;
-            document.getElementById("pickup_lng").value = defaultLocation.lng;
+            // Update hidden fields with initial location
+            updateHiddenFields(originalLocation);
+
+            // Event listener for marker drag
+            marker.addListener('dragend', function(event) {
+                const newLocation = { lat: event.latLng.lat(), lng: event.latLng.lng() };
+                if (isWithinRadius(originalLocation, newLocation, 10000)) { // 10000 meters = 10 km
+                    updateHiddenFields(newLocation);
+                } else {
+                    alert("Marker can only be moved within 10 km of the original location.");
+                    marker.setPosition(originalLocation); // Reset marker position
+                }
+            });
+        }
+
+        // Update hidden fields with the marker's current position
+        function updateHiddenFields(location) {
+            document.getElementById("pickup_lat").value = location.lat;
+            document.getElementById("pickup_lng").value = location.lng;
+        }
+
+        // Check if the new location is within a certain radius from the original location
+        function isWithinRadius(originalLocation, newLocation, radius) {
+            const R = 6371000; // Radius of the Earth in meters
+            const dLat = toRadians(newLocation.lat - originalLocation.lat);
+            const dLng = toRadians(newLocation.lng - originalLocation.lng);
+            const lat1 = toRadians(originalLocation.lat);
+            const lat2 = toRadians(newLocation.lat);
+
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.sin(dLng / 2) * Math.sin(dLng / 2) *
+                      Math.cos(lat1) * Math.cos(lat2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = R * c; // Distance in meters
+
+            return distance <= radius;
+        }
+
+        // Convert degrees to radians
+        function toRadians(degrees) {
+            return degrees * (Math.PI / 180);
         }
 
         // Update map and hidden fields based on the selected pickup location
@@ -54,8 +92,7 @@
                 marker.setPosition(newLocation);
 
                 // Update hidden fields
-                document.getElementById("pickup_lat").value = newLocation.lat;
-                document.getElementById("pickup_lng").value = newLocation.lng;
+                updateHiddenFields(newLocation);
             }
         }
     </script>
@@ -69,10 +106,9 @@
     </div>
 
     <div class="outside-center">
-        <h1 align="center">Rider Post</h1>
+        <h1 align="center">Post A Ride</h1>
         <div class="middle-box">
             <form action="{{ url_for('main.driver_post') }}" method="post">
-
                 <div class="inner-center">
                     <label for="dateandTime">Date & Time</label>
                     <br>
@@ -81,14 +117,14 @@
 
                 <div class="left-right">
                     <div class="inner-center">
-                        <label for="pickup">Starting Point</label>
+                        <label for="pickup">Start Location</label>
                         <br>
                         <select name="pickup" id="pickup" onchange="updateMapLocation()" required>
                             <option value="Taman Puchong Utama">Taman Puchong Utama</option>
                             <option value="Taman Puchong Prima">Taman Puchong Prima</option>
                             <option value="Taman Kinrara">Taman Kinrara</option>
                             <option value="MRT Cyberjaya Utara">MRT Cyberjaya Utara</option>
-                            <option value="MRT Cyberjaya Centre">MRT Cyeberjaya Centre</option>
+                            <option value="MRT Cyberjaya Centre">MRT Cyberjaya Centre</option>
                             <option value="Garden Plaza Residence">Garden Plaza Residence</option>
                             <option value="Lakefront Residence">Lakefront Residence</option>
                             <option value="Dpulze">Dpulze</option>
@@ -101,7 +137,7 @@
                     </div>
 
                     <div class="inner-center">
-                        <label for="dropoff">Drop-Off Point</label>
+                        <label for="dropoff">End Location</label>
                         <br>
                         <select name="dropoff" id="dropoff" required>
                             <option value="Guard House">Guard House</option>

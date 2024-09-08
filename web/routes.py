@@ -17,6 +17,8 @@ def login():
     if request.method=='POST':
         email=request.form.get('email')
         password=request.form.get('password')
+        entered_captcha = request.form.get('text')
+        generated_captcha = request.form.get('captcha_code')
 
         user=User.query.filter_by(email=email).first()
 
@@ -31,6 +33,9 @@ def login():
         if request.form.get("email")=="admin@gmail.com" and request.form.get("password")=="admin1234":
             session['logged in']=True
             return redirect("/admin")
+        
+        elif entered_captcha is None or entered_captcha.lower() != generated_captcha:
+            flash('Verification Code Error!', category='error')
         else:
             if user:
                 if check_password_hash(user.password, password):

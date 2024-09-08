@@ -55,39 +55,74 @@
                 <th>Gender</th>
                 <th>Contact</th>
                 <th>Payment Proof</th> <!-- New column for payment proof -->
+                <th>Status</th>
                 <th>Action</th>
             </tr>
             {% for match in matches %}
             <tr>
                 <td>{{ profile_dict[match.passenger_id].fullName }}</td>
                 <td>{{ profile_dict[match.passenger_id].gender }}</td>
+                <td>{{ profile_dict[match.passenger_id].contact }}</td>
+                <td>{% if match.payment_proof %}
+                    <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof" style="width:150px;height:150px;">
+                {% else %}
+                    Pay By Cash</td>
+                {% endif %}
+                <td>{{ match.status }}</td>
                 <td>
                     <form action="{{ url_for('main.remove_passenger', passenger_id=match.passenger_id, driver_id=driver.id) }}" method="POST">
                         <input type="submit" value="Remove Passenger" class="btn">
                     </form>
-                    <form action="{{ url_for('main.complete_match', match_id=match.id) }}" method="POST">
-                        <input type="submit" value="Complete">
-                    </form>
-                    <form action="{{ url_for('main.confirm_match', match_id=match.id) }}" method="POST">
-                        <input type="submit" value="Confirm">
-                    </form>  
-                    <form action="{{ url_for('main.cancel_match', match_id=match.id) }}" method="POST">
-                        <input type="submit" value="Cancel">
-                    </form>
+                    
+        
                 </td>
-                <td>
-                {% if match.payment_proof %}
+
+            </tr>
+            {% endfor %}
+
+            {% for match in matchess %}
+            <tr>
+                <td>{{ profile_dict[match.passenger_id].fullName }}</td>
+                <td>{{ profile_dict[match.passenger_id].gender }}</td>
+                <td>{{ profile_dict[match.passenger_id].contact }}</td>
+                <td>{% if match.payment_proof %}
                     <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof" style="width:150px;height:150px;">
                 {% else %}
                     Pay By Cash
-                {% endif %}
+                {% endif %}</td>
+                <td>{{ match.status }}</td>
+                <td>
+                    <form action="{{ url_for('main.remove_passenger', passenger_id=match.passenger_id, driver_id=driver.id) }}" method="POST">
+                        <input type="submit" value="Remove Passenger" class="btn">
+                    </form>
                 </td>
+                
             </tr>
-            {% else %}
-            <tr>
-                <td colspan="5">No passengers found</td>
-            </tr>
+
             {% endfor %}
+
+            {% for match in matches_confirmed %}
+            <tr>
+                <td>{{ profile_dict[match.passenger_id].fullName }}</td>
+                <td>{{ profile_dict[match.passenger_id].gender }}</td>
+                <td>{{ profile_dict[match.passenger_id].contact }}</td>
+                <td>{% if match.payment_proof %}
+                    <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof" style="width:150px;height:150px;">
+                {% else %}
+                    Pay By Cash
+                {% endif %}</td>
+                <td>{{ match.status }}</td>
+                <td>
+                    <form action="{{ url_for('main.remove_passenger', passenger_id=match.passenger_id, driver_id=driver.id) }}" method="POST">
+                        <input type="submit" value="Remove Passenger" class="btn">
+                    </form>
+                </td>
+
+            </tr>
+            
+            {% endfor %}
+                
+            
         </table>
     </div>
 </body>

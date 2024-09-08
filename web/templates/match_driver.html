@@ -13,13 +13,19 @@
         <p>Starting Point: {{ driver.pickup }}</p>
         <p>Drop Off Point: {{ driver.dropoff }}</p>
         <p>Carplate:{{ driver.carplate }}</p>
-        <p>Carmodel{{ driver.carmodel }}</p>
+        <p>Carmodel:{{ driver.carmodel }}</p>
 
         <h3>Other Passengers:</h3>
         {% for passenger in passengers %}
         <p>{{ profile_dict[passenger.passenger_id].fullName }} - {{ profile_dict[passenger.passenger_id].contact }}</p>
+        {% endfor %}
 
+        {% for passenger in passengerss %}
+        <p>{{ profile_dict[passenger.passenger_id].fullName }} - {{ profile_dict[passenger.passenger_id].contact }}</p>
+        {% endfor %}
 
+        {% for passenger in passengers_confirmed %}
+        <p>{{ profile_dict[passenger.passenger_id].fullName }} - {{ profile_dict[passenger.passenger_id].contact }}</p>
         {% endfor %}
     </body>
 </html>

@@ -265,7 +265,7 @@ def change_password():
 
 
 ####DATA#######################################################################
-#set up driver post page
+
 #set up driver post page
 @bp.route('/driver_post', methods=['GET', 'POST'])
 @login_required
@@ -316,22 +316,6 @@ def driver_post():
 
     return render_template('driver_post.html')
 
-    # Fetch the driver's post information from the database
-    driver_post = Driverspost.query.get_or_404(driver_id)
-    # Pass the driver's pickup location (latitude and longitude) to the template
-    pickup_lat = driver_post.pickup_lat  # Assuming latitude is stored in pickup_lat
-    pickup_lng = driver_post.pickup_lng  # Assuming longitude is stored in pickup_lon
-    return render_template('googlemap.html', pickup_lat=pickup_lat, pickup_lng=pickup_lng)
-
-#@bp.route('/googlemap/<int:driver_id>')
-#@login_required
-#def googlemap(driver_id):
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
-    driver_post = Driverspost.query.get_or_404(driver_id)
-    pickup_lat = driver_post.pickup_lat
-    pickup_lng = driver_post.pickup_lng
-    return render_template('googlemap.html', pickup_lat=pickup_lat, pickup_lng=pickup_lng,profile=profile)
-
 @bp.route('/googlemap')
 @login_required
 def googlemap():
@@ -353,16 +337,20 @@ def googlemap():
     pickup_lng = 0
     return render_template('googlemap.html', drivers_data=drivers_data, pickup_lat=pickup_lat, pickup_lng=pickup_lng,profile=profile)
 
-#set up driver list page
 @bp.route('/drivers_list')
 @login_required
 def drivers_list():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
-    drivers = Driverspost.query.filter_by(status='in_progress')
+    # Get the nearby driver IDs from the query parameters
+    nearby_driver_ids = request.args.get('nearbyDrivers')
+    if nearby_driver_ids:
+        nearby_driver_ids = [int(driver_id) for driver_id in nearby_driver_ids.split(',')]
+        drivers = Driverspost.query.filter(Driverspost.id.in_(nearby_driver_ids)).all()
+    else:
+        drivers = []
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
-    return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict,profile=profile)
+    return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict, profile=profile)
 
 #set up match_passsenger page
 @bp.route('/match_passenger/<int:driver_id>')

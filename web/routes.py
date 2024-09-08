@@ -264,7 +264,7 @@ def change_password():
     return render_template('change_password.html',user=current_user,profile=profile)
 
 
-####DATA#######################################################################
+####GOOGLE MAP DATA#######################################################################
 
 #set up driver post page
 @bp.route('/driver_post', methods=['GET', 'POST'])
@@ -337,6 +337,8 @@ def findaroute():
     pickup_lng = 0
     return render_template('findaroute.html', drivers_data=drivers_data, pickup_lat=pickup_lat, pickup_lng=pickup_lng,profile=profile)
 
+####DRIVER PASSENGER DATA#######################################################################
+
 #set up driver list
 @bp.route('/drivers_list')
 @login_required
@@ -352,6 +354,25 @@ def drivers_list():
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
     return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict, profile=profile)
+
+#set up bookinh history page
+@bp.route('/booking_history')
+@login_required
+def booking_history():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    # Get all matches where the current user is a passenger
+    passenger_matches = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
+                                            .join(Driverspost, PassengerMatch.driver_id == Driverspost.id) \
+                                            .filter(PassengerMatch.passenger_id == current_user.id) \
+                                            .all()
+
+    # Get all drivers posts where the current user is the driver
+    driver_post = Driverspost.query.filter_by(user_id=current_user.id).all()
+
+    profiles = Profile.query.all()
+    profile_dict = {profile.user_id: profile for profile in profiles}
+
+    return render_template('booking_history.html', passenger_matches=passenger_matches, profile_dict=profile_dict,driver_post=driver_post,profile=profile)
 
 #set up match_passsenger page
 @bp.route('/match_passenger/<int:driver_id>')
@@ -420,6 +441,7 @@ def remove_passenger(passenger_id, driver_id):
         flash('Passenger removed successfully', category='success')
     return redirect(url_for('main.match_passenger', driver_id=driver_id))
 
+#set up complete match page
 @bp.route('/complete_match/<int:match_id>', methods=['POST'])
 def complete_match(match_id):
     match = PassengerMatch.query.get(match_id)
@@ -428,11 +450,15 @@ def complete_match(match_id):
         db.session.commit()
 
         driver_post = match.driver_post
-        driver_post.status = ' completed '
+        driver_post.status = 'completed'
         db.session.commit()
+
+        # Redirect to upload payment proof page with the match_id
+        return redirect(url_for('main.upload_payment_proof', match_id=match_id))
 
     return redirect(url_for('main.booking_history'))
 
+#set up cancel match page
 @bp.route('/cancel_match/<int:match_id>', methods=['POST'])
 def cancel_match(match_id):
     match = PassengerMatch.query.get(match_id)
@@ -446,6 +472,7 @@ def cancel_match(match_id):
 
     return redirect(url_for('main.booking_history'))
 
+#set up view detail page 
 @bp.route('/view_detail_d/<int:match_id>', methods=['GET', 'POST'])
 @login_required
 def view_detail_d(match_id):
@@ -458,29 +485,10 @@ def view_detail_p(match_id):
     match = PassengerMatch.query.get_or_404(match_id)
     return redirect(url_for('main.match_driver', driver_id=match.driver_id))
 
-#set up bookinh history page
-@bp.route('/booking_history')
+#set up upload payment page
+@bp.route('/upload/<int:match_id>', methods=['GET', 'POST'])
 @login_required
-def booking_history():
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
-    # Get all matches where the current user is a passenger
-    passenger_matches = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
-                                            .join(Driverspost, PassengerMatch.driver_id == Driverspost.id) \
-                                            .filter(PassengerMatch.passenger_id == current_user.id) \
-                                            .all()
-
-    # Get all drivers posts where the current user is the driver
-    driver_post = Driverspost.query.filter_by(user_id=current_user.id).all()
-
-    profiles = Profile.query.all()
-    profile_dict = {profile.user_id: profile for profile in profiles}
-
-    return render_template('booking_history.html', passenger_matches=passenger_matches, profile_dict=profile_dict,driver_post=driver_post,profile=profile)
-
-#upload payment proof
-@bp.route('/upload', methods=['GET', 'POST'])
-@login_required
-def upload_payment_proof():
+def upload_payment_proof(match_id):
     form = PaymentForm()
     profile = Profile.query.filter_by(user_id=current_user.id).first()
     if form.validate_on_submit():
@@ -507,21 +515,7 @@ def upload_payment_proof():
         elif payment_method == 'cash':
             flash('You have chosen to pay by cash.', 'info')
 
+        # Redirect to booking history or another relevant page
         return redirect(url_for('main.booking_history'))
     
-    return render_template('upload.html', form=form,profile=profile)
-
-
-
-# @bp.route('/user_list')
-# @login_required
-# def user_list():
-#     users = User.query.all()
-#     return render_template('user_list.html', users=users)
-
-#@bp.route('/profile_list')
-#@login_required
-#def profile_list():
-    profiles = Profile.query.all()
-
-    return render_template('profile_list.html', profiles=profiles)
+    return render_template('upload.html', form=form, profile=profile, match_id=match_id)

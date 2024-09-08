@@ -16,6 +16,7 @@
     <h1>Upload Payment Proof</h1>
     <form method="POST" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
+        <input type="hidden" name="match_id" value="{{ match_id }}"> <!-- Include match_id -->
         <div>
             <label for="passenger_name">Passenger Name</label>
             <p>{{ profile.fullName }}</p>

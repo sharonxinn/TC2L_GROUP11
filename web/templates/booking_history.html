@@ -1,28 +1,3 @@
-<<<<<<< HEAD
-<h1>Booking History</h1>
-<table border="1">
-
-
-
-
-    {% for driver_post in driver_posts %}
-    <tr>
-        <td>Driver</td>
-        <td>{{ profile_dict[driver_post.user_id].fullName }}</td>
-        <td>{{ driver_post.dateandTime }}</td>
-        <td>{{ driver_post.pickup }}</td>
-        <td>{{ driver_post.dropoff }}</td>
-        <td>-</td>
-        <td>{{ driver_post.status }}</td>
-        <td>
-            <form action="{{ url_for('main.view_detail', driver_post_id=driver_post.id) }}" method="POST">
-                <input type="submit" value="View Detail">
-            </form>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-
 {% extends "base_passenger.html" %}
 {% block title %}Booking History{% endblock %}
 {% block content %}

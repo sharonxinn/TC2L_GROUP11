@@ -16,36 +16,46 @@ app.config['UPLOAD_PAYMENT']='/web/static/payment/'
 #set up sign up page
 @bp.route('/signup',methods=['GET','POST'])
 def sign_up():
-    if request.method=='POST':
-        email=request.form.get('email')
-        password1=request.form.get('password1')
-        password2=request.form.get('password2')
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password1 = request.form.get('password1')
+        password2 = request.form.get('password2')
+        # entered_captcha = request.form.get('text')
+        # generated_captcha = request.form.get('captcha_code')
 
-        user=User.query.filter_by(email=email).first()
+        user = User.query.filter_by(email=email).first()
+
         if user:
-            flash('Email already exists',category='error')
-        elif len(email)<4:
-            flash('Email must be greater than 3 characters.',category='error')
-        # elif len(first_name)<2:
-        #     flash('First Name must be greater than 1 characters.',category='error')
+            flash('Email already exists', category='error')
+
+        # elif entered_captcha is None or entered_captcha.lower() != generated_captcha:
+        #     flash('Verification Code Error!', category='error')
+
+        elif len(email) < 4:
+            flash('Email must be greater than 3 characters.', category='error')
+
         elif password1 != password2:
-            flash('Password does not match.',category='error')
-        elif len(password1)<7:
-            flash('Password must be greater than 6 characters.',category='error')
+            flash('Passwords do not match.', category='error')
+
+        elif len(password1) < 7:
+            flash('Password must be greater than 6 characters.', category='error')
+
         else:
-            new_user=User(email=email,password=generate_password_hash(password1,method='pbkdf2:sha256'))
+            new_user = User(email=email, password=generate_password_hash(password1, method='pbkdf2:sha256'))
             db.session.add(new_user)
             db.session.commit()
+
             user = User.query.filter_by(email=email).first()
 
-            if user:  # Check if user is found
+            if user:
                 login_user(user, remember=True)
                 flash('Account created successfully!', category='success')
                 return redirect(url_for('main.profile'))
             else:
                 flash('Error during user creation. Please try again.', category='error')
 
-    return render_template("signup.html",user=current_user)
+    return render_template("signup.html", user=current_user)
+
 
 #set up login page
 @bp.route('/login',methods=['GET','POST'])
@@ -53,6 +63,8 @@ def login():
     if request.method=='POST':
         email=request.form.get('email')
         password=request.form.get('password')
+        # entered_captcha = request.form.get('text')
+        # generated_captcha = request.form.get('captcha_code')
 
         user=User.query.filter_by(email=email).first()
 
@@ -67,6 +79,10 @@ def login():
         if request.form.get("email")=="admin@gmail.com" and request.form.get("password")=="admin1234":
             session['logged in']=True
             return redirect("/admin")
+        
+        # elif entered_captcha is None or entered_captcha.lower() != generated_captcha:
+        #     flash('Verification Code Error!', category='error')
+
         else:
             if user:
                 if check_password_hash(user.password, password):
@@ -79,6 +95,7 @@ def login():
                 flash('Email does not exist.',category='error')
     
     return render_template("login.html",user=current_user)
+
 
 #set up logout page
 @bp.route('/logout')
@@ -367,12 +384,12 @@ def booking_history():
                                             .all()
 
     # Get all drivers posts where the current user is the driver
-    driver_post = Driverspost.query.filter_by(user_id=current_user.id).all()
+    driver_posts = Driverspost.query.filter_by(user_id=current_user.id).all()
 
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
 
-    return render_template('booking_history.html', passenger_matches=passenger_matches, profile_dict=profile_dict,driver_post=driver_post,profile=profile)
+    return render_template('booking_history.html', passenger_matches=passenger_matches, profile_dict=profile_dict,driver_posts=driver_posts,profile=profile)
 
 #set up match_passsenger page
 @bp.route('/match_passenger/<int:driver_id>')
@@ -386,7 +403,9 @@ def match_passenger(driver_id):
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
     # Fetch ongoing passenger matches for the given driver_id
-    matches = PassengerMatch.query.filter_by(driver_id=driver_id, status='confirm').all()
+    matches = PassengerMatch.query.filter_by(driver_id=driver_id, status='in_progress').all()
+    matchess = PassengerMatch.query.filter_by(driver_id=driver_id, status='complete').all()
+    matches_confirmed = PassengerMatch.query.filter_by(driver_id=driver_id, status='confirm').all()
 
     # Debugging: print to check contents
     print(f"Profile dict keys: {profile_dict.keys()}")
@@ -398,7 +417,9 @@ def match_passenger(driver_id):
         driver=driver,
         matches=matches,  # Pass the matches to the template
         profile_dict=profile_dict,
-        profile=profile
+        profile=profile,
+        matchess=matchess,
+        matches_confirmed=matches_confirmed
     )
 
 #set up match driver page
@@ -409,8 +430,10 @@ def match_driver(driver_id):
     driver = Driverspost.query.get_or_404(driver_id)
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
-    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='confirm').all() 
-    return render_template('match_driver.html', driver=driver, passengers=passengers, profile_dict=profile_dict,profile=profile)
+    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='in_progress' ).all() 
+    passengerss = PassengerMatch.query.filter_by(driver_id=driver_id, status='complete' ).all() 
+    passengers_confirmed = PassengerMatch.query.filter_by(driver_id=driver_id, status='confirm' ).all() 
+    return render_template('match_driver.html', driver=driver, passengers=passengers, profile_dict=profile_dict,profile=profile, passengerss=passengerss,passengers_confirmed=passengers_confirmed)
 
 #set up select driver page
 @bp.route('/select_driver/<int:driver_id>', methods=['POST'])
@@ -492,6 +515,16 @@ def cancel_match(match_id):
         db.session.commit()
 
     return redirect(url_for('main.booking_history'))
+
+@bp.route('/cancel_match_p/<int:match_id>', methods=['POST'])
+def cancel_match_p(match_id):
+    match = PassengerMatch.query.get(match_id)
+    if match:
+        match.status = 'canceled'
+        db.session.commit()
+
+    return redirect(url_for('main.booking_history'))
+
 
 #set up view detail page 
 @bp.route('/view_detail_d/<int:match_id>', methods=['GET', 'POST'])

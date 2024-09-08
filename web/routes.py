@@ -354,15 +354,31 @@ def googlemap():
     return render_template('googlemap.html', drivers_data=drivers_data, pickup_lat=pickup_lat, pickup_lng=pickup_lng,profile=profile)
 
 #set up driver list page
-@bp.route('/drivers_list')
-@login_required
-def drivers_list():
+#@bp.route('/drivers_list')
+#@login_required
+#def drivers_list():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
     drivers = Driverspost.query.filter_by(status='in_progress')
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
     profile = Profile.query.filter_by(user_id=current_user.id).first()
     return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict,profile=profile)
+
+@bp.route('/drivers_list')
+@login_required
+def drivers_list():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    # Get the nearby driver IDs from the query parameters
+    nearby_driver_ids = request.args.get('nearbyDrivers')
+    if nearby_driver_ids:
+        nearby_driver_ids = [int(driver_id) for driver_id in nearby_driver_ids.split(',')]
+        drivers = Driverspost.query.filter(Driverspost.id.in_(nearby_driver_ids)).all()
+    else:
+        drivers = []
+    profiles = Profile.query.all()
+    profile_dict = {profile.user_id: profile for profile in profiles}
+    return render_template('drivers_list.html', drivers=drivers, profile_dict=profile_dict, profile=profile)
+
 
 #set up match_passsenger page
 @bp.route('/match_passenger/<int:driver_id>')

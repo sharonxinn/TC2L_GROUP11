@@ -13,6 +13,7 @@
     <div class="container">
         <h1>Google Map</h1>
         <button onclick="getLocation()">GET CURRENT LOCATION</button>
+        <button onclick="goToDriverList()">View Nearby Drivers</button> <!-- Button to view nearby drivers -->
         <div id="mapholder" style="height: 500px; width: 100%;"></div>
 
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&callback=initMap&libraries=places,geometry&v=beta" async defer></script>
@@ -20,6 +21,7 @@
             var map;
             var userMarker;
             var driverMarkers = [];
+            var nearbyDrivers = [];  // Array to store nearby driver IDs
             var driversData = {{ drivers_data | tojson | safe }}; // Array of driver locations
             var pickupLat = {{ pickup_lat if pickup_lat is not none else 0 | tojson | safe }};
             var pickupLon = {{ pickup_lng if pickup_lng is not none else 0 | tojson | safe }};
@@ -67,9 +69,11 @@
             }
 
             function addDriverMarkers(userLat, userLon) {
+                nearbyDrivers = [];  // Clear the array each time we update the map
+
                 for (var i = 0; i < driversData.length; i++) {
                     var driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
-                    
+
                     // Calculate the distance between user and driver using the Haversine formula
                     var distance = google.maps.geometry.spherical.computeDistanceBetween(
                         new google.maps.LatLng(userLat, userLon), driverLatLon
@@ -103,6 +107,7 @@
                         })(driverMarker, infoWindow);
 
                         driverMarkers.push(driverMarker);
+                        nearbyDrivers.push(driversData[i].id);  // Add nearby driver ID to the array
                     }
                 }
             }
@@ -129,6 +134,11 @@
                 }
 
                 map.fitBounds(bounds);
+            }
+
+            function goToDriverList() {
+                // Redirect to the drivers_list page, sending the nearby driver IDs
+                window.location.href = "/drivers_list?nearbyDrivers=" + nearbyDrivers.join(',');
             }
 
             function showError(error) {

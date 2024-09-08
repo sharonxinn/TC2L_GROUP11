@@ -386,7 +386,7 @@ def match_passenger(driver_id):
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
     # Fetch ongoing passenger matches for the given driver_id
-    matches = PassengerMatch.query.filter_by(driver_id=driver_id, status='in_progress').all()
+    matches = PassengerMatch.query.filter_by(driver_id=driver_id, status='confirm').all()
 
     # Debugging: print to check contents
     print(f"Profile dict keys: {profile_dict.keys()}")
@@ -409,7 +409,7 @@ def match_driver(driver_id):
     driver = Driverspost.query.get_or_404(driver_id)
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
-    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='in_progress').all() 
+    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='confirm').all() 
     return render_template('match_driver.html', driver=driver, passengers=passengers, profile_dict=profile_dict,profile=profile)
 
 #set up select driver page

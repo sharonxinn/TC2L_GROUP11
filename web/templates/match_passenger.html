@@ -23,8 +23,8 @@
                 <th>Gender</th>
                 <th>Contact</th>
                 <th>Date and Time</th>
-                <th>Pick-Up Location</th>
-                <th>Drop-Off Location</th>
+                <th>Start Location</th>
+                <th>End Location</th>
                 <th>Car Plate</th>
                 <th>Car Model</th>
                 <th>Maximum Number of Passengers</th>
@@ -76,11 +76,11 @@
                     </form>
                 </td>
                 <td>
-                {% if match.payment_proof %}
-                    <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof" style="width:150px;height:150px;">
-                {% else %}
-                    Pay By Cash
-                {% endif %}
+                    {% if match.payment_proof %}
+                        <img src="{{ url_for('static', filename='uploads/' + match.payment_proof) }}" alt="Payment Proof" style="width:150px;height:150px;">
+                    {% else %}
+                        Pay By Cash
+                    {% endif %}
                 </td>
             </tr>
             {% else %}

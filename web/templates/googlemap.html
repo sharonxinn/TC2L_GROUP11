@@ -18,7 +18,7 @@
         
         <!-- Filter Section -->
         <div class="filter-section">
-            <h2>Filter by Time</h2>
+            <h2>Filter by Date and Time</h2>
             <input type="datetime-local" id="timeFilter">
             <button onclick="applyTimeFilter()">Apply Filter</button>
         </div>
@@ -78,7 +78,7 @@
             function addDriverMarkers(userLat, userLon) {
                 nearbyDrivers = [];
                 filteredDrivers = [];
-                
+
                 for (var i = 0; i < driversData.length; i++) {
                     var driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
                     var distance = google.maps.geometry.spherical.computeDistanceBetween(

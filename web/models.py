@@ -45,12 +45,17 @@ class PassengerMatch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     passenger_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     driver_id = db.Column(db.Integer, db.ForeignKey('driverspost.id'), nullable=False)
+    payment_proof_id = db.Column(db.Integer, db.ForeignKey('payment_proof.id'), nullable=True)
     status = db.Column(db.String(20), nullable=False, default='in_progress')
     
     passenger = db.relationship('User', foreign_keys=[passenger_id], backref='matches_as_passenger')
     driver = db.relationship('Driverspost', foreign_keys=[driver_id], backref='matches_as_driver')
+    # Relationship with PaymentProof
+    payment_proof = db.relationship('PaymentProof', backref='matches', lazy=True)
 
 class PaymentProof(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     file_name = db.Column(db.String(100), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('profile.user_id'), nullable=False)
+    user = db.relationship('Profile', backref='payment_proofs', lazy=True)
 

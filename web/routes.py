@@ -386,16 +386,17 @@ def match_passenger(driver_id):
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
     # Fetch ongoing passenger matches for the given driver_id
-    passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='ongoing').all()
+    matches = PassengerMatch.query.filter_by(driver_id=driver_id, status='in_progress').all()
+
     # Debugging: print to check contents
     print(f"Profile dict keys: {profile_dict.keys()}")
     print(f"Driver user ID: {driver.user_id}")
-    
+
     # Render the template with context
     return render_template(
         'match_passenger.html',
         driver=driver,
-        passengers=passengers,
+        matches=matches,  # Pass the matches to the template
         profile_dict=profile_dict,
         profile=profile
     )
@@ -441,7 +442,30 @@ def remove_passenger(passenger_id, driver_id):
         flash('Passenger removed successfully', category='success')
     return redirect(url_for('main.match_passenger', driver_id=driver_id))
 
-#set up complete match page
+#set up confirm match page
+@bp.route('/confirm_match/<int:match_id>', methods=['POST'])
+def confirm_match(match_id):
+    match = PassengerMatch.query.get(match_id)
+    if match:
+        match.status = 'confirm'
+
+        # Find the latest payment proof for this passenger
+        payment_proof = PaymentProof.query.filter_by(user_id=match.passenger_id).order_by(PaymentProof.id.desc()).first()
+        if payment_proof:
+            match.payment_proof_id = payment_proof.id
+
+        db.session.commit()
+
+        driver_post = match.driver_post
+        driver_post.status = 'confirmed'
+        db.session.commit()
+
+        # Redirect to the match_passenger page or another relevant page
+        return redirect(url_for('main.upload_payment_proof', match_id=match_id))
+
+    return redirect(url_for('main.booking_history'))
+
+#set up complete page
 @bp.route('/complete_match/<int:match_id>', methods=['POST'])
 def complete_match(match_id):
     match = PassengerMatch.query.get(match_id)
@@ -450,11 +474,8 @@ def complete_match(match_id):
         db.session.commit()
 
         driver_post = match.driver_post
-        driver_post.status = 'completed'
+        driver_post.status = ' completed '
         db.session.commit()
-
-        # Redirect to upload payment proof page with the match_id
-        return redirect(url_for('main.upload_payment_proof', match_id=match_id))
 
     return redirect(url_for('main.booking_history'))
 
@@ -485,12 +506,12 @@ def view_detail_p(match_id):
     match = PassengerMatch.query.get_or_404(match_id)
     return redirect(url_for('main.match_driver', driver_id=match.driver_id))
 
-#set up upload payment page
 @bp.route('/upload/<int:match_id>', methods=['GET', 'POST'])
 @login_required
 def upload_payment_proof(match_id):
     form = PaymentForm()
     profile = Profile.query.filter_by(user_id=current_user.id).first()
+    
     if form.validate_on_submit():
         payment_method = form.payment_method.data
 
@@ -507,7 +528,10 @@ def upload_payment_proof(match_id):
             file.save(file_path)
 
             # Save the payment proof details to the database
-            payment_proof = PaymentProof(file_name=filename)
+            payment_proof = PaymentProof(
+                file_name=filename,
+                user_id=current_user.id  # Ensure user_id is set
+            )
             db.session.add(payment_proof)
             db.session.commit()
 

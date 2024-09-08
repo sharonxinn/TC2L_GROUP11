@@ -15,8 +15,7 @@
         <button onclick="getLocation()">GET CURRENT LOCATION</button>
         <div id="mapholder" style="height: 500px; width: 100%;"></div>
 
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&callback=initMap&libraries=places&v=beta" async defer></script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&libraries=geometry" async defer></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&callback=initMap&libraries=places,geometry&v=beta" async defer></script>
         <script>
             var map;
             var userMarker;
@@ -67,36 +66,44 @@
                 }
             }
 
-            function addDriverMarkers() {
+            function addDriverMarkers(userLat, userLon) {
                 for (var i = 0; i < driversData.length; i++) {
                     var driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
                     
-                    var driverMarker = new google.maps.Marker({
-                        position: driverLatLon,
-                        map: map,
-                        title: "Driver's Pickup Location",
-                        icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' // Green marker icon URL
-                    });
+                    // Calculate the distance between user and driver using the Haversine formula
+                    var distance = google.maps.geometry.spherical.computeDistanceBetween(
+                        new google.maps.LatLng(userLat, userLon), driverLatLon
+                    );
 
-                    // Create an InfoWindow for the driver marker
-                    var infoWindow = new google.maps.InfoWindow({
-                        content: '<div><strong>Driver ID:</strong> ' + driversData[i].id + '<br>' +
-                                 '<strong>Dropoff:</strong> ' + driversData[i].dropoff + '<br>' +
-                                 '<strong>DateTime:</strong> ' + driversData[i].dateandTime + '<br>' +
-                                 '<strong>Total Person:</strong> ' + driversData[i].totalperson + '<br>' +
-                                 '<strong>Fees:</strong> ' + driversData[i].fees + '<br>' +
-                                 '<strong>Message:</strong> ' + driversData[i].message + '<br>' +
-                                 '<strong>Status:</strong> ' + driversData[i].status + '</div>'
-                    });
-
-                    // Add click event listener to the driver marker to show the InfoWindow
-                    (function(marker, infoWindow) {
-                        google.maps.event.addListener(marker, 'click', function() {
-                            infoWindow.open(map, marker);
+                    // Only add markers for drivers within 10 km (10,000 meters)
+                    if (distance <= 10000) {
+                        var driverMarker = new google.maps.Marker({
+                            position: driverLatLon,
+                            map: map,
+                            title: "Driver's Pickup Location",
+                            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' // Green marker icon URL
                         });
-                    })(driverMarker, infoWindow);
 
-                    driverMarkers.push(driverMarker);
+                        // Create an InfoWindow for the driver marker
+                        var infoWindow = new google.maps.InfoWindow({
+                            content: '<div><strong>Driver ID:</strong> ' + driversData[i].id + '<br>' +
+                                     '<strong>Dropoff:</strong> ' + driversData[i].dropoff + '<br>' +
+                                     '<strong>DateTime:</strong> ' + driversData[i].dateandTime + '<br>' +
+                                     '<strong>Total Person:</strong> ' + driversData[i].totalperson + '<br>' +
+                                     '<strong>Fees:</strong> ' + driversData[i].fees + '<br>' +
+                                     '<strong>Message:</strong> ' + driversData[i].message + '<br>' +
+                                     '<strong>Status:</strong> ' + driversData[i].status + '</div>'
+                        });
+
+                        // Add click event listener to the driver marker to show the InfoWindow
+                        (function(marker, infoWindow) {
+                            google.maps.event.addListener(marker, 'click', function() {
+                                infoWindow.open(map, marker);
+                            });
+                        })(driverMarker, infoWindow);
+
+                        driverMarkers.push(driverMarker);
+                    }
                 }
             }
 
@@ -110,16 +117,15 @@
                 driverMarkers = [];
 
                 // Add drivers' markers again
-                addDriverMarkers();
+                addDriverMarkers(userLat, userLon);
 
-                // Adjust map bounds to include both markers
+                // Adjust map bounds to include both user and driver markers
                 var bounds = new google.maps.LatLngBounds();
                 bounds.extend(userLatLon);
 
-                // Add drivers' markers to bounds
-                for (var i = 0; i < driversData.length; i++) {
-                    var driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
-                    bounds.extend(driverLatLon);
+                // Add drivers' markers to bounds (if within 10 km)
+                for (var i = 0; i < driverMarkers.length; i++) {
+                    bounds.extend(driverMarkers[i].getPosition());
                 }
 
                 map.fitBounds(bounds);
@@ -151,4 +157,3 @@
 </body>
 </html>
 {% endblock %}
-

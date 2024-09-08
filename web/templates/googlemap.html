@@ -13,16 +13,24 @@
     <div class="container">
         <h1>Google Map</h1>
         <button onclick="getLocation()">GET CURRENT LOCATION</button>
-        <button onclick="goToDriverList()">View Nearby Drivers</button> <!-- Button to view nearby drivers -->
+        <button onclick="goToDriverList()">View Nearby Drivers</button>
         <div id="mapholder" style="height: 500px; width: 100%;"></div>
+        
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <h2>Filter by Time</h2>
+            <input type="datetime-local" id="timeFilter">
+            <button onclick="applyTimeFilter()">Apply Filter</button>
+        </div>
 
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&callback=initMap&libraries=places,geometry&v=beta" async defer></script>
         <script>
             var map;
             var userMarker;
             var driverMarkers = [];
-            var nearbyDrivers = [];  // Array to store nearby driver IDs
-            var driversData = {{ drivers_data | tojson | safe }}; // Array of driver locations
+            var nearbyDrivers = [];
+            var filteredDrivers = [];
+            var driversData = {{ drivers_data | tojson | safe }};
             var pickupLat = {{ pickup_lat if pickup_lat is not none else 0 | tojson | safe }};
             var pickupLon = {{ pickup_lng if pickup_lng is not none else 0 | tojson | safe }};
 
@@ -40,7 +48,6 @@
 
                 map = new google.maps.Map(document.getElementById('mapholder'), mapOptions);
 
-                // Initial user marker at default location
                 userMarker = new google.maps.Marker({
                     position: new google.maps.LatLng(defaultLat, defaultLon),
                     map: map,
@@ -69,26 +76,23 @@
             }
 
             function addDriverMarkers(userLat, userLon) {
-                nearbyDrivers = [];  // Clear the array each time we update the map
-
+                nearbyDrivers = [];
+                filteredDrivers = [];
+                
                 for (var i = 0; i < driversData.length; i++) {
                     var driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
-
-                    // Calculate the distance between user and driver using the Haversine formula
                     var distance = google.maps.geometry.spherical.computeDistanceBetween(
                         new google.maps.LatLng(userLat, userLon), driverLatLon
                     );
 
-                    // Only add markers for drivers within 10 km (10,000 meters)
                     if (distance <= 10000) {
                         var driverMarker = new google.maps.Marker({
                             position: driverLatLon,
                             map: map,
                             title: "Driver's Pickup Location",
-                            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' // Green marker icon URL
+                            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
                         });
 
-                        // Create an InfoWindow for the driver marker
                         var infoWindow = new google.maps.InfoWindow({
                             content: '<div><strong>Driver ID:</strong> ' + driversData[i].id + '<br>' +
                                      '<strong>Dropoff:</strong> ' + driversData[i].dropoff + '<br>' +
@@ -99,7 +103,6 @@
                                      '<strong>Status:</strong> ' + driversData[i].status + '</div>'
                         });
 
-                        // Add click event listener to the driver marker to show the InfoWindow
                         (function(marker, infoWindow) {
                             google.maps.event.addListener(marker, 'click', function() {
                                 infoWindow.open(map, marker);
@@ -107,7 +110,8 @@
                         })(driverMarker, infoWindow);
 
                         driverMarkers.push(driverMarker);
-                        nearbyDrivers.push(driversData[i].id);  // Add nearby driver ID to the array
+                        nearbyDrivers.push(driversData[i].id);
+                        filteredDrivers.push(driversData[i]); // Keep all drivers for filtering
                     }
                 }
             }
@@ -115,20 +119,16 @@
             function updateMap(userLat, userLon) {
                 var userLatLon = new google.maps.LatLng(userLat, userLon);
 
-                // Clear existing driver markers
                 for (var i = 0; i < driverMarkers.length; i++) {
                     driverMarkers[i].setMap(null);
                 }
                 driverMarkers = [];
 
-                // Add drivers' markers again
                 addDriverMarkers(userLat, userLon);
 
-                // Adjust map bounds to include both user and driver markers
                 var bounds = new google.maps.LatLngBounds();
                 bounds.extend(userLatLon);
 
-                // Add drivers' markers to bounds (if within 10 km)
                 for (var i = 0; i < driverMarkers.length; i++) {
                     bounds.extend(driverMarkers[i].getPosition());
                 }
@@ -136,8 +136,48 @@
                 map.fitBounds(bounds);
             }
 
+            function applyTimeFilter() {
+                var timeFilterValue = document.getElementById('timeFilter').value;
+                var filterTime = timeFilterValue ? new Date(timeFilterValue) : null;
+
+                for (var i = 0; i < driverMarkers.length; i++) {
+                    driverMarkers[i].setMap(null);
+                }
+                driverMarkers = [];
+
+                for (var i = 0; i < filteredDrivers.length; i++) {
+                    var driverTime = new Date(filteredDrivers[i].dateandTime);
+                    if (!filterTime || driverTime >= filterTime) {
+                        var driverLatLon = new google.maps.LatLng(filteredDrivers[i].lat, filteredDrivers[i].lng);
+                        var driverMarker = new google.maps.Marker({
+                            position: driverLatLon,
+                            map: map,
+                            title: "Driver's Pickup Location",
+                            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                        });
+
+                        var infoWindow = new google.maps.InfoWindow({
+                            content: '<div><strong>Driver ID:</strong> ' + filteredDrivers[i].id + '<br>' +
+                                     '<strong>Dropoff:</strong> ' + filteredDrivers[i].dropoff + '<br>' +
+                                     '<strong>DateTime:</strong> ' + filteredDrivers[i].dateandTime + '<br>' +
+                                     '<strong>Total Person:</strong> ' + filteredDrivers[i].totalperson + '<br>' +
+                                     '<strong>Fees:</strong> ' + filteredDrivers[i].fees + '<br>' +
+                                     '<strong>Message:</strong> ' + filteredDrivers[i].message + '<br>' +
+                                     '<strong>Status:</strong> ' + filteredDrivers[i].status + '</div>'
+                        });
+
+                        (function(marker, infoWindow) {
+                            google.maps.event.addListener(marker, 'click', function() {
+                                infoWindow.open(map, marker);
+                            });
+                        })(driverMarker, infoWindow);
+
+                        driverMarkers.push(driverMarker);
+                    }
+                }
+            }
+
             function goToDriverList() {
-                // Redirect to the drivers_list page, sending the nearby driver IDs
                 window.location.href = "/drivers_list?nearbyDrivers=" + nearbyDrivers.join(',');
             }
 
@@ -160,7 +200,6 @@
                 document.getElementById('mapholder').innerHTML = errorMsg;
             }
 
-            // Initialize the map when the page loads
             window.onload = initMap;
         </script>
     </div>

@@ -59,3 +59,13 @@ class PaymentProof(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('profile.user_id'), nullable=False)
     user = db.relationship('Profile', backref='payment_proofs', lazy=True)
 
+class Rating(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    match_id = db.Column(db.Integer, db.ForeignKey('passenger_match.id'), nullable=False)
+    passenger_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    driver_id = db.Column(db.Integer, db.ForeignKey('driverspost.id'), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    feedback = db.Column(db.Text, nullable=True)
+    match = db.relationship('PassengerMatch', backref='ratings')
+    passenger = db.relationship('User', backref='ratings')
+    driver = db.relationship('Driverspost', backref='ratings')

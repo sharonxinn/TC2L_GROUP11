@@ -23,8 +23,8 @@
                 <th>Gender</th>
                 <th>Contact</th>
                 <th>Date and Time</th>
-                <th>Start Location</th>
-                <th>End Location</th>
+                <th>Pick-Up Location</th>
+                <th>Drop-Off Location</th>
                 <th>Car Plate</th>
                 <th>Car Model</th>
                 <th>Maximum Number of Passengers</th>
@@ -47,6 +47,20 @@
                 <td>{{ driver.duitnowid }}</td>
                 <td>{{ driver.message }}</td>
             </tr>
+            
+        <h3>Driver Ratings and Feedback</h3>
+        {% if ratings %}
+            {% for rating in ratings %}
+            <div>
+                <strong>Rating:</strong> {{ rating.rating }}/5
+                {% if rating.feedback %}
+                <p><strong>Feedback:</strong> {{ rating.feedback }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No ratings yet.</p>
+        {% endif %}
 
         <h2>Waiting List</h2>
         <table border="1">

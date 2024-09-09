@@ -1,8 +1,8 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask,session,jsonify
+from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask,session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
-from .models import User, Driverspost, Profile,PassengerMatch,PaymentProof
-from .form import PaymentForm
+from .models import User, Driverspost, Profile,PassengerMatch,PaymentProof,Rating
+from .form import PaymentForm,RatingForm
 from . import db
 from werkzeug.utils import secure_filename
 import os
@@ -488,20 +488,6 @@ def confirm_match(match_id):
 
     return redirect(url_for('main.booking_history'))
 
-#set up complete page
-@bp.route('/complete_match/<int:match_id>', methods=['POST'])
-def complete_match(match_id):
-    match = PassengerMatch.query.get(match_id)
-    if match:
-        match.status = 'complete'
-        db.session.commit()
-
-        driver_post = match.driver_post
-        driver_post.status = ' completed '
-        db.session.commit()
-
-    return redirect(url_for('main.booking_history'))
-
 #set up cancel match page
 @bp.route('/cancel_match/<int:match_id>', methods=['POST'])
 def cancel_match(match_id):
@@ -525,6 +511,28 @@ def cancel_match_p(match_id):
 
     return redirect(url_for('main.booking_history'))
 
+
+#backup page(for ratings)
+#@bp.route('/view_detail_d/<int:match_id>', methods=['GET', 'POST'])
+#@login_required
+#def view_detail_d(match_id):
+    match = PassengerMatch.query.get_or_404(match_id)
+    driver = Driverspost.query.get_or_404(match.driver_id)
+    ratings = Rating.query.filter_by(driver_id=driver.id).all()
+    return redirect(url_for('main.match_passenger', driver_id=match.driver_id,ratings=ratings))
+#@bp.route('/view_detail_p/<int:match_id>', methods=['GET'])
+#@login_required
+#def view_detail_p(match_id):
+    match = PassengerMatch.query.get_or_404(match_id)
+    passenger = User.query.get_or_404(match.passenger_id)
+    driver = Driverspost.query.get_or_404(match.driver_id)
+    ratings = Rating.query.filter_by(driver_id=driver.id).all()
+    
+    return render_template('match_driver.html', 
+                           match=match, 
+                           passenger=passenger, 
+                           driver=driver, 
+                           ratings=ratings)
 
 #set up view detail page 
 @bp.route('/view_detail_d/<int:match_id>', methods=['GET', 'POST'])
@@ -576,3 +584,25 @@ def upload_payment_proof(match_id):
         return redirect(url_for('main.booking_history'))
     
     return render_template('upload.html', form=form, profile=profile, match_id=match_id)
+
+#set page for rating driver
+#@bp.route('/rate_driver/<int:match_id>', methods=['GET', 'POST'])
+#@login_required
+#def rate_driver(match_id):
+    match = PassengerMatch.query.get_or_404(match_id)
+    form = RatingForm()
+
+    if form.validate_on_submit():
+        rating = Rating(
+            match_id=match.id,
+            passenger_id=current_user.id,
+            driver_id=match.driver_id,
+            rating=form.rating.data,
+            feedback=form.feedback.data
+        )
+        db.session.add(rating)
+        db.session.commit()
+        
+        return redirect(url_for('main.booking_history'))
+
+    return render_template('rate_driver.html', form=form, match=match)

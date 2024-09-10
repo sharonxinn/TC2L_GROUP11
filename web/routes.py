@@ -58,44 +58,27 @@ def sign_up():
 
 
 #set up login page
-@bp.route('/login',methods=['GET','POST'])
+@bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method=='POST':
-        email=request.form.get('email')
-        password=request.form.get('password')
-        # entered_captcha = request.form.get('text')
-        # generated_captcha = request.form.get('captcha_code')
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
 
-        user=User.query.filter_by(email=email).first()
+        user = User.query.filter_by(email=email).first()
 
-        if user:
-            if check_password_hash(user.password, password):
-                flash('Logged in successfully',category='success')
-                login_user(user,remember=True)
+        if user and check_password_hash(user.password, password):
+            flash('Logged in successfully', category='success')
+            login_user(user, remember=True)
+            if user.is_admin:
+                return redirect(url_for('admin.index'))
+            else:
                 return redirect(url_for('main.chooseid'))
-            else:
-                flash('Incorrect password,try again',category='error')
-
-        if request.form.get("email")=="admin@gmail.com" and request.form.get("password")=="admin1234":
-            session['logged in']=True
-            return redirect("/admin")
-        
-        # elif entered_captcha is None or entered_captcha.lower() != generated_captcha:
-        #     flash('Verification Code Error!', category='error')
-
+        elif user:
+            flash('Incorrect password, try again', category='error')
         else:
-            if user:
-                if check_password_hash(user.password, password):
-                    flash('Logged in successfully',category='success')
-                    login_user(user,remember=True)
-                    return redirect(url_for('main.chooseid'))
-                else:
-                    flash('Incorrect password,try again',category='error')
-            else:
-                flash('Email does not exist.',category='error')
-    
-    return render_template("login.html",user=current_user)
+            flash('Email does not exist.', category='error')
 
+    return render_template("login.html", user=current_user)
 
 #set up logout page
 @bp.route('/logout')
@@ -337,7 +320,7 @@ def driver_post():
 @login_required
 def findaroute():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
-    driver_posts = Driverspost.query.filter_by().all()
+    driver_posts = Driverspost.query.filter_by(status='approved').all()
     # Prepare a list of drivers' details
     drivers_data = [{
         'lat': dp.pickup_lat,

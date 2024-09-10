@@ -1,8 +1,8 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask,session,jsonify
+from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask,session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
 from .models import User, Driverspost, Profile,PassengerMatch,PaymentProof
-from .form import PaymentForm
+from .form import PaymentForm,RatingForm
 from . import db
 from werkzeug.utils import secure_filename
 import os
@@ -58,44 +58,27 @@ def sign_up():
 
 
 #set up login page
-@bp.route('/login',methods=['GET','POST'])
+@bp.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method=='POST':
-        email=request.form.get('email')
-        password=request.form.get('password')
-        # entered_captcha = request.form.get('text')
-        # generated_captcha = request.form.get('captcha_code')
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
 
-        user=User.query.filter_by(email=email).first()
+        user = User.query.filter_by(email=email).first()
 
-        if user:
-            if check_password_hash(user.password, password):
-                flash('Logged in successfully',category='success')
-                login_user(user,remember=True)
+        if user and check_password_hash(user.password, password):
+            flash('Logged in successfully', category='success')
+            login_user(user, remember=True)
+            if user.is_admin:
+                return redirect(url_for('admin.index'))
+            else:
                 return redirect(url_for('main.chooseid'))
-            else:
-                flash('Incorrect password,try again',category='error')
-
-        if request.form.get("email")=="admin@gmail.com" and request.form.get("password")=="admin1234":
-            session['logged in']=True
-            return redirect("/admin")
-        
-        # elif entered_captcha is None or entered_captcha.lower() != generated_captcha:
-        #     flash('Verification Code Error!', category='error')
-
+        elif user:
+            flash('Incorrect password, try again', category='error')
         else:
-            if user:
-                if check_password_hash(user.password, password):
-                    flash('Logged in successfully',category='success')
-                    login_user(user,remember=True)
-                    return redirect(url_for('main.chooseid'))
-                else:
-                    flash('Incorrect password,try again',category='error')
-            else:
-                flash('Email does not exist.',category='error')
-    
-    return render_template("login.html",user=current_user)
+            flash('Email does not exist.', category='error')
 
+    return render_template("login.html", user=current_user)
 
 #set up logout page
 @bp.route('/logout')
@@ -337,7 +320,7 @@ def driver_post():
 @login_required
 def findaroute():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
-    driver_posts = Driverspost.query.all()
+    driver_posts = Driverspost.query.filter_by(status='approved').all()
     # Prepare a list of drivers' details
     drivers_data = [{
         'lat': dp.pickup_lat,
@@ -488,20 +471,6 @@ def confirm_match(match_id):
 
     return redirect(url_for('main.booking_history'))
 
-#set up complete page
-@bp.route('/complete_match/<int:match_id>', methods=['POST'])
-def complete_match(match_id):
-    match = PassengerMatch.query.get(match_id)
-    if match:
-        match.status = 'complete'
-        db.session.commit()
-
-        driver_post = match.driver_post
-        driver_post.status = ' completed '
-        db.session.commit()
-
-    return redirect(url_for('main.booking_history'))
-
 #set up cancel match page
 @bp.route('/cancel_match/<int:match_id>', methods=['POST'])
 def cancel_match(match_id):
@@ -525,6 +494,28 @@ def cancel_match_p(match_id):
 
     return redirect(url_for('main.booking_history'))
 
+
+#backup page(for ratings)
+#@bp.route('/view_detail_d/<int:match_id>', methods=['GET', 'POST'])
+#@login_required
+#def view_detail_d(match_id):
+    match = PassengerMatch.query.get_or_404(match_id)
+    driver = Driverspost.query.get_or_404(match.driver_id)
+    ratings = Rating.query.filter_by(driver_id=driver.id).all()
+    return redirect(url_for('main.match_passenger', driver_id=match.driver_id,ratings=ratings))
+#@bp.route('/view_detail_p/<int:match_id>', methods=['GET'])
+#@login_required
+#def view_detail_p(match_id):
+    match = PassengerMatch.query.get_or_404(match_id)
+    passenger = User.query.get_or_404(match.passenger_id)
+    driver = Driverspost.query.get_or_404(match.driver_id)
+    ratings = Rating.query.filter_by(driver_id=driver.id).all()
+    
+    return render_template('match_driver.html', 
+                           match=match, 
+                           passenger=passenger, 
+                           driver=driver, 
+                           ratings=ratings)
 
 #set up view detail page 
 @bp.route('/view_detail_d/<int:match_id>', methods=['GET', 'POST'])
@@ -576,3 +567,25 @@ def upload_payment_proof(match_id):
         return redirect(url_for('main.booking_history'))
     
     return render_template('upload.html', form=form, profile=profile, match_id=match_id)
+
+#set page for rating driver
+#@bp.route('/rate_driver/<int:match_id>', methods=['GET', 'POST'])
+#@login_required
+#def rate_driver(match_id):
+    match = PassengerMatch.query.get_or_404(match_id)
+    form = RatingForm()
+
+    if form.validate_on_submit():
+        rating = Rating(
+            match_id=match.id,
+            passenger_id=current_user.id,
+            driver_id=match.driver_id,
+            rating=form.rating.data,
+            feedback=form.feedback.data
+        )
+        db.session.add(rating)
+        db.session.commit()
+        
+        return redirect(url_for('main.booking_history'))
+
+    return render_template('rate_driver.html', form=form, match=match)

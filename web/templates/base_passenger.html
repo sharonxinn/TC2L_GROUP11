@@ -27,28 +27,20 @@
           <span class="tooltip">Search</span>
         </li>
 
-        <li>
+        <!-- <li>
           <a href="{{ url_for('main.drivers_list') }}" >
             <i class='bx bxs-dashboard'></i>
             <span class="icon_name">Dashboard</span>
           </a>
           <span class="tooltip">Dashboard</span>
-        </li>
+        </li> -->
 
         <li>
-          <a href="{{ url_for('main.dashboard') }}" >
-            <i class='bx bx-user'></i>
-            <span class="icon_name">Profile</span>
-          </a>
-          <span class="tooltip">Profile</span>
-        </li>
-
-        <li>
-          <a href="{{ url_for('main.googlemap') }}" >
+          <a href="{{ url_for('main.findaroute')}}">
             <i class='bx bx-map' ></i>
-            <span class="icon_name">Google Map</span>
+            <span class="icon_name">Find A Route</span>
           </a>
-          <span class="tooltip">Google Map</span>
+          <span class="tooltip">Find A Route</span>
         </li>
 
         <li>
@@ -60,7 +52,15 @@
         </li>
 
         <li>
-          <a href="/chooseid">
+          <a href="{{ url_for('main.dashboard') }}" >
+            <i class='bx bx-user'></i>
+            <span class="icon_name">Profile</span>
+          </a>
+          <span class="tooltip">Profile</span>
+        </li>
+
+        <li>
+          <a href="/driver_post">
             <i class='bx bx-body'></i>
             <span class="icon_name">Switch Identity</span>
           </a>
@@ -86,7 +86,7 @@
             <img src="{{ profile.profile_pic }}"  width="40px" height="40px" alt="Profile Picture">
             <div class="name_id">
               <div class="name">{{ profile.fullName }}</div>
-              <div class="id">Driver</div>
+              <div class="id">Passenger</div>
             </div>
           </div>
           <a href="/">
@@ -109,31 +109,34 @@
       let body = document.querySelector("body");
 
       if(localStorage.getItem("dark-mode") === "enabled"){
-        body.classList.add("dark");
-        modeText.innerText = "Light Mode";
+          body.classList.add("dark");
+          modeText.innerText = "Light Mode";
       }
 
       if(localStorage.getItem("sidebar-active") === "true"){
-        sidebar.classList.add("active");
+          sidebar.classList.add("active");
       }
 
       btn.onclick = function(){
-        sidebar.classList.toggle("active");
-        localStorage.setItem("sidebar-active", sidebar.classList.contains("active"));
+          sidebar.classList.toggle("active");
+          localStorage.setItem("sidebar-active", sidebar.classList.contains("active"));
       }
+
       searchBtn.onclick = function(){
-        sidebar.classList.toggle("active");
-        localStorage.setItem("sidebar-active", sidebar.classList.contains("active"));
+          sidebar.classList.toggle("active");
+          localStorage.setItem("sidebar-active", sidebar.classList.contains("active"));
       }
+
       modeSwitch.onclick = function(){
-        body.classList.toggle("dark");
-        if(body.classList.contains("dark")){
-          modeText.innerText = "Light Mode";
-          localStorage.setItem("dark-mode", "enabled");
-        }else{
-          modeText.innerText = "Dark Mode";
-          localStorage.setItem("dark-mode", "disabled");
-        }
+          body.classList.toggle("dark");
+          if(body.classList.contains("dark")){
+              modeText.innerText = "Light Mode";
+              localStorage.setItem("dark-mode", "enabled");
+          }else{
+              modeText.innerText = "Dark Mode";
+              localStorage.setItem("dark-mode", "disabled");
+          }
+          // window.dispatchEvent(new Event('darkModeToggle'));
       }
     </script>
   </body>

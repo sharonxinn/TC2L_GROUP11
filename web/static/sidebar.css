@@ -125,6 +125,7 @@
     opacity: 0;
     pointer-events: none;
     display: block;
+    /* z-index: 9999; */
   }
 
   .sidebar.active ul li .tooltip{

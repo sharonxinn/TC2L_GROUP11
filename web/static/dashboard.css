@@ -57,6 +57,7 @@
 
   .sidebar.active ~ .right_box .container {
     left: 300px;
+    border-radius: 30px;
 }
 
 h1{

@@ -19,23 +19,71 @@
 
         <div class="table_body">
             <table border="1">
-                <thead>
-                <tr>
-                    <th>Driver Name</th>
-                    <th>Passenger Name</th>
-                    <th>Status</th>
-                </tr>
+                <thead scope="col">
+                    <tr>
+                        <th>Role</th>
+                        <th>Driver Name</th>
+                        <th>Date and Time</th>
+                        <th>Start Location</th>
+                        <th>End Location</th>
+                        <th>Passenger Name</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
                 </thead>
 
                 <tbody>
-                {% for match in matches %}
-                <tr>
-                    <td>{{ profile_dict[match.driver.user_id].fullName if profile_dict[match.driver.user_id] else 'N/A' }}</td>
-                    <td>{{ profile_dict[match.passenger_id].fullName if profile_dict[match.passenger_id] else 'N/A' }}</td>
-                    <td>{{ match.status }}</td>
-                </tr>
-                {% endfor %}
+                    {% for match in passenger_matches %}
+                    <tr>
+                        <td>Passenger</td>
+                        <td>{{ profile_dict[match.driver.user_id].fullName }}</td>
+                        <td>{{ match.driver.dateandTime }}</td>
+                        <td>{{ match.driver.pickup }}</td>
+                        <td>{{ match.driver.dropoff }}</td>
+                        <td>{{ profile_dict[match.passenger_id].fullName }}</td>
+                        <td>{{ match.status }}</td>
+                        <td>
+                            <form action="{{ url_for('main.view_detail_p', match_id=match.id) }}" method="POST">
+                                <input type="submit" value="View Detail" class="btn">
+                            </form> 
+
+                            <div class="selection">
+                                <form action="{{ url_for('main.confirm_match', match_id=match.id) }}" method="POST">
+                                    <input type="submit" value="Confirm" class="btn">
+                                </form>
+
+                                <form action="{{ url_for('main.cancel_match', match_id=match.id) }}" method="POST">
+                                    <input type="submit" value="Cancel" class="btn">
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                    {% for driver in driver_posts %}
+                    <tr>
+                        <td>Driver</td>
+                        <td>{{ profile_dict[driver.user_id].fullName }}</td>
+                        <td>{{ driver.dateandTime }}</td>
+                        <td>{{ driver.pickup }}</td>
+                        <td>{{ driver.dropoff }}</td>
+                        <td>CLILK VIEW DETAIL TO SHOW MORE</td>
+                        <td>{{ driver.status }}</td>
+                        <td>
+                            <form action="{{ url_for('main.view_detail_d', match_id=driver.id) }}" method="POST">
+                                <input type="submit" value="View Detail">
+                            </form>
+                            <form action="{{ url_for('main.cancel_match', match_id=driver.id) }}" method="POST">
+                                <input type="submit" value="Cancel">
+                            </form>
+                            <form action="{{ url_for('main.complete_match', match_id=driver.id) }}" method="POST">
+                                <input type="submit" value="Complete">
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
+
             </table>
         </div>
     </div>
@@ -43,3 +91,4 @@
 </html>
 
 {% endblock %}
+

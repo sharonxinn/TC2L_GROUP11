@@ -27,12 +27,28 @@
           <span class="tooltip">Search</span>
         </li>
 
-        <li>
+        <!-- <li>
           <a href="{{ url_for('main.match_passenger',driver_id=current_user.id) }}" >
             <i class='bx bxs-dashboard'></i>
             <span class="icon_name">Dashboard</span>
           </a>
           <span class="tooltip">Dashboard</span>
+        </li> -->
+
+        <!-- <li>
+          <a href="{{ url_for('main.findaroute') }}" >
+            <i class='bx bx-map' ></i>
+            <span class="icon_name">Find A Route</span>
+          </a>
+          <span class="tooltip">Find A Route</span>
+        </li> -->
+
+        <li>
+          <a href="{{ url_for('main.booking_history') }}" >
+            <i class='bx bx-history' ></i>
+            <span class="icon_name">Booking History</span>
+          </a>
+          <span class="tooltip">Booking History</span>
         </li>
 
         <li>
@@ -44,23 +60,7 @@
         </li>
 
         <li>
-          <a href="{{ url_for('main.googlemap') }}" >
-            <i class='bx bx-map' ></i>
-            <span class="icon_name">Google Map</span>
-          </a>
-          <span class="tooltip">Google Map</span>
-        </li>
-
-        <li>
-          <a href="{{ url_for('main.booking_history') }}" >
-            <i class='bx bx-history' ></i>
-            <span class="icon_name">Booking History</span>
-          </a>
-          <span class="tooltip">Booking History</span>
-        </li>
-
-        <li>
-          <a href="/chooseid">
+          <a href="/base_passenger">
             <i class='bx bx-body'></i>
             <span class="icon_name">Switch Identity</span>
           </a>
@@ -95,6 +95,7 @@
         </div>
       </div>
     </div>
+
 
     <div class="right_box">
         {% block content %}{% endblock %}

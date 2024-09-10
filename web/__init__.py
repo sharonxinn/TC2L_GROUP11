@@ -52,11 +52,7 @@ def create_app():
     admin.add_view(ModelView(User, db.session))
     admin.add_view(ModelView(Driverspost, db.session))
     admin.add_view(ModelView(Profile, db.session))
-    admin.add_view(ModelView(PassengerMatch, db.session))
     admin.add_view(AdminLogoutView(name="Log Out",endpoint="logout"))
 
 
     return app
-
-
-

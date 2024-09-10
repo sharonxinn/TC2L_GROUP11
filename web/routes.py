@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for,Flask,session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, login_required, logout_user, current_user
-from .models import User, Driverspost, Profile,PassengerMatch,PaymentProof,Rating
+from .models import User, Driverspost, Profile,PassengerMatch,PaymentProof
 from .form import PaymentForm,RatingForm
 from . import db
 from werkzeug.utils import secure_filename
@@ -337,7 +337,7 @@ def driver_post():
 @login_required
 def findaroute():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
-    driver_posts = Driverspost.query.all()
+    driver_posts = Driverspost.query.filter_by().all()
     # Prepare a list of drivers' details
     drivers_data = [{
         'lat': dp.pickup_lat,

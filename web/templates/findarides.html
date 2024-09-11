@@ -65,11 +65,21 @@
             function getLocation() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(function(position) {
+                        var accuracy = position.coords.accuracy;  // Check the accuracy in meters
                         var userLat = position.coords.latitude;
                         var userLon = position.coords.longitude;
-                        userMarker.setPosition(new google.maps.LatLng(userLat, userLon));
-                        updateMap(userLat, userLon);
-                    }, showError);
+                        
+                        if (accuracy < 100) {  // Check if the accuracy is within an acceptable range
+                            userMarker.setPosition(new google.maps.LatLng(userLat, userLon));
+                            updateMap(userLat, userLon);
+                        } else {
+                            // Use default or manually entered coordinates
+                            var defaultLat = 2.92909;  
+                            var defaultLon = 101.64060;  
+                            userMarker.setPosition(new google.maps.LatLng(defaultLat, defaultLon));
+                            updateMap(defaultLat, defaultLon);
+                        }
+                    });
                 } else {
                     document.getElementById('mapholder').innerHTML = "YOUR DEVICE CANNOT DETECT LOCATION";
                 }
@@ -85,7 +95,7 @@
                         new google.maps.LatLng(userLat, userLon), driverLatLon
                     );
 
-                    if (distance <= 10000) {
+                    if (distance <= 5000) {
                         var driverMarker = new google.maps.Marker({
                             position: driverLatLon,
                             map: map,

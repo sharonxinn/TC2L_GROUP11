@@ -47,6 +47,20 @@
                 <td>{{ driver.duitnowid }}</td>
                 <td>{{ driver.message }}</td>
             </tr>
+            
+        <h3>Driver Ratings and Feedback</h3>
+        {% if ratings %}
+            {% for rating in ratings %}
+            <div>
+                <strong>Rating:</strong> {{ rating.rating }}/5
+                {% if rating.feedback %}
+                <p><strong>Feedback:</strong> {{ rating.feedback }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No ratings yet.</p>
+        {% endif %}
 
         <table border="1">
             <tr>

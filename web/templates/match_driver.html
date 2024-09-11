@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
     <head>
-    
         <title>Match Rider</title>
     </head>
 
@@ -15,12 +14,31 @@
         <p>Carplate:{{ driver.carplate }}</p>
         <p>Carmodel:{{ driver.carmodel }}</p>
 
+        <h3>Driver Ratings and Feedback</h3>
+        {% if ratings %}
+            {% for rating in ratings %}
+            <div>
+                <strong>Rating:</strong> {{ rating.rating }}/5
+                {% if rating.feedback %}
+                <p><strong>Feedback:</strong> {{ rating.feedback }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No ratings yet.</p>
+        {% endif %}
+
         <h3>Other Passengers:</h3>
         {% for passenger in passengers %}
         <p>{{ profile_dict[passenger.passenger_id].fullName }} - {{ profile_dict[passenger.passenger_id].contact }}</p>
         {% endfor %}
+<<<<<<< HEAD
 
         {% for passenger in passengers_completed %}
+=======
+       
+        {% for passenger in passengerss %}
+>>>>>>> 347aae512d12b7cb266239572d29c577195aef29
         <p>{{ profile_dict[passenger.passenger_id].fullName }} - {{ profile_dict[passenger.passenger_id].contact }}</p>
         {% endfor %}
 

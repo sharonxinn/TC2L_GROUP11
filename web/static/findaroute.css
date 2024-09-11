@@ -83,9 +83,9 @@
   background-color: var(--map-background);
 }
 
-body.dark #mapholder {
+/* body.dark #mapholder {
   filter: invert(100%);
-}
+} */
 
 .sidebar.active ~ .right_box .container .details #mapholder{
   height: 550px;

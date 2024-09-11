@@ -42,19 +42,19 @@
 
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&callback=initMap&libraries=places,geometry&v=beta" async defer></script>
         <script>
-            // // Google Maps Dark Mode Style
-            // const darkModeStyle = [
-            //   { "elementType": "geometry", "stylers": [{ "color": "#212121" }] },
-            //   { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-            //   { "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
-            //   { "elementType": "labels.text.stroke", "stylers": [{ "color": "#212121" }] },
-            //   { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#757575" }] },
-            //   { "featureType": "landscape", "elementType": "geometry", "stylers": [{ "color": "#303030" }] },
-            //   { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#2e2e2e" }] },
-            //   { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#383838" }] },
-            //   { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#8a8a8a" }] },
-            //   { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#1a1a1a" }] }
-            // ];
+            // Google Maps Dark Mode Style
+            const darkModeStyle = [
+              { "elementType": "geometry", "stylers": [{ "color": "#212121" }] },
+              { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
+              { "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
+              { "elementType": "labels.text.stroke", "stylers": [{ "color": "#212121" }] },
+              { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#757575" }] },
+              { "featureType": "landscape", "elementType": "geometry", "stylers": [{ "color": "#303030" }] },
+              { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#2e2e2e" }] },
+              { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#383838" }] },
+              { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#8a8a8a" }] },
+              { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#1a1a1a" }] }
+            ];
 
             var map;
             var userMarker;
@@ -79,19 +79,19 @@
 
                 map = new google.maps.Map(document.getElementById('mapholder'), mapOptions);
 
-                // // Check dark mode on load
-                // if (localStorage.getItem('dark-mode') === 'enabled') {
-                //     map.setOptions({ styles: darkModeStyle });
-                // }
+                // Check dark mode on load
+                if (localStorage.getItem('dark-mode') === 'enabled') {
+                    map.setOptions({ styles: darkModeStyle });
+                }
 
-                // // Listen for dark mode toggle
-                // window.addEventListener('darkModeToggle', () => {
-                //     if (localStorage.getItem('dark-mode') === 'enabled') {
-                //         map.setOptions({ styles: darkModeStyle });
-                //     } else {
-                //         map.setOptions({ styles: [] });  // Reset to default style
-                //     }
-                // });
+                // Listen for dark mode toggle
+                window.addEventListener('darkModeToggle', () => {
+                    if (localStorage.getItem('dark-mode') === 'enabled') {
+                        map.setOptions({ styles: darkModeStyle });
+                    } else {
+                        map.setOptions({ styles: [] });  // Reset to default style
+                    }
+                });
                 
                 userMarker = new google.maps.Marker({
                     position: new google.maps.LatLng(defaultLat, defaultLon),

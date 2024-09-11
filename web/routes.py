@@ -372,12 +372,12 @@ def booking_history():
                                             .all()
 
     # Get all drivers posts where the current user is the driver
-    driver_post = Driverspost.query.filter_by(user_id=current_user.id).all()
+    driver_postS = Driverspost.query.filter_by(user_id=current_user.id).all()
 
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
 
-    return render_template('booking_history.html', passenger_matches=passenger_matches, profile_dict=profile_dict,driver_post=driver_post,profile=profile)
+    return render_template('booking_history.html', passenger_matches=passenger_matches, profile_dict=profile_dict,driver_postS=driver_postS,profile=profile)
 
 #set up match_passsenger page
 @bp.route('/match_passenger/<int:driver_id>')
@@ -510,6 +510,8 @@ def view_detail_d(match_id):
 def view_detail_p(match_id):
     match = PassengerMatch.query.get_or_404(match_id)
     return redirect(url_for('main.match_driver', driver_id=match.driver_id))
+
+
 
 @bp.route('/upload/<int:match_id>', methods=['GET', 'POST'])
 @login_required

@@ -71,14 +71,17 @@
                         <td>{{ driver.status }}</td>
                         <td>
                             <form action="{{ url_for('main.view_detail_d', match_id=driver.id) }}" method="POST">
-                                <input type="submit" value="View Detail">
+                                <input type="submit" value="View Detail" class="btn">
                             </form>
-                            <form action="{{ url_for('main.cancel_match', match_id=driver.id) }}" method="POST">
-                                <input type="submit" value="Cancel">
-                            </form>
-                            <form action="{{ url_for('main.complete_match', match_id=driver.id) }}" method="POST">
-                                <input type="submit" value="Complete">
-                            </form>
+                            <div class="selection">
+                                <form action="{{ url_for('main.complete_match', match_id=driver.id) }}" method="POST"></form>
+                                    <input type="submit" value="Complete" class="btn">
+                                </form>
+                                
+                                <form action="{{ url_for('main.cancel_match', match_id=driver.id) }}" method="POST">
+                                    <input type="submit" value="Cancel" class="btn">
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}

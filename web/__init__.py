@@ -27,7 +27,7 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = 'main.home'
 
-    from .models import User, Driverspost, Profile, PassengerMatch
+    from .models import User, Rides, Profile, PassengerMatch
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -50,7 +50,7 @@ def create_app():
     # Setup Flask-Admin
     admin = Admin(app)
     admin.add_view(ModelView(User, db.session))
-    admin.add_view(ModelView(Driverspost, db.session))
+    admin.add_view(ModelView(Rides, db.session))
     admin.add_view(ModelView(Profile, db.session))
     admin.add_view(ModelView(PassengerMatch, db.session))
     admin.add_view(AdminLogoutView(name="Log Out",endpoint="logout"))

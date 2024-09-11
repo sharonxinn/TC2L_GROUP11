@@ -48,7 +48,6 @@
                 <td>{{ driver.message }}</td>
             </tr>
 
-        <h2>Waiting List</h2>
         <table border="1">
             <tr>
                 <th>Full Name</th>
@@ -70,7 +69,7 @@
                 {% endif %}
                 <td>{{ match.status }}</td>
                 <td>
-                    <form action="{{ url_for('main.remove_passenger', passenger_id=match.passenger_id, driver_id=driver.id) }}" method="POST">
+                    <form action="{{ url_for('main.remove_passenger', match_id=match.id) }}" method="POST">
                         <input type="submit" value="Remove Passenger" class="btn">
                     </form>
                     
@@ -80,7 +79,7 @@
             </tr>
             {% endfor %}
 
-            {% for match in matchess %}
+            {% for match in matches_completed %}
             <tr>
                 <td>{{ profile_dict[match.passenger_id].fullName }}</td>
                 <td>{{ profile_dict[match.passenger_id].gender }}</td>
@@ -92,7 +91,7 @@
                 {% endif %}</td>
                 <td>{{ match.status }}</td>
                 <td>
-                    <form action="{{ url_for('main.remove_passenger', passenger_id=match.passenger_id, driver_id=driver.id) }}" method="POST">
+                    <form action="{{ url_for('main.remove_passenger', match_id=match.id) }}" method="POST">
                         <input type="submit" value="Remove Passenger" class="btn">
                     </form>
                 </td>
@@ -113,7 +112,7 @@
                 {% endif %}</td>
                 <td>{{ match.status }}</td>
                 <td>
-                    <form action="{{ url_for('main.remove_passenger', passenger_id=match.passenger_id, driver_id=driver.id) }}" method="POST">
+                    <form action="{{ url_for('main.remove_passenger', match_id=match.id) }}" method="POST">
                         <input type="submit" value="Remove Passenger" class="btn">
                     </form>
                 </td>
@@ -121,8 +120,40 @@
             </tr>
             
             {% endfor %}
+
+        <h2>Passenger List</h2>
+        <table border="1">
+            <tr>
+                <th>Full Name</th>
+                <th>Gender</th>
+                <th>Contact</th>
+                <th>Payment Proof</th> <!-- New column for payment proof -->
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            {% for match in matches_approving %}
+            <tr>
+                <td>{{ profile_dict[match.passenger_id].fullName }}</td>
+                <td>{{ profile_dict[match.passenger_id].gender }}</td>
+                <td>{{ profile_dict[match.passenger_id].contact }}</td>
+                <td>{% if match.payment_proof %}
+                    <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof" style="width:150px;height:150px;">
+                {% else %}
+                    Pay By Cash</td>
+                {% endif %}
+                <td>{{ match.status }}</td>
+                <td>
+                    <form action="{{ url_for('main.approve_passenger', match_id=match.id) }}" method="POST">
+                        <input type="submit" value="Approve" class="btn">
+                    </form>
+                    
+        
+                </td>
+
+            </tr>
+            {% endfor %}
                 
-            
+            <h2>Waiting List</h2>
         </table>
     </div>
 </body>

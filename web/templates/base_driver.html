@@ -28,7 +28,7 @@
         </li>
 
         <li>
-          <a href="{{ url_for('main.match_passenger',driver_id=current_user.id) }}" >
+          <a href="{{ url_for('main.match',driver_id=current_user.id) }}" >
             <i class='bx bxs-dashboard'></i>
             <span class="icon_name">Dashboard</span>
           </a>
@@ -44,7 +44,7 @@
         </li>
 
         <li>
-          <a href="{{ url_for('main.findaroute') }}" >
+          <a href="{{ url_for('main.find_rides') }}" >
             <i class='bx bx-map' ></i>
             <span class="icon_name">Find A Route</span>
           </a>

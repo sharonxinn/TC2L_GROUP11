@@ -27,7 +27,7 @@
             marker = new google.maps.Marker({
                 position: originalLocation,
                 map: map,
-                title: "Pickup Location",
+                title: "start_location Location",
                 draggable: true
             });
 
@@ -48,8 +48,8 @@
 
         // Update hidden fields with the marker's current position
         function updateHiddenFields(location) {
-            document.getElementById("pickup_lat").value = location.lat;
-            document.getElementById("pickup_lng").value = location.lng;
+            document.getElementById("start_location_lat").value = location.lat;
+            document.getElementById("start_location_lng").value = location.lng;
         }
 
         // Check if the new location is within a certain radius from the original location
@@ -74,7 +74,7 @@
             return degrees * (Math.PI / 180);
         }
 
-        // Update map and hidden fields based on the selected pickup location
+        // Update map and hidden fields based on the selected start_location location
         function updateMapLocation() {
             const locations = {
                 "Taman Puchong Utama": { lat: 2.9917, lng: 101.6156 },
@@ -90,7 +90,7 @@
                 "TheArc": { lat: 2.926, lng: 101.6360 }
             };
 
-            const selectedLocation = document.getElementById("pickup").value;
+            const selectedLocation = document.getElementById("start_location").value;
             const newLocation = locations[selectedLocation];
 
             if (newLocation) {
@@ -123,9 +123,9 @@
 
                 <div class="left-right">
                     <div class="inner-center">
-                        <label for="pickup">Start Location</label>
+                        <label for="start_location">Start Location</label>
                         <br>
-                        <select name="pickup" id="pickup" onchange="updateMapLocation()" required>
+                        <select name="start_location" id="start_location" onchange="updateMapLocation()" required>
                             <option value="Taman Puchong Utama">Taman Puchong Utama</option>
                             <option value="Taman Puchong Prima">Taman Puchong Prima</option>
                             <option value="Taman Kinrara">Taman Kinrara</option>
@@ -138,14 +138,14 @@
                             <option value="MutiaraVille">Mutiara Ville</option>
                             <option value="TheArc">The Arc</option>
                         </select><br>
-                        <input type="hidden" id="pickup_lat" name="pickup_lat">
-                        <input type="hidden" id="pickup_lng" name="pickup_lng">
+                        <input type="hidden" id="start_location_lat" name="start_location_lat">
+                        <input type="hidden" id="start_location_lng" name="start_location_lng">
                     </div>
 
                     <div class="inner-center">
-                        <label for="dropoff">End Location</label>
+                        <label for="end_location">End Location</label>
                         <br>
-                        <select name="dropoff" id="dropoff" required>
+                        <select name="end_location" id="end_location" required>
                             <option value="Guard House">Guard House</option>
                             <option value="FCI">FCI</option>
                             <option value="FCM">FCM</option>
@@ -157,12 +157,12 @@
                             <option value="HB4">HB4</option>
                             <option value="HB2">HB2</option>
                         </select><br>
-                        <input type="hidden" id="dropoff_lat" name="dropoff_lat">
-                        <input type="hidden" id="dropoff_lng" name="dropoff_lng">
+                        <input type="hidden" id="end_location_lat" name="end_location_lat">
+                        <input type="hidden" id="end_location_lng" name="end_location_lng">
                     </div>
                 </div>
                 
-                <!-- Google Map displaying pickup location -->
+                <!-- Google Map displaying start_location location -->
                 <div id="map"></div>
 
                 <div class="left-right">

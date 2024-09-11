@@ -17,6 +17,8 @@
             <h1>Driver List</h1>
         </section>
 
+
+
         <section class="table_body">
             <table border="1">
                 <thead>
@@ -41,8 +43,8 @@
                     <td>{{ profile_dict[driver.user_id].fullName if profile_dict[driver.user_id] else 'N/A' }}</td>
                     <td>{{ profile_dict[driver.user_id].gender if profile_dict[driver.user_id] else 'N/A' }}</td>
                     <td>{{ driver.dateandTime }}</td>
-                    <td>{{ driver.pickup }}</td>
-                    <td>{{ driver.dropoff }}</td>
+                    <td>{{ driver.start_location }}</td>
+                    <td>{{ driver.end_location }}</td>
                     <td>{{ driver.totalperson }}</td>
                     <td>{{ driver.fees }}</td>
                     <td>{{ driver.duitnowid }}</td>

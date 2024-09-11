@@ -83,40 +83,41 @@
 
 
               <div class="typing">
+
                 <i class='bx bxs-check-shield'></i>
-                <input id="text" type="text" value="" placeholder="Verification" class="input-val"><br>
-                <canvas id="canvas" width="100" height="40" onclick="dj()" style="border: 1px solid #ccc; border-radius: 5px;"></canvas>
-                <input type="hidden" id="captcha_code" name="captcha_code">
-              </div>
+                    <input id="text" type="text" value="" placeholder="Verification" class="input-val"><br>
+                    <canvas id="canvas" width="100" height="40" onclick="dj()" style="border: 1px solid #ccc; border-radius: 5px;"></canvas>
+                    <input type="hidden" id="captcha_code" name="captcha_code">
+                </div>
 
 
-              
-              <script>
-                      var show_num = [];
-                      draw(show_num);
 
-                      function dj() {
+                <script>
+                        var show_num = [];
                         draw(show_num);
-                      }
 
-                      function sublim(){
+                        function dj() {
+                        draw(show_num);
+                        }
+
+                        function sublim(){
                         var val = document.getElementById("text").value;
                         var num = show_num.join('');
                         if (val == '') {
-                          alert('Please Enter Vertification Code');
+                            alert('Please Enter Vertification Code');
                         } else if (val == num){
                             alert('Summit Success!');
                             document.getElementById(".input-val").val('');
                             draw(show_num);
 
                         }else{
-                          alert('Vertification Code Error!')
-                          document.getElementById('text').value = '';
-                          draw(show_num);
+                            alert('Vertification Code Error!')
+                            document.getElementById('text').value = '';
+                            draw(show_num);
                         }
-                      }
+                        }
 
-                      function draw(show_num) {
+                        function draw(show_num) {
                             var canvas_width = document.getElementById('canvas').clientWidth;
                             var canvas_height = document.getElementById('canvas').clientHeight;
                             var canvas = document.getElementById("canvas");
@@ -173,14 +174,14 @@
 
 
 
-                  function randomColor() {
-                      var r = Math.floor(Math.random() * 256);
-                      var g = Math.floor(Math.random() * 256);
-                      var b = Math.floor(Math.random() * 256);
-                      return "rgb(" + r + "," + g + "," + b + ")";
-                  }
+                    function randomColor() {
+                        var r = Math.floor(Math.random() * 256);
+                        var g = Math.floor(Math.random() * 256);
+                        var b = Math.floor(Math.random() * 256);
+                        return "rgb(" + r + "," + g + "," + b + ")";
+                    }
 
-              </script>
+                </script>
 
 
                 <button type="submit" class="btn" >Sign Up</button>

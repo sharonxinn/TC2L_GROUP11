@@ -38,14 +38,15 @@
                         <td>Passenger</td>
                         <td>{{ profile_dict[match.driver.user_id].fullName }}</td>
                         <td>{{ match.driver.dateandTime }}</td>
-                        <td>{{ match.driver.pickup }}</td>
-                        <td>{{ match.driver.dropoff }}</td>
+                        <td>{{ match.driver.start_location }}</td>
+                        <td>{{ match.driver.end_location }}</td>
                         <td>{{ profile_dict[match.passenger_id].fullName }}</td>
                         <td>{{ match.status }}</td>
                         <td>
                             <form action="{{ url_for('main.view_detail_p', match_id=match.id) }}" method="POST">
                                 <input type="submit" value="View Detail" class="btn">
                             </form> 
+
 
                             <div class="selection">
                                 <form action="{{ url_for('main.confirm_match', match_id=match.id) }}" method="POST">
@@ -60,31 +61,52 @@
                     </tr>
                     {% endfor %}
 
+                            <form action="{{ url_for('main.confirm_match', match_id=match.id) }}" method="POST">
+                                <input type="submit" value="Confirm">
+                            </form>  
+                            <form action="{{ url_for('main.cancel_match_p', match_id=match.id) }}" method="POST">
+                                <input type="submit" value="Cancel">
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+
                     {% for driver in driver_posts %}
                     <tr>
                         <td>Driver</td>
                         <td>{{ profile_dict[driver.user_id].fullName }}</td>
                         <td>{{ driver.dateandTime }}</td>
-                        <td>{{ driver.pickup }}</td>
-                        <td>{{ driver.dropoff }}</td>
-                        <td>CLILK VIEW DETAIL TO SHOW MORE</td>
+                        <td>{{ driver.start_location }}</td>
+                        <td>{{ driver.end_location }}</td>
+
+                        <td>
+                            {% if driver.id in driver_matches_dict and driver_matches_dict[driver.id] %}
+                                    {% for match in driver_matches_dict[driver.id] %}
+                                        <ul>{{ profile_dict[match.passenger_id].fullName }}</ul>
+                                    {% endfor %}
+
+                            {% else %}
+                                No matches yet
+                            {% endif %}
+                        </td>
                         <td>{{ driver.status }}</td>
                         <td>
-                            <form action="{{ url_for('main.view_detail_d', match_id=driver.id) }}" method="POST">
-                                <input type="submit" value="View Detail" class="btn">
+                                {% if driver.id in driver_matches_dict and driver_matches_dict[driver.id]|length > 0 %}
+                                    <form action="{{ url_for('main.view_detail_d', match_id=driver_matches_dict[driver.id][0].id) }}" method="POST">
+                                        <input type="submit" value="View Detail">
+                                    </form>
+                                {% endif %}
+                            <form action="{{ url_for('main.cancel_match', match_id=driver.id) }}" method="POST">
+                                <input type="submit" value="Cancel">
                             </form>
-                            <div class="selection">
-                                <form action="{{ url_for('main.complete_match', match_id=driver.id) }}" method="POST"></form>
-                                    <input type="submit" value="Complete" class="btn">
-                                </form>
-                                
-                                <form action="{{ url_for('main.cancel_match', match_id=driver.id) }}" method="POST">
-                                    <input type="submit" value="Cancel" class="btn">
-                                </form>
-                            </div>
+                            <form action="{{ url_for('main.complete_match', match_id=driver.id) }}" method="POST">
+                                <input type="submit" value="Complete">
+                            </form>
                         </td>
                     </tr>
                     {% endfor %}
+
                 </tbody>
 
             </table>
@@ -94,4 +116,7 @@
 </html>
 
 {% endblock %}
+  <!--<form action="{{ url_for('main.rate_driver', match_id=match.id) }}" method="POST">
+                                <input type="submit" value="Rate Driver">
+                            </form>!-->
 

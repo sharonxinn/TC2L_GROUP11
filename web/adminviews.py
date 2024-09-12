@@ -4,7 +4,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.actions import action
 from flask import flash, redirect, url_for
 from markupsafe import Markup
-from .models import Profile,Driverspost
+from .models import Profile,Rides
 from . import db  # Ensure this import is at the bottom to avoid circular import
 import os
 
@@ -52,21 +52,6 @@ class ProfileModelView(ModelView):
         'profile_pic': _format_image
     }
 
-    @action('approve', 'Approve', 'Are you sure you want to approve the selected profiles?')
-    def action_approve(self, ids):
-        print(f"Approving profiles with IDs: {ids}")  # Debugging statement
-        try:
-            query = Profile.query.filter(Profile.id.in_(ids))
-            count = 0
-            for profile in query.all():
-                profile.is_approved = True
-                count += 1
-            db.session.commit()
-            flash(f'{count} profile(s) successfully approved.', 'success')
-        except Exception as e:
-            flash(f'An error occurred: {str(e)}', 'error')
-            db.session.rollback()
-
     @action('reject', 'Reject', 'Are you sure you want to reject the selected profiles?')
     def action_reject(self, ids):
         try:
@@ -99,24 +84,11 @@ class RiderPostModelView(ModelView):
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin
 
-    @action('approve', 'Approve', 'Are you sure you want to approve the selected driver posts?')
-    def action_approve(self, ids):
-        try:
-            query = Driverspost.query.filter(Driverspost.id.in_(ids))
-            count = 0
-            for post in query.all():
-                post.status = 'approved'
-                count += 1
-            db.session.commit()
-            flash(f'{count} driver post(s) successfully approved.', 'success')
-        except Exception as e:
-            flash(f'An error occurred: {str(e)}', 'error')
-            db.session.rollback()
 
     @action('reject', 'Reject', 'Are you sure you want to reject the selected driver posts?')
     def action_reject(self, ids):
         try:
-            query = Driverspost.query.filter(Driverspost.id.in_(ids))
+            query = Rides.query.filter(Rides.id.in_(ids))
             count = 0
             for post in query.all():
                 post.status = 'rejected'

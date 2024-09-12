@@ -45,7 +45,7 @@ class ProfileModelView(ModelView):
     
     def _format_image(view, context, model, name):
         if getattr(model, name):
-            return Markup(f'<img src="{url_for("static", filename="/web/static/uploads/" + model.profile_pic)}" width="100" height="100" />')
+            return Markup(f'<img src="{url_for("static", filename="" + model.profile_pic)}" width="100" height="100" />')
         return ''
 
     column_formatters = {

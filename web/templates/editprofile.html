@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile</title>
     <link rel="stylesheet" href="../static/editprofile.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script>
         function previewImage(event) {
             const reader = new FileReader();
@@ -28,18 +29,21 @@
         <div class="details">
             <form action="{{ url_for('main.editprofile') }}" method="POST" enctype="multipart/form-data">
 
-                <div class="pic">
+                <div class="wrapper">
                     <!-- Show uploaded profile picture -->
                     {% if profile.profile_pic %}
-                        <img id="profilePicPreview" src="{{ url_for('static', filename=profile.profile_pic.split('static/')[-1]) }}" alt="Profile Picture" style="max-width: 150px; max-height: 150px;">
+                        <img id="profilePicPreview" src="{{ url_for('static', filename=profile.profile_pic.split('static/')[-1]) }}" alt="Profile Picture">
                     {% else %}
-                        <img id="profilePicPreview" src="#" alt="Profile Picture" style="display: none; max-width: 150px; max-height: 150px;">
+                        <img id="profilePicPreview" src="#" alt="Profile Picture">
                     {% endif %}
 
-                    <div class="change">
-                        <!-- Profile picture upload -->
-                        <input type="file" id="profile_pic" name="profile_pic" onchange="previewImage(event)">
+                    <div class="overlay">
+                        <i class='bx bxs-camera'></i>
+                        <p>Upload</p>
                     </div>
+
+                    <!-- Profile picture upload -->
+                    <input type="file" id="profile_pic" name="profile_pic" onchange="previewImage(event)" class="change">
                 </div>
 
                 <div class="info">

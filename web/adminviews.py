@@ -4,7 +4,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.actions import action
 from flask import flash, redirect, url_for
 from markupsafe import Markup
-from .models import Profile,Driverspost
+from .models import Profile,Rides
 from . import db  # Ensure this import is at the bottom to avoid circular import
 import os
 
@@ -45,14 +45,14 @@ class ProfileModelView(ModelView):
     
     def _format_image(view, context, model, name):
         if getattr(model, name):
-            return Markup(f'<img src="{url_for("static", filename="uploads/" + model.profile_pic)}" width="100" height="100" />')
+            return Markup(f'<img src="{url_for("static", filename="" + model.profile_pic)}" width="100" height="100" />')
         return ''
 
     column_formatters = {
         'profile_pic': _format_image
     }
 
-    @action('reject', 'Reject', 'Are you sure you want to reject the selected driver posts?')
+    @action('reject', 'Reject', 'Are you sure you want to reject the selected profiles?')
     def action_reject(self, ids):
         try:
             query = Profile.query.filter(Profile.id.in_(ids))
@@ -67,11 +67,11 @@ class ProfileModelView(ModelView):
             db.session.rollback()
 
 class RiderPostModelView(ModelView):
-    column_list = ('dateandTime', 'pickup', 'dropoff', 'carplate', 'carmodel', 'totalperson', 'fees', 'message', 'status')
+    column_list = ('dateandTime', 'start_location', 'end_location', 'carplate', 'carmodel', 'totalperson', 'fees', 'message', 'status')
     column_labels = {
         'dateandTime': 'Date and Time',
-        'pickup': 'Pickup Location',
-        'dropoff': 'Dropoff Location',
+        'start_location': 'start_location Location',
+        'end_location': 'end_location Location',
         'carplate': 'Car Plate',
         'carmodel': 'Car Model',
         'totalperson': 'Total Persons',
@@ -79,15 +79,16 @@ class RiderPostModelView(ModelView):
         'message': 'Message',
         'status': 'Status'
     }
-    form_columns = ('dateandTime', 'pickup', 'pickup_lat', 'pickup_lng', 'dropoff', 'dropoff_lat', 'dropoff_lng', 'carplate', 'carmodel', 'totalperson', 'fees', 'duitnowid', 'message', 'status')
+    form_columns = ('dateandTime', 'start_location', 'start_location_lat', 'start_location_lng', 'end_location', 'end_location_lat', 'end_location_lng', 'carplate', 'carmodel', 'totalperson', 'fees', 'duitnowid', 'message', 'status')
 
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin
-    
+
+
     @action('reject', 'Reject', 'Are you sure you want to reject the selected driver posts?')
     def action_reject(self, ids):
         try:
-            query = Driverspost.query.filter(Driverspost.id.in_(ids))
+            query = Rides.query.filter(Rides.id.in_(ids))
             count = 0
             for post in query.all():
                 post.status = 'rejected'

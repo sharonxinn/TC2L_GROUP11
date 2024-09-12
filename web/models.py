@@ -7,19 +7,19 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(150))
     is_admin = db.Column(db.Boolean, default=False)  # Add this line
 
-    drivers_post = db.relationship('Driverspost', backref='user', lazy=True)
+    drivers_post = db.relationship('Rides', backref='user', lazy=True)
     profile = db.relationship('Profile', backref='user', lazy=True)
     passenger_matches = db.relationship('PassengerMatch', foreign_keys='PassengerMatch.passenger_id', backref='passenger_match', lazy=True)
 
-class Driverspost(db.Model):
+class Rides(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     dateandTime = db.Column(db.String(50), nullable=False)
-    pickup = db.Column(db.String(100), nullable=False)
-    pickup_lat = db.Column(db.Float, nullable=True)  # Nullable
-    pickup_lng = db.Column(db.Float, nullable=True)  # Nullable
-    dropoff = db.Column(db.String(100), nullable=False)
-    dropoff_lat = db.Column(db.Float, nullable=True)  # Nullable
-    dropoff_lng = db.Column(db.Float, nullable=True)  # Nullable
+    start_location = db.Column(db.String(100), nullable=False)
+    start_location_lat = db.Column(db.Float, nullable=True)  # Nullable
+    start_location_lng = db.Column(db.Float, nullable=True)  # Nullable
+    end_location = db.Column(db.String(100), nullable=False)
+    end_location_lat = db.Column(db.Float, nullable=True)  # Nullable
+    end_location_lng = db.Column(db.Float, nullable=True)  # Nullable
     carplate = db.Column(db.String(20), nullable=False)
     carmodel = db.Column(db.String(50), nullable=False)
     totalperson = db.Column(db.Integer, nullable=False)
@@ -46,12 +46,12 @@ class Profile(db.Model):
 class PassengerMatch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     passenger_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    driver_id = db.Column(db.Integer, db.ForeignKey('driverspost.id'), nullable=False)
+    driver_id = db.Column(db.Integer, db.ForeignKey('rides.id'), nullable=False)
     payment_proof_id = db.Column(db.Integer, db.ForeignKey('payment_proof.id'), nullable=True)
-    status = db.Column(db.String(20), nullable=False, default='in_progress')
+    status = db.Column(db.String(20), nullable=False, default='APPROVING')
     
     passenger = db.relationship('User', foreign_keys=[passenger_id], backref='matches_as_passenger')
-    driver = db.relationship('Driverspost', foreign_keys=[driver_id], backref='matches_as_driver')
+    driver = db.relationship('Rides', foreign_keys=[driver_id], backref='matches_as_driver')
     # Relationship with PaymentProof
     payment_proof = db.relationship('PaymentProof', backref='matches', lazy=True)
 

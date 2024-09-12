@@ -39,10 +39,10 @@ def create_app():
     admin = Admin(app, template_mode='bootstrap4', index_view=AdminIndex())
     
     # Add views for admin
-    from .models import User, Profile,Driverspost # Import here to avoid circular imports
+    from .models import User, Profile,Rides # Import here to avoid circular imports
     admin.add_view(AdminModelView(User, db.session))
     admin.add_view(ProfileModelView(Profile, db.session))
-    admin.add_view(RiderPostModelView(Driverspost, db.session))
+    admin.add_view(RiderPostModelView(Rides, db.session))
     admin.add_view(AdminLogoutView(name="Log Out", endpoint="logout"))
 
     # Register blueprints

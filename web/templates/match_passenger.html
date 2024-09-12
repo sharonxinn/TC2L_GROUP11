@@ -1,78 +1,344 @@
-{% extends "base_driver.html" %}
+{% extends "base_passenger.html" %}
 {% block title %}Match Passenger{% endblock %}
 {% block content %}
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match with Passenger</title>
+    <title>Match Passenger</title>
     <link rel="stylesheet" href="../static/match_passenger.css">
-  </head>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
 
 <body>
     <div class="container">
+        <div class="box">
+            <div class="driver">
+                <div class="header">
+                    <h1>Your Ride</h1>
+                </div>
 
-        <div class="header">
-            <h1>Your Information</h1>
-        </div>
+                <div class="details">
+                    <div class="row">
+                        <div class="info">
+                            <i class='bx bxs-user'></i>
+                            <h3>Full Name</h3>
+                            <p>{{ profile_dict[driver.user_id].fullName }}</p>
+                        </div>
+                        <div class="info">
+                            <i class='bx bx-male-female'></i>
+                            <h3>Gender</h3>
+                            <p>{{ profile_dict[driver.user_id].gender }}</p>
+                        </div>
+                        <div class="info">
+                            <i class='bx bxs-phone-call'></i>
+                            <h3>Contact</h3>
+                            <p>{{ profile_dict[driver.user_id].contact }}</p>
+                        </div>
+                    </div>
 
-        <table border="1">
-            <tr>
-                <th>Full Name</th>
-                <th>Gender</th>
-                <th>Contact</th>
-                <th>Date and Time</th>
-                <th>Pick-Up Location</th>
-                <th>Drop-Off Location</th>
-                <th>Car Plate</th>
-                <th>Car Model</th>
-                <th>Maximum Number of Passengers</th>
-                <th>Fees</th>
-                <th>DuitNow ID</th>
-                <th>Message</th>
-            </tr>
+                    <div class="row">
+                        <div class="info_left-right">
+                            <i class='bx bxs-time' ></i>
+                            <div class="info_up-down">
+                                <h3>Date and Time</h3>
+                                <p>{{ driver.dateandTime }}</p>
+                            </div>
+                        </div>
+                        <div class="info_left-right">
+                            <i class='bx bx-body'></i>
+                            <div class="info_up-down">
+                                <h3>Maximum No. of Passengers</h3>
+                                <p>{{ driver.totalperson }}</p>
+                            </div>
+                        </div>
+                    </div>
 
-            <tr>
-                <td>{{ profile_dict[driver.user_id].fullName }}</td>
-                <td>{{ profile_dict[driver.user_id].gender }}</td>
-                <td>{{ profile_dict[driver.user_id].contact }}</td>
-                <td>{{ driver.dateandTime }}</td>
-                <td>{{ driver.pickup }}</td>
-                <td>{{ driver.dropoff }}</td>
-                <td>{{ driver.carplate }}</td>
-                <td>{{ driver.carmodel }}</td>
-                <td>{{ driver.totalperson }}</td>
-                <td>{{ driver.fees }}</td>
-                <td>{{ driver.duitnowid }}</td>
-                <td>{{ driver.message }}</td>
-            </tr>
-            
-        <h3>Driver Ratings and Feedback</h3>
-        {% if ratings %}
-            {% for rating in ratings %}
-            <div>
-                <strong>Rating:</strong> {{ rating.rating }}/5
-                {% if rating.feedback %}
-                <p><strong>Feedback:</strong> {{ rating.feedback }}</p>
-                {% endif %}
+                    <div class="row">
+                        <div class="info_left-right">
+                            <i class='bx bxs-map'></i>
+                            <div class="info_up-down">
+                                <h3>Start Location</h3>
+                                <p>{{ driver.start_location }}</p>
+                            </div>
+                        </div>
+                        <div class="info_left-right">
+                            <i class='bx bxs-map'></i>
+                            <div class="info_up-down">
+                                <h3>End Location</h3>
+                                <p>{{ driver.end_location }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="info_left-right">
+                            <i class='bx bxs-car'></i>
+                            <div class="info_up-down">
+                                <h3>Car Plate</h3>
+                                <p>{{ driver.carplate }}</p>
+                            </div>
+                        </div>
+                        <div class="info_left-right">
+                            <i class='bx bxs-car'></i>
+                            <div class="info_up-down">
+                                <h3>Car Model</h3>
+                                <p>{{ driver.carmodel }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="info_left-right">
+                            <i class='bx bx-money-withdraw' ></i>
+                            <div class="info_up-down">
+                                <h3>Fees</h3>
+                                <p>{{ driver.fees }}</p>
+                            </div>
+                        </div>
+                        <div class="info_left-right">
+                            <i class='bx bxs-credit-card'></i>
+                            <div class="info_up-down">
+                                <h3>DuitNow ID</h3>
+                                <p>{{ driver.duitnowid }}</p>
+                            </div>
+                        </div>
+                        <div class="info_left-right">
+                            <i class='bx bxs-message-square-detail'></i>
+                            <div class="info_up-down">
+                                <h3>Message</h3>
+                                <p>{{ driver.message }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            {% endfor %}
-        {% else %}
-            <p>No ratings yet.</p>
-        {% endif %}
 
-        <h2>Waiting List</h2>
-        <table border="1">
+            <div class="passenger">
+                <div class="header">
+                    <h1>Passengers</h1>
+                </div>
+
+                <div class="details">
+                    {% for match in matches %}
+                    <div class="seperate">
+                        <div class="row-p">
+                            <div class="info_left-right">
+                                <i class='bx bxs-user'></i>
+                                <div class="info_up-down">
+                                    <h3>Full Name</h3>
+                                    <p>{{ profile_dict[match.passenger_id].fullName }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-male-female'></i>
+                                <div class="info_up-down">
+                                    <h3>Gender</h3>
+                                    <p>{{ profile_dict[match.passenger_id].gender }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bxs-phone-call'></i>
+                                <div class="info_up-down">
+                                    <h3>Contact</h3>
+                                    <p>{{ profile_dict[match.passenger_id].contact }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row-p">
+                            <div class="info_left-right">
+                                <i class='bx bxs-credit-card'></i>
+                                <div class="info_up-down">
+                                    <h3>Payment</h3>
+                                    <p>
+                                        {% if match.payment_proof %}
+                                            <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof">
+                                        {% else %}
+                                            Cash
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-loader-circle' ></i>
+                                <div class="info_up-down">
+                                    <h3>Status</h3>
+                                    <p>{{ match.status }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% for match in matches_approving %}
+                        <div class="row-p">
+                            <form action="{{ url_for('main.approve_passenger', match_id=match.id) }}" method="POST">
+                                <input type="submit" value="Approve" class="btn">
+                            </form>
+        
+                            <form action="{{ url_for('main.remove_passenger', match_id=match.id) }}" method="POST">
+                                <input type="submit" value="Reject" class="btn">
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+
+
+                    {% for match in matches_completed %}
+                    <div class="seperate">
+                        <div class="row-p">
+                            <div class="info_left-right">
+                                <i class='bx bxs-user'></i>
+                                <div class="info_up-down">
+                                    <h3>Full Name</h3>
+                                    <p>{{ profile_dict[match.passenger_id].fullName }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-male-female'></i>
+                                <div class="info_up-down">
+                                    <h3>Gender</h3>
+                                    <p>{{ profile_dict[match.passenger_id].gender }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bxs-phone-call'></i>
+                                <div class="info_up-down">
+                                    <h3>Contact</h3>
+                                    <p>{{ profile_dict[match.passenger_id].contact }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row-p">
+                            <div class="info_left-right">
+                                <i class='bx bxs-credit-card'></i>
+                                <div class="info_up-down">
+                                    <h3>Payment</h3>
+                                    <p>
+                                        {% if match.payment_proof %}
+                                            <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof">
+                                        {% else %}
+                                            Cash
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-loader-circle' ></i>
+                                <div class="info_up-down">
+                                    <h3>Status</h3>
+                                    <p>{{ match.status }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% for match in matches_approving %}
+                        <div class="row-p">
+                            <form action="{{ url_for('main.approve_passenger', match_id=match.id) }}" method="POST">
+                                <input type="submit" value="Approve" class="btn">
+                            </form>
+        
+                            <form action="{{ url_for('main.remove_passenger', match_id=match.id) }}" method="POST">
+                                <input type="submit" value="Reject" class="btn">
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+
+
+                    {% for match in matches_confirmed %}
+                    <div class="seperate">
+                        <div class="row-p">
+                            <div class="info_left-right">
+                                <i class='bx bxs-user'></i>
+                                <div class="info_up-down">
+                                    <h3>Full Name</h3>
+                                    <p>{{ profile_dict[match.passenger_id].fullName }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-male-female'></i>
+                                <div class="info_up-down">
+                                    <h3>Gender</h3>
+                                    <p>{{ profile_dict[match.passenger_id].gender }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bxs-phone-call'></i>
+                                <div class="info_up-down">
+                                    <h3>Contact</h3>
+                                    <p>{{ profile_dict[match.passenger_id].contact }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row-p">
+                            <div class="info_left-right">
+                                <i class='bx bxs-credit-card'></i>
+                                <div class="info_up-down">
+                                    <h3>Payment</h3>
+                                    <p>
+                                        {% if match.payment_proof %}
+                                            <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof">
+                                        {% else %}
+                                            Cash
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-loader-circle' ></i>
+                                <div class="info_up-down">
+                                    <h3>Status</h3>
+                                    <p>{{ match.status }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% for match in matches_approving %}
+                        <div class="row-p">
+                            <form action="{{ url_for('main.approve_passenger', match_id=match.id) }}" method="POST">
+                                <input type="submit" value="Approve" class="btn">
+                            </form>
+        
+                            <form action="{{ url_for('main.remove_passenger', match_id=match.id) }}" method="POST">
+                                <input type="submit" value="Reject" class="btn">
+                            </form>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}
+
+
+<!-- <table border="1">
             <tr>
                 <th>Full Name</th>
                 <th>Gender</th>
                 <th>Contact</th>
-                <th>Payment Proof</th> <!-- New column for payment proof -->
+                <th>Payment Proof</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
-            {% for match in matches %}
+            {% for match in matches_approving %}
             <tr>
                 <td>{{ profile_dict[match.passenger_id].fullName }}</td>
                 <td>{{ profile_dict[match.passenger_id].gender }}</td>
@@ -84,61 +350,16 @@
                 {% endif %}
                 <td>{{ match.status }}</td>
                 <td>
-                    <form action="{{ url_for('main.remove_passenger', passenger_id=match.passenger_id, driver_id=driver.id) }}" method="POST">
-                        <input type="submit" value="Remove Passenger" class="btn">
+                    <form action="{{ url_for('main.approve_passenger', match_id=match.id) }}" method="POST">
+                        <input type="submit" value="Approve" class="btn">
                     </form>
-                    
-        
-                </td>
 
-            </tr>
-            {% endfor %}
-
-            {% for match in matchess %}
-            <tr>
-                <td>{{ profile_dict[match.passenger_id].fullName }}</td>
-                <td>{{ profile_dict[match.passenger_id].gender }}</td>
-                <td>{{ profile_dict[match.passenger_id].contact }}</td>
-                <td>{% if match.payment_proof %}
-                    <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof" style="width:150px;height:150px;">
-                {% else %}
-                    Pay By Cash
-                {% endif %}</td>
-                <td>{{ match.status }}</td>
-                <td>
-                    <form action="{{ url_for('main.remove_passenger', passenger_id=match.passenger_id, driver_id=driver.id) }}" method="POST">
-                        <input type="submit" value="Remove Passenger" class="btn">
+                    <form action="{{ url_for('main.remove_passenger', match_id=match.id) }}" method="POST">
+                        <input type="submit" value="Reject Passenger" class="btn">
                     </form>
                 </td>
-                
             </tr>
-
-            {% endfor %}
-
-            {% for match in matches_confirmed %}
-            <tr>
-                <td>{{ profile_dict[match.passenger_id].fullName }}</td>
-                <td>{{ profile_dict[match.passenger_id].gender }}</td>
-                <td>{{ profile_dict[match.passenger_id].contact }}</td>
-                <td>{% if match.payment_proof %}
-                    <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof" style="width:150px;height:150px;">
-                {% else %}
-                    Pay By Cash
-                {% endif %}</td>
-                <td>{{ match.status }}</td>
-                <td>
-                    <form action="{{ url_for('main.remove_passenger', passenger_id=match.passenger_id, driver_id=driver.id) }}" method="POST">
-                        <input type="submit" value="Remove Passenger" class="btn">
-                    </form>
-                </td>
-
-            </tr>
-            
             {% endfor %}
                 
-            
-        </table>
-    </div>
-</body>
-</html>
-{% endblock %}
+            <h2>Waiting List</h2>
+        </table> -->

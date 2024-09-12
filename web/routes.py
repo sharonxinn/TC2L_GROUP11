@@ -172,11 +172,6 @@ def base_passenger():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
     return render_template('base_passenger.html', user=current_user, profile=profile)
 
-@bp.route('/base_driver')
-def base_driver():
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
-    return render_template('base_driver.html',user=current_user,profile=profile)
-
 #set up dashboard page
 @bp.route('/dashboard', methods=['GET'])
 @login_required
@@ -317,15 +312,15 @@ def driver_post():
         db.session.add(new_Rides)
         db.session.commit()
 
-        return redirect(url_for('main.base_driver'))
+        return redirect(url_for('main.base_passenger'))
 
     return render_template('driver_post.html')
 
-@bp.route('/find_rides')
+@bp.route('/findarides')
 @login_required
-def find_rides():
+def findarides():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
-    driver_posts = Driverspost.query.filter_by(status='approved').all()
+    driver_posts = Rides.query.filter_by().all()
     # Prepare a list of drivers' details
     drivers_data = [{
         'lat': dp.start_location_lat,
@@ -395,9 +390,9 @@ def booking_history():
                            driver_matches_dict=driver_matches_dict)
 
 #set up match_passsenger page
-@bp.route('/match/<int:driver_id>')
+@bp.route('/match_passenger/<int:driver_id>')
 @login_required
-def match(driver_id):
+def match_passenger(driver_id):
 
     profile = Profile.query.filter_by(user_id=current_user.id).first()
 
@@ -426,10 +421,11 @@ def match(driver_id):
         matches_confirmed=matches_confirmed
     )
 
+
 #set up match driver page
-@bp.route('/match_/<int:driver_id>')
+@bp.route('/match_drivers/<int:driver_id>')
 @login_required
-def match_(driver_id):
+def match_drivers(driver_id):
     profile = Profile.query.filter_by(user_id=current_user.id).first()
     driver = Rides.query.get_or_404(driver_id)
     profiles = Profile.query.all()
@@ -474,7 +470,7 @@ def remove_passenger(match_id):
         match.status = 'REJECTED'
         db.session.commit()
 
-    return redirect(url_for('main.match_'))
+    return redirect(url_for('main.match_passenger',driver_id=current_user.id))
 
 @bp.route('/approve_passenger/<int:match_id>', methods=['POST'])
 @login_required
@@ -484,7 +480,7 @@ def approve_passenger(match_id):
         match.status = 'IN PROGRESS'
         db.session.commit()
 
-    return redirect(url_for('main.match',driver_id=current_user.id))
+    return redirect(url_for('main.match_passenger',driver_id=current_user.id))
 
 #set up confirm match page
 @bp.route('/confirm_match/<int:match_id>', methods=['POST'])
@@ -510,6 +506,18 @@ def confirm_match(match_id):
     return redirect(url_for('main.booking_history'))
 
 #set up cancel match page
+@bp.route('/complete_match/<int:match_id>', methods=['POST'])
+def complete_match(match_id):
+    match = PassengerMatch.query.get(match_id)
+    if match:
+        match.status = 'complete'
+        db.session.commit()
+
+        driver_post = match.driver_post
+        driver_post.status = ' completed '
+        db.session.commit()
+
+    return redirect(url_for('main.booking_history'))
 
 @bp.route('/cancel_match/<int:match_id>', methods=['POST'])
 @login_required
@@ -545,40 +553,18 @@ def cancel_match_p(match_id):
     return redirect(url_for('main.booking_history'))
 
 
-#backup page(for ratings)
-#@bp.route('/view_detail_d/<int:match_id>', methods=['GET', 'POST'])
-#@login_required
-#def view_detail_d(match_id):
-    match = PassengerMatch.query.get_or_404(match_id)
-    driver = Driverspost.query.get_or_404(match.driver_id)
-    ratings = Rating.query.filter_by(driver_id=driver.id).all()
-    return redirect(url_for('main.match_passenger', driver_id=match.driver_id,ratings=ratings))
-#@bp.route('/view_detail_p/<int:match_id>', methods=['GET'])
-#@login_required
-#def view_detail_p(match_id):
-    match = PassengerMatch.query.get_or_404(match_id)
-    passenger = User.query.get_or_404(match.passenger_id)
-    driver = Driverspost.query.get_or_404(match.driver_id)
-    ratings = Rating.query.filter_by(driver_id=driver.id).all()
-    
-    return render_template('match_driver.html', 
-                           match=match, 
-                           passenger=passenger, 
-                           driver=driver, 
-                           ratings=ratings)
-
 #set up view detail page 
 @bp.route('/view_detail_d/<int:match_id>', methods=['GET', 'POST'])
 @login_required
 def view_detail_d(match_id):
     match = PassengerMatch.query.get_or_404(match_id)
-    return redirect(url_for('main.match', driver_id=match.driver_id))
+    return redirect(url_for('main.match_passenger', driver_id=match.driver_id))
 
 @bp.route('/view_detail_p/<int:match_id>', methods=['GET', 'POST'])
 @login_required
 def view_detail_p(match_id):
     match = PassengerMatch.query.get_or_404(match_id)
-    return redirect(url_for('main.match_', driver_id=match.driver_id))
+    return redirect(url_for('main.match_drivers', driver_id=match.driver_id))
 
 @bp.route('/upload/<int:match_id>', methods=['GET', 'POST'])
 @login_required
@@ -618,24 +604,3 @@ def upload_payment_proof(match_id):
     
     return render_template('upload.html', form=form, profile=profile, match_id=match_id)
 
-#set page for rating driver
-#@bp.route('/rate_driver/<int:match_id>', methods=['GET', 'POST'])
-#@login_required
-#def rate_driver(match_id):
-    match = PassengerMatch.query.get_or_404(match_id)
-    form = RatingForm()
-
-    if form.validate_on_submit():
-        rating = Rating(
-            match_id=match.id,
-            passenger_id=current_user.id,
-            driver_id=match.driver_id,
-            rating=form.rating.data,
-            feedback=form.feedback.data
-        )
-        db.session.add(rating)
-        db.session.commit()
-        
-        return redirect(url_for('main.booking_history'))
-
-    return render_template('rate_driver.html', form=form, match=match)

@@ -22,25 +22,25 @@
 
       <ul class="nav_list">
         <li>
-            <i class='bx bx-search-alt-2' ></i>
-            <input type="text" id="sidebarSearch" placeholder="Search Location">
+          <i class='bx bx-search-alt-2' ></i>
+          <input type="text" id="sidebarSearch" placeholder="Search Location">
           <span class="tooltip">Search</span>
         </li>
 
-        <!-- <li>
-          <a href="{{ url_for('main.drivers_list') }}" >
-            <i class='bx bxs-dashboard'></i>
-            <span class="icon_name">Dashboard</span>
+        <li>
+          <a href="{{ url_for('main.findarides')}}">
+            <i class='bx bx-map' ></i>
+            <span class="icon_name">Find A Ride</span>
           </a>
-          <span class="tooltip">Dashboard</span>
-        </li> -->
+          <span class="tooltip">Find A Ride</span>
+        </li>
 
         <li>
-          <a href="{{ url_for('main.find_rides')}}">
-            <i class='bx bx-map' ></i>
-            <span class="icon_name">Find A Route</span>
+          <a href="/driver_post">
+            <i class='bx bx-car'></i>
+            <span class="icon_name">Post A Ride</span>
           </a>
-          <span class="tooltip">Find A Route</span>
+          <span class="tooltip">Post A Ride</span>
         </li>
 
         <li>
@@ -57,14 +57,6 @@
             <span class="icon_name">Profile</span>
           </a>
           <span class="tooltip">Profile</span>
-        </li>
-
-        <li>
-          <a href="/driver_post">
-            <i class='bx bx-body'></i>
-            <span class="icon_name">Switch Identity</span>
-          </a>
-          <span class="tooltip">Switch Identity</span>
         </li>
 
         <li class="mode">
@@ -86,9 +78,10 @@
             <img src="{{ profile.profile_pic }}"  width="40px" height="40px" alt="Profile Picture">
             <div class="name_id">
               <div class="name">{{ profile.fullName }}</div>
-              <div class="id">Passenger</div>
+              <!-- <div class="id">Passenger</div> -->
             </div>
           </div>
+
           <a href="/">
             <i class='bx bx-exit' id="logout" ></i>
           </a>

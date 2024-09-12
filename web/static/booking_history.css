@@ -67,7 +67,7 @@ body{
 }
 
 .table_body{
-  width: 85%;
+  width: 90%;
   max-height: calc(87% - .8rem);
   margin: .8rem auto;
   color: var(--text-color);

@@ -176,7 +176,7 @@ def base_driver():
 @bp.route('/dashboard', methods=['GET'])
 @login_required
 def dashboard():
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    profile = Profile.query.filter_by(user_id=current_user.id,status="approved").first()
     if profile is None:
         flash("No profile found. Please complete your profile first.", category="error")
         return redirect(url_for('main.profile'))

@@ -5,6 +5,8 @@ from .models import User, Rides, Profile,PassengerMatch,PaymentProof
 from .form import PaymentForm
 from . import db
 from werkzeug.utils import secure_filename
+from datetime import datetime, timedelta
+from sqlalchemy import and_
 import os
 
 app = Flask(__name__)
@@ -310,10 +312,50 @@ def driver_post():
 
     return render_template('driver_post.html')
 
-
 @bp.route('/findarides')
 @login_required
 def findarides():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    today = datetime.now()
+
+    # Filter rides within the specified range and time (e.g., today's rides)
+    driver_posts = Rides.query.filter(
+        and_(
+            Rides.dateandTime >= today,  # Only show rides happening from today onwards
+            Rides.status == 'IN PROGRESS',  # Only show active rides
+            Rides.user_id != current_user.id  # Exclude posts by the current user
+        )
+        ).all()
+
+    # Prepare a list of filtered drivers' details
+    drivers_data = []
+    for dp in driver_posts:
+        if isinstance(dp.dateandTime, datetime):
+            dateandTime_str = dp.dateandTime.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            dateandTime_str = dp.dateandTime  # Assuming it's already in the desired format
+
+        drivers_data.append({
+            'lat': dp.start_location_lat,
+            'lng': dp.start_location_lng,
+            'end_location': dp.end_location,
+            'dateandTime': dateandTime_str,
+            'totalperson': dp.totalperson,
+            'fees': dp.fees,
+            'message': dp.message,
+            'status': dp.status,
+            'id': dp.id,  
+        })
+
+    start_location_lat = 0
+    start_location_lng = 0
+
+    return render_template('findarides.html', drivers_data=drivers_data, start_location_lat=start_location_lat, start_location_lng=start_location_lng, profile=profile)
+
+
+#@bp.route('/findarides')
+#@login_required
+#def findarides():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
     driver_posts = Rides.query.filter_by().all()
     # Prepare a list of drivers' details

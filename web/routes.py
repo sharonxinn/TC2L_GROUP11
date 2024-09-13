@@ -176,7 +176,7 @@ def base_passenger():
 @bp.route('/dashboard', methods=['GET'])
 @login_required
 def dashboard():
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    profile = Profile.query.filter_by(user_id=current_user.id,status="approved").first()
     if profile is None:
         flash("No profile found. Please complete your profile first.", category="error")
         return redirect(url_for('main.profile'))
@@ -272,12 +272,10 @@ def change_password():
 def driver_post():
     if request.method == 'POST':
         dateandTime = request.form['dateandTime']
-        start_location = request.form['start_location']
-        start_location_lat = request.form.get('start_location_lat')
-        start_location_lng = request.form.get('start_location_lng')
+        start_location = request.form['start_location']  # Location name from Google Places
+        start_location_lat = request.form.get('start_location_lat', None)
+        start_location_lng = request.form.get('start_location_lng', None)
         end_location = request.form['end_location']
-        end_location_lat = request.form.get('end_location_lat', None)
-        end_location_lng = request.form.get('end_location_lng', None)
         carplate = request.form['carplate']
         carmodel = request.form['carmodel']
         totalperson = request.form['totalperson']
@@ -286,11 +284,9 @@ def driver_post():
         message = request.form['message']
         status = 'IN PROGRESS'
 
-        # Convert empty strings to None
+        # Convert empty strings to None for latitude and longitude
         start_location_lat = float(start_location_lat) if start_location_lat else None
         start_location_lng = float(start_location_lng) if start_location_lng else None
-        end_location_lat = float(end_location_lat) if end_location_lat else None
-        end_location_lng = float(end_location_lng) if end_location_lng else None
 
         new_Rides = Rides(
             dateandTime=dateandTime,
@@ -298,8 +294,6 @@ def driver_post():
             start_location_lat=start_location_lat,
             start_location_lng=start_location_lng,
             end_location=end_location,
-            end_location_lat=end_location_lat,
-            end_location_lng=end_location_lng,
             carplate=carplate,
             carmodel=carmodel,
             totalperson=totalperson,
@@ -307,7 +301,7 @@ def driver_post():
             duitnowid=duitnowid,
             message=message,
             status=status,
-            user_id=current_user.id,
+            user_id=current_user.id
         )
         db.session.add(new_Rides)
         db.session.commit()
@@ -315,6 +309,7 @@ def driver_post():
         return redirect(url_for('main.base_passenger'))
 
     return render_template('driver_post.html')
+
 
 @bp.route('/findarides')
 @login_required

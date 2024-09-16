@@ -19,6 +19,7 @@
     --table-data: #0000000b;
     --table-hover: #fff6;
     --btn: rgba(0, 0, 0, 0.7);
+    --scroll: #0004;
   }
 
   body.dark{
@@ -33,6 +34,7 @@
     --table-data: #89898f52;
     --table-hover: #fff6;
     --btn: rgba(255, 255, 255, 0.7);
+    --scroll: rgba(255, 255, 255, 0.267);
   }
   
   body{
@@ -68,6 +70,7 @@
     width: 440px;
     border-radius: 40px;
     padding: 15px 40px; /* top-bottom left-right*/
+    transition: all 0.5s ease;
 }
 
 h1{
@@ -76,6 +79,31 @@ h1{
   padding-top: 10px;
   padding-bottom: 20px;
   text-align: center;
+}
+
+.size{
+  /* width: 100%; */
+  max-height: calc(85% - .8rem);
+  margin: .8rem auto;
+  overflow-y: auto;
+  overflow-x: auto;
+  white-space: nowrap;
+  transition: all 0.5s ease;
+}
+
+.size::-webkit-scrollbar{
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.size::-webkit-scrollbar-thumb{
+  border-radius: .5rem;
+  background-color: var(--scroll);
+  visibility: hidden;
+}
+
+.size:hover::-webkit-scrollbar-thumb{
+  visibility: visible;
 }
 
 .details{
@@ -145,4 +173,62 @@ p{
   font-weight: 600;
   font-size: 17px;
   margin-bottom: 20px;
+}
+
+.flashes {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  margin: 0;
+  padding: 0;
+  display: none;
+}
+
+.flashes.show {
+    display: block;
+}
+
+.flash {
+    padding: 5px;
+    border: 6px solid transparent;
+    border-radius: 10px;
+    position: relative;
+    width: 500px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.flash.success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.flash.error {
+    color: #721c24;
+    background-color: #f8d7ee;
+    border-color: #f5c6cb;
+}
+
+.closebtn {
+    position: absolute;
+    top: 3px;
+    right: 10px;
+    color: #aaa;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.closebtn:hover {
+    color: black;
+}
+
+@media screen and (max-width: 600px) {
+  .size{
+    width: 90%;
+    transition: all 0.5s ease;
+  }
 }

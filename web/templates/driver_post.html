@@ -119,6 +119,11 @@
                     <label for="dateandTime">Date & Time</label>
                     <br>
                     <input type="datetime-local" id="dateandTime" name="dateandTime" required><br>
+                    
+                    <script>
+                        var today = new Date().toISOString().slice(0, 16);
+                        document.getElementsByName("dateandTime")[0].min = today;
+                    </script>
                 </div>
 
                 <div class="left-right">

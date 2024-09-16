@@ -79,11 +79,15 @@ def login():
             else:
                 return redirect(url_for('main.chooseid'))
         elif user:
-            flash('Incorrect password, try again', category='error')
+            flash('Incorrect password. Please try again.', category='error')
         else:
             flash('Email does not exist.', category='error')
 
     return render_template("login.html", user=current_user)
+
+@bp.route('/forgotpassword')
+def forgotpassword():
+    return render_template('forgotpassword.html',user=current_user)
 
 #set up logout page
 @bp.route('/logout')
@@ -397,6 +401,7 @@ def match_passenger(driver_id):
     profile = Profile.query.filter_by(user_id=current_user.id).first()
 
     driver = Rides.query.get_or_404(driver_id)
+    driver_id=driver_id
 
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
@@ -413,6 +418,71 @@ def match_passenger(driver_id):
     return render_template(
         'match_passenger.html',
         driver=driver,
+        driver_id=driver_id,
+        matches=matches,  
+        profile_dict=profile_dict,
+        profile=profile,
+        matches_approving=matches_approving,
+        matches_completed=matches_completed,
+        matches_confirmed=matches_confirmed
+    )
+
+@bp.route('/passenger_matched/<int:driver_id>')
+@login_required
+def passenger_matched(driver_id):
+
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+
+    driver = Rides.query.get_or_404(driver_id)
+
+    profiles = Profile.query.all()
+    profile_dict = {profile.user_id: profile for profile in profiles}
+
+    matches = PassengerMatch.query.filter_by(driver_id=driver_id, status='IN PROGRESS').all()
+    matches_approving = PassengerMatch.query.filter_by(driver_id=driver_id, status='APPROVING').all()
+    matches_completed = PassengerMatch.query.filter_by(driver_id=driver_id, status='COMPLETED').all()
+    matches_confirmed = PassengerMatch.query.filter_by(driver_id=driver_id, status='confirm').all()
+
+    # Debugging: print to check contents
+    print(f"Profile dict keys: {profile_dict.keys()}")
+    print(f"Driver user ID: {driver.user_id}")
+
+    return render_template(
+        'passenger_matched.html',
+        driver=driver,
+        driver_id=driver_id,
+        matches=matches,  
+        profile_dict=profile_dict,
+        profile=profile,
+        matches_approving=matches_approving,
+        matches_completed=matches_completed,
+        matches_confirmed=matches_confirmed
+    )
+
+@bp.route('/waiting_list/<int:driver_id>')
+@login_required
+def waiting_list(driver_id):
+
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+
+    driver = Rides.query.get_or_404(driver_id)
+
+    profiles = Profile.query.all()
+    profile_dict = {profile.user_id: profile for profile in profiles}
+
+    matches = PassengerMatch.query.filter_by(driver_id=driver_id, status='IN PROGRESS').all()
+    matches_approving = PassengerMatch.query.filter_by(driver_id=driver_id, status='APPROVING').all()
+    matches_completed = PassengerMatch.query.filter_by(driver_id=driver_id, status='COMPLETED').all()
+    matches_confirmed = PassengerMatch.query.filter_by(driver_id=driver_id, status='confirm').all()
+
+    # Debugging: print to check contents
+    print(f"Profile dict keys: {profile_dict.keys()}")
+    print(f"Driver user ID: {driver.user_id}")
+
+    return render_template(
+        'waiting_list.html',
+        driver=driver,
+        driver_id=driver_id,
         matches=matches,  
         profile_dict=profile_dict,
         profile=profile,
@@ -470,7 +540,7 @@ def remove_passenger(match_id):
         match.status = 'REJECTED'
         db.session.commit()
 
-    return redirect(url_for('main.match_passenger',driver_id=current_user.id))
+    return redirect(url_for('main.passenger_matched',driver_id=current_user.id))
 
 @bp.route('/approve_passenger/<int:match_id>', methods=['POST'])
 @login_required
@@ -480,7 +550,7 @@ def approve_passenger(match_id):
         match.status = 'IN PROGRESS'
         db.session.commit()
 
-    return redirect(url_for('main.match_passenger',driver_id=current_user.id))
+    return redirect(url_for('main.passenger_matched',driver_id=current_user.id))
 
 #set up confirm match page
 @bp.route('/confirm_match/<int:match_id>', methods=['POST'])

@@ -35,8 +35,7 @@ body{
 
 .about{
     position: relative;
-    padding-left: 100px;
-    padding-right: 100px;
+    padding: 0 100px;
 }
 
 .about h2{
@@ -87,4 +86,14 @@ body{
 
 .about_dnp p{
     padding: 0.8rem 0 0.5rem 0;
+}
+
+@media screen and (max-width: 700px) {
+    .driver_and_passenger{
+        display: block;
+    }
+
+    .dnp{
+        margin-bottom: 6rem;
+    }
 }

@@ -23,24 +23,24 @@
       <ul class="nav_list">
         <li>
           <i class='bx bx-search-alt-2' ></i>
-          <input type="text" id="sidebarSearch" placeholder="Search Location">
+          <input type="text" id="sidebarSearch" placeholder="Search">
           <span class="tooltip">Search</span>
         </li>
 
         <li>
           <a href="{{ url_for('main.findarides')}}">
             <i class='bx bx-map' ></i>
-            <span class="icon_name">Find A Ride</span>
+            <span class="icon_name">Find a Ride</span>
           </a>
-          <span class="tooltip">Find A Ride</span>
+          <span class="tooltip">Find a Ride</span>
         </li>
 
         <li>
-          <a href="/driver_post">
+          <a href="{{ url_for('main.driver_post') }}">
             <i class='bx bx-car'></i>
-            <span class="icon_name">Post A Ride</span>
+            <span class="icon_name">Post a Ride</span>
           </a>
-          <span class="tooltip">Post A Ride</span>
+          <span class="tooltip">Post a Ride</span>
         </li>
 
         <li>
@@ -78,7 +78,6 @@
             <img src="{{ profile.profile_pic }}"  width="40px" height="40px" alt="Profile Picture">
             <div class="name_id">
               <div class="name">{{ profile.fullName }}</div>
-              <!-- <div class="id">Passenger</div> -->
             </div>
           </div>
 

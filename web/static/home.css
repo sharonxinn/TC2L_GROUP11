@@ -11,28 +11,32 @@ body{
     min-height: 100vh;
 }
 
-.carlogo{
+/* .carlogo{
     position: absolute;
     margin-top: 5px;
     margin-left: -115px;
-  }
-
-.clear{
-    clear: both;
-}
+  } */
 
 header{
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    padding: 25px 100px;
+    padding: 25px 60px;
     background-color: transparent;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    /* align-items: center; */
     z-index: 100;
     color: white;
+    transition: all 0.5s ease;
+    white-space: nowrap;
+}
+
+.menu{
+    text-align: right;
+    font-size: 25px;
+    display: none;
 }
 
 .top-nav a{
@@ -43,11 +47,19 @@ header{
     text-decoration: none;
     margin-left: 20px;
     padding: 12px;
+    transition: all 0.5s ease;
 }
 
 .top-nav a:hover, .top-nav a.bright{
     transition: 0.5s;
     color: rgb(0, 0, 0);
+    transition: all 0.5s ease;
+}
+
+.top-nav a.bright:hover{
+    background: black;
+    color: white;
+    border-radius: 50px;
 }
 
 .top-nav a span{
@@ -89,6 +101,9 @@ header{
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
+    white-space: nowrap;
+    transition: all 0.5s ease;
+    z-index: 100;
 }
 
 .car-pic{
@@ -98,44 +113,51 @@ header{
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 100;
+    z-index: 1;
     filter: drop-shadow(0 0 0.5 white);
 }
 
 .car-pic img{
     position: absolute;
+    transition: all 0.2s ease;
 }
 
+/* left-top */
 .car-pic img:nth-child(1){
     top: 10%;
     left: 25%;
     width: 16%;
 }
 
+/* left */
 .car-pic img:nth-child(2){
     top: 40%;
     left: 8%;
     width: 16%;
 }
 
+/* left-bottom */
 .car-pic img:nth-child(3){
     bottom: 8%;
     left: 32%;
     width: 16%;
 }
 
+/* right-bottom */
 .car-pic img:nth-child(4){
     bottom: 10%;
     right: 27%;
     width: 18%;
 }
 
+/* right-top */
 .car-pic img:nth-child(5){
     top: 9%;
     right: 25%;
     width: 16%;
 }
 
+/* right */
 .car-pic img:nth-child(6){
     top: 40%;
     right: 9%;
@@ -143,11 +165,9 @@ header{
 }
 
 #about{
-    padding-left: 150px;
-    padding-right: 150px;
-    padding-top: 40px;
-    padding-bottom: 40px;
+    padding: 40px 150px;
     text-align: center;
+    transition: all 0.5s ease;
 }
 
 .background{
@@ -224,4 +244,240 @@ header{
 
 .container .card:hover{
     transform: translateY(-30px);
+}
+
+@media (min-width: 840px) and (max-width: 1200px) {
+    .center h1 {
+        font-size: 60px;
+    }
+
+    /* left-top */
+    .car-pic img:nth-child(1){
+        top: 15%;
+        left: 25%;
+        width: 20%;
+    }
+
+    /* left */
+    .car-pic img:nth-child(2){
+        top: 40%;
+        left: 5%;
+        width: 18%;
+    }
+
+    /* left-bottom */
+    .car-pic img:nth-child(3){
+        bottom: 12%;
+        left: 27%;
+        width: 20%;
+    }
+
+    /* right-bottom */
+    .car-pic img:nth-child(4){
+        bottom: 12%;
+        right: 25%;
+        width: 22%;
+    }
+
+    /* right-top */
+    .car-pic img:nth-child(5){
+        top: 18%;
+        right: 20%;
+        width: 20%;
+    }
+
+    /* right */
+    .car-pic img:nth-child(6){
+        top: 40%;
+        right: 5%;
+        width: 18%;
+    }
+
+    #about{
+        padding: 40px 80px;
+    }
+}
+
+/* Media Query for tablets (768px and below) */
+@media (max-width: 840px) {
+    .menu{
+        display: block;
+        cursor: pointer;
+    }
+
+    header {
+        padding: 20px 40px;
+    }
+
+    .list{
+        display: none;
+    }
+
+    .top-nav a {
+        display: block;
+        text-align: center;
+        color: black;
+        background: white;
+        width: 100%;
+    }
+
+    .top-nav a:hover{
+        color: white;
+        background: black;
+    }
+
+    .top-nav a.bright:hover{
+        border-radius: 0;
+    }
+
+    .active{
+        display: block;
+    }
+
+    .center h1 {
+        font-size: 50px;
+    }
+
+    /* left-top */
+    .car-pic img:nth-child(1){
+        top: 17%;
+        left: 25%;
+        width: 24%;
+    }
+
+    /* left */
+    .car-pic img:nth-child(2){
+        top: 40%;
+        left: 5%;
+        width: 22%;
+    }
+
+    /* left-bottom */
+    .car-pic img:nth-child(3){
+        bottom: 14%;
+        left: 25%;
+        width: 24%;
+    }
+
+    /* right-bottom */
+    .car-pic img:nth-child(4){
+        bottom: 18%;
+        right: 20%;
+        width: 27%;
+    }
+
+    /* right-top */
+    .car-pic img:nth-child(5){
+        top: 20%;
+        right: 15%;
+        width: 24%;
+    }
+
+    /* right */
+    .car-pic img:nth-child(6){
+        top: 40%;
+        right: 3%;
+        width: 22%;
+    }
+
+    #about{
+        padding: 40px 20px;
+    }
+
+}
+
+@media (max-width: 700px) {
+    .center h1 {
+        font-size: 45px;
+    }
+
+    /* left-top */
+    .car-pic img:nth-child(1){
+        top: 17%;
+        left: 25%;
+        width: 28%;
+    }
+
+    /* left */
+    .car-pic img:nth-child(2){
+        top: 40%;
+        left: 5%;
+        width: 28%;
+    }
+
+    /* left-bottom */
+    .car-pic img:nth-child(3){
+        bottom: 18%;
+        left: 25%;
+        width: 28%;
+    }
+
+    /* right-bottom */
+    .car-pic img:nth-child(4){
+        bottom: 18%;
+        right: 18%;
+        width: 32%;
+    }
+
+    /* right-top */
+    .car-pic img:nth-child(5){
+        top: 20%;
+        right: 8%;
+        width: 30%;
+    }
+
+    /* right */
+    .car-pic img:nth-child(6){
+        top: 40%;
+        right: 3%;
+        width: 25%;
+    }
+}
+
+@media (max-width: 550px) {
+    .center h1 {
+        font-size: 40px;
+    }
+
+    /* left-top */
+    .car-pic img:nth-child(1){
+        top: 17%;
+        left: 30%;
+        width: 32%;
+    }
+
+    /* left */
+    .car-pic img:nth-child(2){
+        top: 35%;
+        left: 5%;
+        width: 30%;
+    }
+
+    /* left-bottom */
+    .car-pic img:nth-child(3){
+        bottom: 25%;
+        left: 15%;
+        width: 32%;
+    }
+
+    /* right-bottom */
+    .car-pic img:nth-child(4){
+        bottom: 20%;
+        right: 25%;
+        width: 35%;
+    }
+
+    /* right-top */
+    .car-pic img:nth-child(5){
+        top: 30%;
+        right: 3%;
+        width: 35%;
+    }
+
+    /* right */
+    .car-pic img:nth-child(6){
+        top: 48%;
+        right: 3%;
+        width: 30%;
+    }
 }

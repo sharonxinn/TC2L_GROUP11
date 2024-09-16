@@ -106,12 +106,14 @@
     height: 50px;
     width: 100%;
     /*margin: 0 5px;*/
+    /* overflow: visible; */
   }
 
   .sidebar ul li .tooltip{
     font-weight: 500;
     position: absolute;
-    left: 62px;
+    /* left: 62px; */
+    left: 85px;
     top: 0;
     transform: translateY(-50%, -50%);
     border-radius: 15px;
@@ -125,7 +127,7 @@
     opacity: 0;
     pointer-events: none;
     display: block;
-    /* z-index: 9999; */
+    z-index: 9999;
   }
 
   .sidebar.active ul li .tooltip{
@@ -136,7 +138,7 @@
     top: 17%;
     transition: all 0.5s ease;
     opacity: 1;
-    z-index: 200;
+    z-index: 9999;
     color: var(--text-color);
   }
 

@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Map</title>
-    <link rel="stylesheet" href="../static/findaroute.css">
+    <link rel="stylesheet" href="../static/findarides.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
@@ -16,247 +16,273 @@
             <h1>Google Map</h1>
         </div>
 
-        <div class="details">
-            <div class="googlemap">
-                <div id="mapholder"></div>
+        <div class="size">
+            <div class="details">
+                <div class="googlemap">
+                    <div id="mapholder"></div>
+                </div>
+
+                <div class="button">
+                    <div class="box">
+                        <input type="datetime-local" id="timeFilter" name="dateandTime"><br>
+                        <script>
+                            var today = new Date().toISOString().slice(0, 16);
+                            document.getElementsByName("dateandTime")[0].min = today;
+                        </script>
+                        <button onclick="applyTimeFilter()" class="btn">Filter</button>
+                    </div>
+
+                    <div class="box">
+                        <button onclick="getLocation()" class="btn">My Location</button>
+                    </div>
+
+                    <div class="box">
+                        <i class='bx bx-right-arrow-alt'></i>
+                        <button onclick="goToDriverList()" class="btn">Driver List</button>
+                    </div>
+                </div>
             </div>
 
-            <div class="button">
-                <div class="box">
-                    <input type="datetime-local" id="timeFilter">
-                    <button onclick="applyTimeFilter()" class="btn">Filter</button>
-                </div>
-
-                <div class="box">
-                    <button onclick="getLocation()" class="btn">My Location</button>
-                </div>
-
-                <div class="box">
-                    <i class='bx bx-right-arrow-alt'></i>
-                    <button onclick="goToDriverList()" class="btn">Driver List</button>
-                </div>
-            </div>
-        </div>
 
 
+            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&callback=initMap&libraries=places,geometry&v=beta" async defer></script>
+            <script>
+                // Styles a map in night mode.
+                const darkModeStyle = [
+                    { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+                    { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+                    { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+                    { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }], },
+                    { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }], },
+                    { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#263c3f" }], },
+                    { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#6b9a76" }], },
+                    { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }], },
+                    { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#212a37" }], },
+                    { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }], },
+                    { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#746855" }], },
+                    { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#1f2835" }], },
+                    { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#f3d19c" }], },
+                    { featureType: "transit", elementType: "geometry", stylers: [{ color: "#2f3948" }], },
+                    { featureType: "transit.station", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }], },
+                    { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }], },
+                    { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }], },
+                    { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }], },
+                ];
 
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&callback=initMap&libraries=places,geometry&v=beta" async defer></script>
-        <script>
-            // Google Maps Dark Mode Style
-            const darkModeStyle = [
-              { "elementType": "geometry", "stylers": [{ "color": "#212121" }] },
-              { "elementType": "labels.icon", "stylers": [{ "visibility": "off" }] },
-              { "elementType": "labels.text.fill", "stylers": [{ "color": "#757575" }] },
-              { "elementType": "labels.text.stroke", "stylers": [{ "color": "#212121" }] },
-              { "featureType": "administrative", "elementType": "geometry", "stylers": [{ "color": "#757575" }] },
-              { "featureType": "landscape", "elementType": "geometry", "stylers": [{ "color": "#303030" }] },
-              { "featureType": "poi", "elementType": "geometry", "stylers": [{ "color": "#2e2e2e" }] },
-              { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#383838" }] },
-              { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#8a8a8a" }] },
-              { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#1a1a1a" }] }
-            ];
+                var map;
+                var userMarker;
+                var driverMarkers = [];
+                var infoWindows = [];
+                var nearbyDrivers = [];
+                var filteredDrivers = [];
+                var driversData = {{ drivers_data | tojson | safe }};
+                var start_locationLat = {{ start_location_lat if start_location_lat is not none else 0 | tojson | safe }};
+                var start_locationLon = {{ start_location_lng if start_location_lng is not none else 0 | tojson | safe }};
 
-            var map;
-            var userMarker;
-            var driverMarkers = [];
-            var nearbyDrivers = [];
-            var filteredDrivers = [];
-            var driversData = {{ drivers_data | tojson | safe }};
-            var start_locationLat = {{ start_location_lat if start_location_lat is not none else 0 | tojson | safe }};
-            var start_locationLon = {{ start_location_lng if start_location_lng is not none else 0 | tojson | safe }};
+                function initMap() {
+                    var defaultLat = start_locationLat || 0;
+                    var defaultLon = start_locationLon || 0;
 
-            function initMap() {
-                var defaultLat = start_locationLat || 0;
-                var defaultLon = start_locationLon || 0;
+                    var mapOptions = {
+                        center: new google.maps.LatLng(defaultLat, defaultLon),
+                        zoom: 15,
+                        mapTypeId: google.maps.MapTypeId.ROADMAP,
+                        mapTypeControl: false,
+                        navigationControlOptions: { style: google.maps.NavigationControlStyle.SMALL }
+                    };
 
-                var mapOptions = {
-                    center: new google.maps.LatLng(defaultLat, defaultLon),
-                    zoom: 15,
-                    mapTypeId: google.maps.MapTypeId.ROADMAP,
-                    mapTypeControl: false,
-                    navigationControlOptions: { style: google.maps.NavigationControlStyle.SMALL }
-                };
+                    map = new google.maps.Map(document.getElementById('mapholder'), mapOptions);
 
-                map = new google.maps.Map(document.getElementById('mapholder'), mapOptions);
-
-                // Check dark mode on load
-                if (localStorage.getItem('dark-mode') === 'enabled') {
-                    map.setOptions({ styles: darkModeStyle });
-                }
-
-                // Listen for dark mode toggle
-                window.addEventListener('darkModeToggle', () => {
+                    // Dark Mode
                     if (localStorage.getItem('dark-mode') === 'enabled') {
                         map.setOptions({ styles: darkModeStyle });
-                    } else {
-                        map.setOptions({ styles: [] });  // Reset to default style
                     }
-                });
-                
-                userMarker = new google.maps.Marker({
-                    position: new google.maps.LatLng(defaultLat, defaultLon),
-                    map: map,
-                    title: "Drag me to your new location",
-                    draggable: true
-                });
 
-                userMarker.addListener('dragend', function(event) {
-                    updateMap(event.latLng.lat(), event.latLng.lng());
-                });
-
-                getLocation();
-            }
-
-            function getLocation() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function(position) {
-                        var accuracy = position.coords.accuracy;  // Check the accuracy in meters
-                        var userLat = position.coords.latitude;
-                        var userLon = position.coords.longitude;
-                        
-                        if (accuracy < 100) {  // Check if the accuracy is within an acceptable range
-                            userMarker.setPosition(new google.maps.LatLng(userLat, userLon));
-                            updateMap(userLat, userLon);
+                    window.addEventListener('darkModeToggle', () => {
+                        if (localStorage.getItem('dark-mode') === 'enabled') {
+                            map.setOptions({ styles: darkModeStyle });
                         } else {
-                            // Use default or manually entered coordinates
-                            var defaultLat = 2.92909;  
-                            var defaultLon = 101.64060;  
-                            userMarker.setPosition(new google.maps.LatLng(defaultLat, defaultLon));
-                            updateMap(defaultLat, defaultLon);
+                            map.setOptions({ styles: [] });
                         }
                     });
-                } else {
-                    document.getElementById('mapholder').innerHTML = "YOUR DEVICE CANNOT DETECT LOCATION";
+
+                    userMarker = new google.maps.Marker({
+                        position: new google.maps.LatLng(defaultLat, defaultLon),
+                        map: map,
+                        title: "Drag me to your new location",
+                        draggable: true
+                    });
+
+                    userMarker.addListener('dragend', function(event) {
+                        updateMap(event.latLng.lat(), event.latLng.lng());
+                    });
+
+                    getLocation();
                 }
-            }
 
-            function addDriverMarkers(userLat, userLon) {
-                nearbyDrivers = [];
-                filteredDrivers = [];
-
-                for (var i = 0; i < driversData.length; i++) {
-                    var driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
-                    var distance = google.maps.geometry.spherical.computeDistanceBetween(
-                        new google.maps.LatLng(userLat, userLon), driverLatLon
-                    );
-
-                    if (distance <= 10000) {
-                        var driverMarker = new google.maps.Marker({
-                            position: driverLatLon,
-                            map: map,
-                            title: "Driver's start_location Location",
-                            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                function getLocation() {
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function(position) {
+                            var accuracy = position.coords.accuracy;  // Check the accuracy in meters
+                            var userLat = position.coords.latitude;
+                            var userLon = position.coords.longitude;
+                            
+                            if (accuracy < 100) {  // Check if the accuracy is within an acceptable range
+                                userMarker.setPosition(new google.maps.LatLng(userLat, userLon));
+                                updateMap(userLat, userLon);
+                            } else {
+                                // Use default or manually entered coordinates
+                                var defaultLat = 2.92909;  
+                                var defaultLon = 101.64060;  
+                                userMarker.setPosition(new google.maps.LatLng(defaultLat, defaultLon));
+                                updateMap(defaultLat, defaultLon);
+                            }
                         });
-
-                        var infoWindow = new google.maps.InfoWindow({
-                            content: '<div><strong>Driver ID:</strong> ' + driversData[i].id + '<br>' +
-                                     '<strong>end_location:</strong> ' + driversData[i].end_location + '<br>' +
-                                     '<strong>DateTime:</strong> ' + driversData[i].dateandTime + '<br>' +
-                                     '<strong>Total Person:</strong> ' + driversData[i].totalperson + '<br>' +
-                                     '<strong>Fees:</strong> ' + driversData[i].fees + '<br>' +
-                                     '<strong>Message:</strong> ' + driversData[i].message + '<br>' +
-                                     '<strong>Status:</strong> ' + driversData[i].status + '</div>'
-                        });
-
-                        (function(marker, infoWindow) {
-                            google.maps.event.addListener(marker, 'click', function() {
-                                infoWindow.open(map, marker);
-                            });
-                        })(driverMarker, infoWindow);
-
-                        driverMarkers.push(driverMarker);
-                        nearbyDrivers.push(driversData[i].id);
-                        filteredDrivers.push(driversData[i]); // Keep all drivers for filtering
+                    } else {
+                        document.getElementById('mapholder').innerHTML = "YOUR DEVICE CANNOT DETECT LOCATION";
                     }
                 }
-            }
 
-            function updateMap(userLat, userLon) {
-                var userLatLon = new google.maps.LatLng(userLat, userLon);
+                function addDriverMarkers(userLat, userLon) {
+                    nearbyDrivers = [];
+                    filteredDrivers = [];
 
-                for (var i = 0; i < driverMarkers.length; i++) {
-                    driverMarkers[i].setMap(null);
-                }
-                driverMarkers = [];
+                    for (var i = 0; i < driversData.length; i++) {
+                        var driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
+                        var distance = google.maps.geometry.spherical.computeDistanceBetween(
+                            new google.maps.LatLng(userLat, userLon), driverLatLon
+                        );
 
-                addDriverMarkers(userLat, userLon);
-
-                var bounds = new google.maps.LatLngBounds();
-                bounds.extend(userLatLon);
-
-                for (var i = 0; i < driverMarkers.length; i++) {
-                    bounds.extend(driverMarkers[i].getPosition());
-                }
-
-                map.fitBounds(bounds);
-            }
-
-            function applyTimeFilter() {
-                var timeFilterValue = document.getElementById('timeFilter').value;
-                var filterTime = timeFilterValue ? new Date(timeFilterValue) : null;
-
-                for (var i = 0; i < driverMarkers.length; i++) {
-                    driverMarkers[i].setMap(null);
-                }
-                driverMarkers = [];
-
-                for (var i = 0; i < filteredDrivers.length; i++) {
-                    var driverTime = new Date(filteredDrivers[i].dateandTime);
-                    if (!filterTime || driverTime >= filterTime) {
-                        var driverLatLon = new google.maps.LatLng(filteredDrivers[i].lat, filteredDrivers[i].lng);
-                        var driverMarker = new google.maps.Marker({
-                            position: driverLatLon,
-                            map: map,
-                            title: "Driver's start_location Location",
-                            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
-                        });
-
-                        var infoWindow = new google.maps.InfoWindow({
-                            content: '<div><strong>Driver ID:</strong> ' + filteredDrivers[i].id + '<br>' +
-                                     '<strong>end_location:</strong> ' + filteredDrivers[i].end_location + '<br>' +
-                                     '<strong>DateTime:</strong> ' + filteredDrivers[i].dateandTime + '<br>' +
-                                     '<strong>Total Person:</strong> ' + filteredDrivers[i].totalperson + '<br>' +
-                                     '<strong>Fees:</strong> ' + filteredDrivers[i].fees + '<br>' +
-                                     '<strong>Message:</strong> ' + filteredDrivers[i].message + '<br>' +
-                                     '<strong>Status:</strong> ' + filteredDrivers[i].status + '</div>'
-                        });
-
-                        (function(marker, infoWindow) {
-                            google.maps.event.addListener(marker, 'click', function() {
-                                infoWindow.open(map, marker);
+                        if (distance <= 10000) {
+                            var driverMarker = new google.maps.Marker({
+                                position: driverLatLon,
+                                map: map,
+                                title: "Driver's start_location Location",
+                                icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
                             });
-                        })(driverMarker, infoWindow);
 
-                        driverMarkers.push(driverMarker);
+                            var infoWindow = new google.maps.InfoWindow({
+                                content: '<div><strong>Driver ID:</strong> ' + driversData[i].id + '<br>' +
+                                        '<strong>End Location:</strong> ' + driversData[i].end_location + '<br>' +
+                                        '<strong>Date & Time:</strong> ' + driversData[i].dateandTime + '<br>' +
+                                        '<strong>Total Person:</strong> ' + driversData[i].totalperson + '<br>' +
+                                        '<strong>Fees:</strong> ' + driversData[i].fees + '<br>' +
+                                        '<strong>Message:</strong> ' + driversData[i].message + '<br>' +
+                                        '<strong>Status:</strong> ' + driversData[i].status + '</div>'
+                            });
+
+                            (function(marker, infoWindow) {
+                                google.maps.event.addListener(marker, 'click', function() {
+                                    // Close all open infoWindows before opening a new one
+                                    for (var j = 0; j < infoWindows.length; j++) {
+                                        infoWindows[j].close();
+                                    }
+                                    infoWindow.open(map, marker);
+                                });
+                            })(driverMarker, infoWindow);
+
+                            driverMarkers.push(driverMarker);
+                            infoWindows.push(infoWindow); // Store the infoWindow separately
+                            nearbyDrivers.push(driversData[i].id);
+                            filteredDrivers.push(driversData[i]); // Keep all drivers for filtering
+                        }
                     }
                 }
-            }
 
-            function goToDriverList() {
-                window.location.href = "/drivers_list?nearbyDrivers=" + nearbyDrivers.join(',');
-            }
+                function updateMap(userLat, userLon) {
+                    var userLatLon = new google.maps.LatLng(userLat, userLon);
 
-            function showError(error) {
-                var errorMsg = "ERROR";
-                switch(error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMsg = "User denied the request for Geolocation.";
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMsg = "Location information is unavailable.";
-                        break;
-                    case error.TIMEOUT:
-                        errorMsg = "The request to get user location timed out.";
-                        break;
-                    case error.UNKNOWN_ERROR:
-                        errorMsg = "An unknown error occurred.";
-                        break;
+                    for (var i = 0; i < driverMarkers.length; i++) {
+                        driverMarkers[i].setMap(null);
+                    }
+                    driverMarkers = [];
+
+                    addDriverMarkers(userLat, userLon);
+
+                    var bounds = new google.maps.LatLngBounds();
+                    bounds.extend(userLatLon);
+
+                    for (var i = 0; i < driverMarkers.length; i++) {
+                        bounds.extend(driverMarkers[i].getPosition());
+                    }
+
+                    map.fitBounds(bounds);
                 }
-                document.getElementById('mapholder').innerHTML = errorMsg;
-            }
 
-            window.onload = initMap;
-        </script>
+                function applyTimeFilter() {
+                    var timeFilterValue = document.getElementById('timeFilter').value;
+                    var filterTime = timeFilterValue ? new Date(timeFilterValue) : null;
+
+                    for (var i = 0; i < driverMarkers.length; i++) {
+                        driverMarkers[i].setMap(null);
+                    }
+                    driverMarkers = [];
+
+                    for (var i = 0; i < filteredDrivers.length; i++) {
+                        var driverTime = new Date(filteredDrivers[i].dateandTime);
+                        if (!filterTime || driverTime >= filterTime) {
+                            var driverLatLon = new google.maps.LatLng(filteredDrivers[i].lat, filteredDrivers[i].lng);
+                            var driverMarker = new google.maps.Marker({
+                                position: driverLatLon,
+                                map: map,
+                                title: "Driver's start_location Location",
+                                icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                            });
+
+                            var infoWindow = new google.maps.InfoWindow({
+                                content: '<div><strong>Driver ID:</strong> ' + filteredDrivers[i].id + '<br>' +
+                                        '<strong>End Location:</strong> ' + filteredDrivers[i].end_location + '<br>' +
+                                        '<strong>Date & Time:</strong> ' + filteredDrivers[i].dateandTime + '<br>' +
+                                        '<strong>Total Person:</strong> ' + filteredDrivers[i].totalperson + '<br>' +
+                                        '<strong>Fees:</strong> ' + filteredDrivers[i].fees + '<br>' +
+                                        '<strong>Message:</strong> ' + filteredDrivers[i].message + '<br>' +
+                                        '<strong>Status:</strong> ' + filteredDrivers[i].status + '</div>'
+                            });
+
+                             // Find the corresponding infoWindow and reattach it
+                            // var infoWindow = infoWindows[i]; // Use the existing infoWindow
+
+                            (function(marker, infoWindow) {
+                                google.maps.event.addListener(marker, 'click', function() {
+                                    // Close all open infoWindows before opening a new one
+                                    for (var j = 0; j < infoWindows.length; j++) {
+                                        infoWindows[j].close();
+                                    }
+                                    infoWindow.open(map, marker);
+                                });
+                            })(driverMarker, infoWindow);
+
+                            driverMarkers.push(driverMarker);
+                        }
+                    }
+                }
+
+                function goToDriverList() {
+                    window.location.href = "/drivers_list?nearbyDrivers=" + nearbyDrivers.join(',');
+                }
+
+                function showError(error) {
+                    var errorMsg = "ERROR";
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg = "User denied the request for Geolocation.";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg = "Location information is unavailable.";
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg = "The request to get user location timed out.";
+                            break;
+                        case error.UNKNOWN_ERROR:
+                            errorMsg = "An unknown error occurred.";
+                            break;
+                    }
+                    document.getElementById('mapholder').innerHTML = errorMsg;
+                }
+
+                window.onload = initMap;
+            </script>
+        </div>
     </div>
 </body>
 </html>

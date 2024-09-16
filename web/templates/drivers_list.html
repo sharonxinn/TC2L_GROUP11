@@ -11,6 +11,18 @@
 </head>
  
 <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flashes show">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
     <main class="table">
 
         <section class="table_header">

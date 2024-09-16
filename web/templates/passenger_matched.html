@@ -1,0 +1,203 @@
+{% extends "base_passenger.html" %}
+{% block title %}Passenger Matched{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passenger Matched</title>
+    <link rel="stylesheet" href="../static/passenger_matched.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+    <div class="container">
+        <div class="size">
+            <div class="passenger">
+                <div class="header">
+                    <h1>Your Passengers</h1>
+                </div>
+
+                <div class="details">
+                    {% for match in matches %}
+                    <div class="seperate">
+                        <div class="row">
+                            <div class="info_left-right">
+                                <i class='bx bxs-user'></i>
+                                <div class="info_up-down">
+                                    <h3>Full Name</h3>
+                                    <p>{{ profile_dict[match.passenger_id].fullName }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-male-female'></i>
+                                <div class="info_up-down">
+                                    <h3>Gender</h3>
+                                    <p>{{ profile_dict[match.passenger_id].gender }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bxs-phone-call'></i>
+                                <div class="info_up-down">
+                                    <h3>Contact</h3>
+                                    <p>{{ profile_dict[match.passenger_id].contact }}</p>
+                                </div>
+                            </div>
+                        <!-- </div> -->
+
+                        <!-- <div class="row"> -->
+                            <div class="info_left-right">
+                                <i class='bx bxs-credit-card'></i>
+                                <div class="info_up-down">
+                                    <h3>Payment</h3>
+                                    <p>
+                                        {% if match.payment_proof %}
+                                            <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof">
+                                        {% else %}
+                                            Cash
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-loader-circle' ></i>
+                                <div class="info_up-down">
+                                    <h3>Status</h3>
+                                    <p>{{ match.status }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+
+                    {% for match in matches_completed %}
+                    <div class="seperate">
+                        <div class="row">
+                            <div class="info_left-right">
+                                <i class='bx bxs-user'></i>
+                                <div class="info_up-down">
+                                    <h3>Full Name</h3>
+                                    <p>{{ profile_dict[match.passenger_id].fullName }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-male-female'></i>
+                                <div class="info_up-down">
+                                    <h3>Gender</h3>
+                                    <p>{{ profile_dict[match.passenger_id].gender }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bxs-phone-call'></i>
+                                <div class="info_up-down">
+                                    <h3>Contact</h3>
+                                    <p>{{ profile_dict[match.passenger_id].contact }}</p>
+                                </div>
+                            </div>
+                        <!-- </div> -->
+
+                        <!-- <div class="row"> -->
+                            <div class="info_left-right">
+                                <i class='bx bxs-credit-card'></i>
+                                <div class="info_up-down">
+                                    <h3>Payment</h3>
+                                    <p>
+                                        {% if match.payment_proof %}
+                                            <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof">
+                                        {% else %}
+                                            Cash
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-loader-circle' ></i>
+                                <div class="info_up-down">
+                                    <h3>Status</h3>
+                                    <p>{{ match.status }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+
+                    {% for match in matches_confirmed %}
+                    <div class="seperate">
+                        <div class="row">
+                            <div class="info_left-right">
+                                <i class='bx bxs-user'></i>
+                                <div class="info_up-down">
+                                    <h3>Full Name</h3>
+                                    <p>{{ profile_dict[match.passenger_id].fullName }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-male-female'></i>
+                                <div class="info_up-down">
+                                    <h3>Gender</h3>
+                                    <p>{{ profile_dict[match.passenger_id].gender }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bxs-phone-call'></i>
+                                <div class="info_up-down">
+                                    <h3>Contact</h3>
+                                    <p>{{ profile_dict[match.passenger_id].contact }}</p>
+                                </div>
+                            </div>
+                        <!-- </div> -->
+
+                        <!-- <div class="row"> -->
+                            <div class="info_left-right">
+                                <i class='bx bxs-credit-card'></i>
+                                <div class="info_up-down">
+                                    <h3>Payment</h3>
+                                    <p>
+                                        {% if match.payment_proof %}
+                                            <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof">
+                                        {% else %}
+                                            Cash
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-loader-circle' ></i>
+                                <div class="info_up-down">
+                                    <h3>Status</h3>
+                                    <p>{{ match.status }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% if driver.id in driver_matches_dict and driver_matches_dict[driver.id]|length > 0 %}
+                    <form action="{{ url_for('main.view_detail_d', match_id=driver_matches_dict[driver.id][0].id) }}" method="POST"></form>
+                {% endif %}
+
+                <br>
+                <a href="{{ url_for('main.waiting_list', driver_id=driver_id) }}">
+                    <div class="btn-container">
+                        <button type="submit" class="btn">Waiting List</button>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}

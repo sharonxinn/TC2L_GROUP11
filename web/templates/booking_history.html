@@ -11,8 +11,20 @@
     <link rel="stylesheet" href="../static/booking_history.css">
 </head>
 <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flashes show">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+    
     <div class="container">
-
         <div class="header">
             <h1>Booking History</h1>
         </div>
@@ -26,7 +38,7 @@
                         <th>Date and Time</th>
                         <th>Start Location</th>
                         <th>End Location</th>
-                        <th>Passenger Name</th>
+                        <th>Driver / Passenger Name</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>

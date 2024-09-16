@@ -19,6 +19,7 @@
     --table-data: #0000000b;
     --table-hover: #fff6;
     --btn: rgba(0, 0, 0, 0.7);
+    --scroll: #0004;
   }
 
   body.dark{
@@ -33,6 +34,7 @@
     --table-data: #89898f52;
     --table-hover: #fff6;
     --btn: rgba(255, 255, 255, 0.7);
+    --scroll: rgba(255, 255, 255, 0.267);
   }
   
   body{
@@ -61,9 +63,35 @@
     border-radius: 30px;
 }
 
+.size{
+  width: 90%;
+  max-height: calc(85% - .8rem);
+  margin: .8rem auto;
+  color: var(--text-color);
+  overflow-y: auto;
+  overflow-x: auto;
+  white-space: nowrap;
+  transition: all 0.5s ease;
+}
+
+.size::-webkit-scrollbar{
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.size::-webkit-scrollbar-thumb{
+  border-radius: .5rem;
+  background-color: var(--scroll);
+  visibility: hidden;
+}
+
+.size:hover::-webkit-scrollbar-thumb{
+  visibility: visible;
+}
+
 .box{
     display: flex;
-    gap: 80px;
+    gap: 30px;
     justify-content: space-evenly;
     align-items: center;
 }
@@ -124,8 +152,9 @@ p{
   color: var(--text-color);
   background: var(--box-color);
   border-radius: 18px;
-  padding: 12px 0;
+  padding: 12px 10px;
   display: flex;
   justify-content: space-around;
   margin-bottom: 20px;
+  gap: 20px;
 }

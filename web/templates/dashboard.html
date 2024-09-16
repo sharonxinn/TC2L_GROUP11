@@ -11,49 +11,63 @@
     <link rel="stylesheet" href="../static/dashboard.css">
 </head>
 <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flashes show">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
     <div class="container">
         <h1>Profile</h1>
 
-        <div class="details">
-            {% if profile.profile_pic %}
-                <img src="{{ profile.profile_pic }}" alt="Profile Picture" style="width:150px;height:150px;">
-            {% else %}
-                <p>No profile picture uploaded.</p>
-            {% endif %}
-            <div class="info">
-                <div class="row">
-                    <div class="title">Full Name</div>
-                    <div class="ans">{{ profile.fullName }}</div>
-                </div>
+        <div class="box">
+            <div class="details">
+                {% if profile.profile_pic %}
+                    <img src="{{ profile.profile_pic }}" alt="Profile Picture" style="width:150px;height:150px;">
+                {% else %}
+                    <p>No profile picture uploaded.</p>
+                {% endif %}
+                <div class="info">
+                    <div class="row">
+                        <div class="title">Full Name</div>
+                        <div class="ans">{{ profile.fullName }}</div>
+                    </div>
 
-                <div class="row">
-                    <div class="title">Gender</div>
-                    <div class="ans">{{ profile.gender }}</div>
-                </div>
+                    <div class="row">
+                        <div class="title">Gender</div>
+                        <div class="ans">{{ profile.gender }}</div>
+                    </div>
 
-                <div class="row">
-                    <div class="title">Birth Year</div>
-                    <div class="ans">{{ profile.birthyear }}</div>
-                </div>
+                    <div class="row">
+                        <div class="title">Birth Year</div>
+                        <div class="ans">{{ profile.birthyear }}</div>
+                    </div>
 
-                <div class="row">
-                    <div class="title">Contact</div>
-                    <div class="ans">{{ profile.contact }}</div>
-                </div>
+                    <div class="row">
+                        <div class="title">Contact</div>
+                        <div class="ans">{{ profile.contact }}</div>
+                    </div>
 
-                <div class="row">
-                    <div class="title">Email</div>
-                    <div class="ans">{{ current_user.email }}</div>
+                    <div class="row">
+                        <div class="title">Email</div>
+                        <div class="ans">{{ current_user.email }}</div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <a href="{{ url_for('main.editprofile') }}">
-            <button type="submit" class="btn">Edit Profile</button>
-        </a>
+            <a href="{{ url_for('main.editprofile') }}">
+                <button type="submit" class="btn">Edit Profile</button>
+            </a>
+        </div>
 
     </div>
 </body>
 </html>
 {% endblock %}
-

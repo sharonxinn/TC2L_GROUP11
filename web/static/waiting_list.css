@@ -30,14 +30,10 @@ body.dark{
   --mode-background: rgba(0, 0, 0, 0.5);
   --box-shadow: 5px 5px 10px rgba(255, 255, 255, 0.5);
   --box-shadow2: 10px 10px 20px rgba(255, 255, 255, 0.5);
-  /* --table-header: #8a8a8d8c;
+  --table-header: #8a8a8d8c;
   --table-data: #89898f52;
   --table-hover: #fff6;
-  --btn: rgba(255, 255, 255, 0.7); */
-  --table-header: #212121;
-  --table-data: #3a3a3a;
-  --table-hover: #525252;
-  --btn: rgba(255, 255, 255, 0.95);
+  --btn: rgba(255, 255, 255, 0.7);
   --scroll: rgba(255, 255, 255, 0.267);
 }
 
@@ -115,11 +111,11 @@ thead th{
   left: 0;
   background-color: var(--table-header);
   pointer-events: none;
-  font-size: 18px;
+  font-size: 19px;
 }
 
 tbody td{
-  font-size: 16px;
+  font-size: 17px;
   cursor: default;
 }
 
@@ -133,14 +129,14 @@ tbody tr:hover{
 }
 
 .selection{
-  padding-top: 6px;
+  padding: 6px;
   display: flex;
-  justify-content: space-between;
-  gap: 3px;
+  justify-content: center;
+  gap: 10px;
 }
 
 .btn{
-  width: 100%;
+  /* width: 100%; */
   height: 40px;
   background: var(--btn);
   border: none;
@@ -148,56 +144,6 @@ tbody tr:hover{
   color: var(--toggle-color);
   cursor: pointer;
   font-weight: 600;
-  padding: 0 15px;
-}
-
-.flashes {
-  position: fixed;
-  top: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  margin: 0;
-  padding: 0;
-  display: none;
-}
-
-.flashes.show {
-    display: block;
-}
-
-.flash {
-    padding: 5px;
-    border: 6px solid transparent;
-    border-radius: 10px;
-    position: relative;
-    width: 500px;
-    text-align: center;
-    margin-bottom: 10px;
-}
-
-.flash.success {
-    color: #155724;
-    background-color: #d4edda;
-    border-color: #c3e6cb;
-}
-
-.flash.error {
-    color: #721c24;
-    background-color: #f8d7ee;
-    border-color: #f5c6cb;
-}
-
-.closebtn {
-    position: absolute;
-    top: 3px;
-    right: 10px;
-    color: #aaa;
-    font-size: 20px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.closebtn:hover {
-    color: black;
+  font-size: 17px;
+  padding: 0 30px;
 }

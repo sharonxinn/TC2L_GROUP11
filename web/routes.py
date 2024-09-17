@@ -182,7 +182,7 @@ def base_passenger():
 @bp.route('/dashboard', methods=['GET'])
 @login_required
 def dashboard():
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    profile = Profile.query.filter_by(user_id=current_user.id,status="approved").first()
     if profile is None:
         flash("No profile found. Please complete your profile first.", category="error")
         return redirect(url_for('main.profile'))
@@ -356,6 +356,28 @@ def findarides():
     start_location_lng = 0
 
     return render_template('findarides.html', drivers_data=drivers_data, start_location_lat=start_location_lat, start_location_lng=start_location_lng, profile=profile)
+
+
+#@bp.route('/findarides')
+#@login_required
+#def findarides():
+    profile = Profile.query.filter_by(user_id=current_user.id).first()
+    driver_posts = Rides.query.filter_by().all()
+    # Prepare a list of drivers' details
+    drivers_data = [{
+        'lat': dp.start_location_lat,
+        'lng': dp.start_location_lng,
+        'end_location': dp.end_location,
+        'dateandTime':dp.dateandTime,
+        'totalperson': dp.totalperson,
+        'fees': dp.fees,
+        'message': dp.message,
+        'status': dp.status,
+        'id': dp.id,  
+    } for dp in driver_posts]
+    start_location_lat = 0
+    start_location_lng = 0
+    return render_template('findarides.html', drivers_data=drivers_data, start_location_lat=start_location_lat, start_location_lng=start_location_lng,profile=profile)
 
 ####DRIVER PASSENGER DATA#######################################################################
 

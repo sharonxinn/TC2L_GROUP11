@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rider Post</title>
+    <title>Driver Post</title>
     <link rel="stylesheet" href="../static/driver_post.css">
 
     <!-- Google Maps & Places API -->
@@ -79,6 +79,7 @@
 
         }
     </script>
+    
 </head>
 
 <body onload="initMap()">
@@ -158,8 +159,21 @@
                         </select><br>
                     </div>
                 </div>
-                
-                <!-- Google Map displaying start_location location -->
+
+                <div class="inner-center">
+                    <label for="end_location">End Location</label>
+                    <select name="end_location" id="end_location" required>
+                        <option value="Guard House">Guard House</option>
+                        <option value="FCI">FCI</option>
+                        <option value="FCM">FCM</option>
+                        <option value="FOE">FOE</option>
+                        <option value="STC">STC</option>
+                        <option value="MMU STADIUM">MMU Stadium</option>
+                    </select>
+                </div>
+                </div>
+
+                <!-- Google Map for showing the location -->
                 <div id="map"></div>
 
                 <div class="left-right">

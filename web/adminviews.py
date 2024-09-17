@@ -36,9 +36,9 @@ class ProfileModelView(ModelView):
     column_labels = {
         'fullName': 'Full Name',
         'profile_pic': 'Profile Picture',
-        'is_approved': 'Approved',
+        'status': 'Status'
     }
-    form_columns = ('fullName', 'gender', 'contact', 'profile_pic', 'is_approved')
+    form_columns = ('fullName', 'gender', 'contact', 'profile_pic', 'status')
     
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin
@@ -57,11 +57,11 @@ class ProfileModelView(ModelView):
         try:
             query = Profile.query.filter(Profile.id.in_(ids))
             count = 0
-            for profile in query.all():
-                profile.is_approved = False
+            for post in query.all():
+                post.status = 'rejected'
                 count += 1
             db.session.commit()
-            flash(f'{count} profile(s) successfully rejected.', 'success')
+            flash(f'{count} driver post(s) successfully rejected.', 'success')
         except Exception as e:
             flash(f'An error occurred: {str(e)}', 'error')
             db.session.rollback()

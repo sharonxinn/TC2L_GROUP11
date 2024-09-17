@@ -18,7 +18,7 @@
     <div class="background">
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="flashes show">
+            <div class="flashes show" id="flashes">
                 {% for category, message in messages %}
                     <div class="flash {{ category }}">
                         {{ message }}
@@ -28,6 +28,22 @@
             </div>
         {% endif %}
         {% endwith %}
+
+        <script>
+            function hideFlashes() {
+                const flashes = document.getElementById('flashes');
+                if (flashes) {
+                    // Set a timeout to hide the flashes after 3 seconds (3000 milliseconds)
+                    setTimeout(() => {
+                        flashes.style.opacity = '0';
+                        setTimeout(() => {
+                            flashes.style.display = 'none';
+                        }, 600);
+                    }, 3000);
+                }
+            }
+            hideFlashes();
+        </script>
 
         <div class="outer">
             <div class="inner">

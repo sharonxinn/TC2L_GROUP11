@@ -168,7 +168,7 @@ def chooseid():
         role = request.form.get('role')
         if role == 'passenger':
 
-            return redirect(url_for('main.base_passenger'))
+            return redirect(url_for('main.base'))
 
         elif role == 'driver':
             return redirect(url_for('main.driver_post'))
@@ -180,10 +180,10 @@ def sidebar():
     return render_template('sidebar.html',user=current_user)
 
 #set up base page
-@bp.route('/base_passenger')
-def base_passenger():
+@bp.route('/base')
+def base():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
-    return render_template('base_passenger.html', user=current_user, profile=profile)
+    return render_template('base.html', user=current_user, profile=profile)
 
 #set up dashboard page
 @bp.route('/dashboard', methods=['GET'])
@@ -320,7 +320,7 @@ def driver_post():
         db.session.add(new_Rides)
         db.session.commit()
 
-        return redirect(url_for('main.base_passenger'))
+        return redirect(url_for('main.base'))
 
     return render_template('driver_post.html')
 
@@ -358,33 +358,6 @@ def findarides():
             'status': dp.status,
             'id': dp.id,  
         })
-
-<<<<<<< HEAD
-=======
-    start_location_lat = 0
-    start_location_lng = 0
-
-    return render_template('findarides.html', drivers_data=drivers_data, start_location_lat=start_location_lat, start_location_lng=start_location_lng, profile=profile)
-
-
-#@bp.route('/findarides')
-#@login_required
-#def findarides():
-    profile = Profile.query.filter_by(user_id=current_user.id).first()
-    driver_posts = Rides.query.filter_by().all()
-    # Prepare a list of drivers' details
-    drivers_data = [{
-        'lat': dp.start_location_lat,
-        'lng': dp.start_location_lng,
-        'end_location': dp.end_location,
-        'dateandTime':dp.dateandTime,
-        'totalperson': dp.totalperson,
-        'fees': dp.fees,
-        'message': dp.message,
-        'status': dp.status,
-        'id': dp.id,  
-    } for dp in driver_posts]
->>>>>>> 1eb3484f44ff39a2273e2db7bb7880622d73e8d6
     start_location_lat = 0
     start_location_lng = 0
 
@@ -556,12 +529,8 @@ def match_drivers(driver_id):
     return render_template('match_driver.html', 
                            driver=driver,
                             passengers=passengers, 
-<<<<<<< HEAD
                             profile_dict=profile_dict,
                             profile=profile,
-=======
-                            profile_dict=profile_dict,profile=profile,
->>>>>>> 1eb3484f44ff39a2273e2db7bb7880622d73e8d6
                             passengers_approving=passengers_approving,
                             passengers_completed=passengers_completed,
                             passengers_confirmed=passengers_confirmed)
@@ -727,4 +696,3 @@ def upload_payment_proof(match_id):
         return redirect(url_for('main.booking_history'))
     
     return render_template('upload.html', form=form, profile=profile, match_id=match_id)
-

@@ -359,8 +359,6 @@ def findarides():
             'id': dp.id,  
         })
 
-<<<<<<< HEAD
-=======
     start_location_lat = 0
     start_location_lng = 0
 
@@ -384,7 +382,6 @@ def findarides():
         'status': dp.status,
         'id': dp.id,  
     } for dp in driver_posts]
->>>>>>> 1eb3484f44ff39a2273e2db7bb7880622d73e8d6
     start_location_lat = 0
     start_location_lng = 0
 
@@ -556,12 +553,7 @@ def match_drivers(driver_id):
     return render_template('match_driver.html', 
                            driver=driver,
                             passengers=passengers, 
-<<<<<<< HEAD
-                            profile_dict=profile_dict,
-                            profile=profile,
-=======
                             profile_dict=profile_dict,profile=profile,
->>>>>>> 1eb3484f44ff39a2273e2db7bb7880622d73e8d6
                             passengers_approving=passengers_approving,
                             passengers_completed=passengers_completed,
                             passengers_confirmed=passengers_confirmed)

@@ -104,11 +104,18 @@ h1{
     margin: 0;
     padding: 0;
     display: none;
-  }
-  
-  .flashes.show {
-      display: block;
-  }
+    transition: opacity 0.6s ease-out;
+}
+
+.flashes.show {
+    display: block;
+    opacity: 1;
+}
+
+.flashes.hide {
+    opacity: 0;
+}
+
   
   .flash {
       padding: 5px;

@@ -18,7 +18,6 @@
     --table-header: #2424242f; 
     --table-data: #0000000b;
     --table-hover: #fff6;
-    --btn: rgba(0, 0, 0, 0.7);
     --type-box: #bfbdbd;
     --scroll: #0004;
   }
@@ -34,7 +33,6 @@
     --table-header: #8a8a8d8c;
     --table-data: #89898f52;
     --table-hover: #fff6;
-    --btn: rgba(255, 255, 255, 0.7);
     --type-box: #bfbdbd85;
     --scroll: rgba(255, 255, 255, 0.267);
   }
@@ -210,7 +208,7 @@ h1{
 
 .btn1{
     /* width: 100%; */
-    background: var(--btn);
+    background: var(--text-color);
     border: none;
     border-radius: 50px;
     color: var(--toggle-color);
@@ -223,7 +221,7 @@ h1{
 .btn{
     /* width: 25%;
     height: 50px; */
-    background: var(--btn);
+    background: var(--text-color);
     border: none;
     border-radius: 50px;
     color: var(--toggle-color);
@@ -244,10 +242,16 @@ h1{
     margin: 0;
     padding: 0;
     display: none;
+    transition: opacity 0.6s ease-out;
   }
   
   .flashes.show {
       display: block;
+      opacity: 1;
+  }
+  
+  .flashes.hide {
+      opacity: 0;
   }
   
   .flash {

@@ -5,6 +5,8 @@ from .models import User, Rides, Profile,PassengerMatch,PaymentProof
 from .form import PaymentForm
 from . import db
 from werkzeug.utils import secure_filename
+from datetime import datetime, timedelta
+from sqlalchemy import and_
 import os
 
 app = Flask(__name__)
@@ -25,16 +27,17 @@ def sign_up():
         email = request.form.get('email')
         password1 = request.form.get('password1')
         password2 = request.form.get('password2')
-        # entered_captcha = request.form.get('text')
-        # generated_captcha = request.form.get('captcha_code')
+        entered_captcha = request.form.get('captcha_input')
+        generated_captcha = request.form.get('captcha_code')
+
+        if entered_captcha is None or entered_captcha.lower() != generated_captcha:
+            flash('Verification Code Error!', category='error')
+            return redirect(url_for('main.signup'))
 
         user = User.query.filter_by(email=email).first()
 
         if user:
             flash('Email already exists', category='error')
-
-        # elif entered_captcha is None or entered_captcha.lower() != generated_captcha:
-        #     flash('Verification Code Error!', category='error')
 
         elif len(email) < 4:
             flash('Email must be greater than 3 characters.', category='error')
@@ -68,6 +71,12 @@ def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
+        entered_captcha = request.form.get('captcha_input')
+        generated_captcha = request.form.get('captcha_code')
+
+        if entered_captcha is None or entered_captcha.lower() != generated_captcha:
+            flash('Verification Code Error!', category='error')
+            return redirect(url_for('main.login'))
 
         user = User.query.filter_by(email=email).first()
 
@@ -254,13 +263,14 @@ def change_password():
         new_password = request.form.get('new_password')
         confirm_new_password = request.form.get('confirm_new_password')
         if old_password == new_password:
-            flash("Old Password and New Password Are The Same.", category='error')
+            flash("Old password and new password are the same.", category='error')
         elif new_password != confirm_new_password:
-            flash("New Passwords Don't Match.",category="error")
+            flash("New password don't match.",category="error")
         elif check_password_hash(current_user.password, old_password):
             current_user.password = generate_password_hash(new_password,method='scrypt')
             db.session.commit()
             flash('Password successfully changed.',category='success')
+            return redirect(url_for('main.editprofile'))
         else:
             db.session.rollback()
             flash("Incorrect old password.",category='error')
@@ -276,12 +286,10 @@ def change_password():
 def driver_post():
     if request.method == 'POST':
         dateandTime = request.form['dateandTime']
-        start_location = request.form['start_location']
-        start_location_lat = request.form.get('start_location_lat')
-        start_location_lng = request.form.get('start_location_lng')
+        start_location = request.form['start_location']  # Location name from Google Places
+        start_location_lat = request.form.get('start_location_lat', None)
+        start_location_lng = request.form.get('start_location_lng', None)
         end_location = request.form['end_location']
-        end_location_lat = request.form.get('end_location_lat', None)
-        end_location_lng = request.form.get('end_location_lng', None)
         carplate = request.form['carplate']
         carmodel = request.form['carmodel']
         totalperson = request.form['totalperson']
@@ -290,11 +298,9 @@ def driver_post():
         message = request.form['message']
         status = 'IN PROGRESS'
 
-        # Convert empty strings to None
+        # Convert empty strings to None for latitude and longitude
         start_location_lat = float(start_location_lat) if start_location_lat else None
         start_location_lng = float(start_location_lng) if start_location_lng else None
-        end_location_lat = float(end_location_lat) if end_location_lat else None
-        end_location_lng = float(end_location_lng) if end_location_lng else None
 
         new_Rides = Rides(
             dateandTime=dateandTime,
@@ -302,8 +308,6 @@ def driver_post():
             start_location_lat=start_location_lat,
             start_location_lng=start_location_lng,
             end_location=end_location,
-            end_location_lat=end_location_lat,
-            end_location_lng=end_location_lng,
             carplate=carplate,
             carmodel=carmodel,
             totalperson=totalperson,
@@ -311,7 +315,7 @@ def driver_post():
             duitnowid=duitnowid,
             message=message,
             status=status,
-            user_id=current_user.id,
+            user_id=current_user.id
         )
         db.session.add(new_Rides)
         db.session.commit()
@@ -324,22 +328,41 @@ def driver_post():
 @login_required
 def findarides():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
-    driver_posts = Rides.query.filter_by().all()
-    # Prepare a list of drivers' details
-    drivers_data = [{
-        'lat': dp.start_location_lat,
-        'lng': dp.start_location_lng,
-        'end_location': dp.end_location,
-        'dateandTime':dp.dateandTime,
-        'totalperson': dp.totalperson,
-        'fees': dp.fees,
-        'message': dp.message,
-        'status': dp.status,
-        'id': dp.id,  
-    } for dp in driver_posts]
+    today = datetime.now()
+
+    # Filter rides within the specified range and time (e.g., today's rides)
+    driver_posts = Rides.query.filter(
+        and_(
+            Rides.dateandTime >= today,  # Only show rides happening from today onwards
+            Rides.status == 'IN PROGRESS',  # Only show active rides
+            Rides.user_id != current_user.id  # Exclude posts by the current user
+        )
+        ).all()
+
+    # Prepare a list of filtered drivers' details
+    drivers_data = []
+    for dp in driver_posts:
+        if isinstance(dp.dateandTime, datetime):
+            dateandTime_str = dp.dateandTime.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            dateandTime_str = dp.dateandTime  # Assuming it's already in the desired format
+
+        drivers_data.append({
+            'lat': dp.start_location_lat,
+            'lng': dp.start_location_lng,
+            'end_location': dp.end_location,
+            'dateandTime': dateandTime_str,
+            'totalperson': dp.totalperson,
+            'fees': dp.fees,
+            'message': dp.message,
+            'status': dp.status,
+            'id': dp.id,  
+        })
+
     start_location_lat = 0
     start_location_lng = 0
-    return render_template('findarides.html', drivers_data=drivers_data, start_location_lat=start_location_lat, start_location_lng=start_location_lng,profile=profile)
+
+    return render_template('findarides.html', drivers_data=drivers_data, start_location_lat=start_location_lat, start_location_lng=start_location_lng, profile=profile)
 
 ####DRIVER PASSENGER DATA#######################################################################
 
@@ -507,7 +530,8 @@ def match_drivers(driver_id):
     return render_template('match_driver.html', 
                            driver=driver,
                             passengers=passengers, 
-                            profile_dict=profile_dict,profile=profile, 
+                            profile_dict=profile_dict,
+                            profile=profile,
                             passengers_approving=passengers_approving,
                             passengers_completed=passengers_completed,
                             passengers_confirmed=passengers_confirmed)

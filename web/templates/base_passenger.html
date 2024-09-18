@@ -23,7 +23,7 @@
       <ul class="nav_list">
         <li>
           <i class='bx bx-search-alt-2' ></i>
-          <input type="text" id="sidebarSearch" placeholder="Search">
+          <input type="text" id="sidebarSearch" placeholder="Search Location...">
           <span class="tooltip">Search</span>
         </li>
 
@@ -75,7 +75,7 @@
       <div class="profile_content">
         <div class="profile">
           <div class="profile_details">
-            <img src="{{ profile.profile_pic }}"  width="40px" height="40px" alt="Profile Picture">
+            <img src="{{ profile.profile_pic }}" alt="Profile Picture" width="40px" height="40px">
             <div class="name_id">
               <div class="name">{{ profile.fullName }}</div>
             </div>
@@ -100,31 +100,129 @@
       let modeText = document.querySelector(".mode_name");
       let body = document.querySelector("body");
 
-      if(localStorage.getItem("dark-mode") === "enabled"){
+      // Link sidebarSearch & mapSearchBox
+      let sidebarSearch = document.querySelector("#sidebarSearch");
+      let mapSearchBox = document.querySelector("#searchBox");
+
+      function updateMap(userLat, userLon) {
+          var userLatLon = new google.maps.LatLng(userLat, userLon);
+          map.setCenter(userLatLon);
+          userMarker.setPosition(userLatLon);
+      }
+
+      if (sidebarSearch && mapSearchBox) {
+          let autocomplete;
+          function initializeAutocomplete() {
+              autocomplete = new google.maps.places.Autocomplete(sidebarSearch, {
+                  fields: ['geometry', 'name'],
+                  componentRestrictions: { country: 'MY' },
+                  bounds: {
+                      north: 3.05,
+                      south: 2.75,
+                      east: 101.80,
+                      west: 101.50
+                  }
+              });
+
+              // Define allowed bounds for Cyberjaya, Putrajaya, Puchong, Dengkil
+              const allowedBounds = new google.maps.LatLngBounds(
+                  { lat: 2.75, lng: 101.50 },
+                  { lat: 3.05, lng: 101.80 }
+              );
+
+              autocomplete.addListener('place_changed', function () {
+                  const place = autocomplete.getPlace();
+                  if (!place.geometry || !place.geometry.location) {
+                      alert("No details available for input: '" + place.name + "'");
+                      return;
+                  }
+
+                  if (!allowedBounds.contains(place.geometry.location)) {
+                      alert("The selected location is outside of the allowed areas (Cyberjaya, Putrajaya, Puchong, Dengkil). Please select a valid location.");
+                      return;
+                  }
+
+                  mapSearchBox.value = sidebarSearch.value;
+
+                  var userLat = place.geometry.location.lat();
+                  var userLon = place.geometry.location.lng();
+                  console.log("Selected Location:", userLat, userLon);
+
+                  userMarker.setPosition(new google.maps.LatLng(userLat, userLon));
+                  map.setCenter(userMarker.getPosition());
+
+                  document.getElementById('timeFilter').disabled = false;
+                  document.getElementById('filterBtn').disabled = false;
+
+                  updateMap(userLat, userLon);
+              });
+          }
+
+          mapSearchBox.addEventListener("input", function() {
+              sidebarSearch.value = mapSearchBox.value;
+          });
+
+          sidebarSearch.addEventListener("input", function() {
+              mapSearchBox.value = sidebarSearch.value;
+          });
+
+          window.addEventListener('load', function() {
+              initializeAutocomplete();
+          });
+      }
+
+      function getLocation() {
+          if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(function(position) {
+                  var accuracy = position.coords.accuracy;
+                  var userLat = position.coords.latitude;
+                  var userLon = position.coords.longitude;
+
+                  if (accuracy < 100) {
+                      userMarker.setPosition(new google.maps.LatLng(userLat, userLon));
+                      map.setCenter(userMarker.getPosition());
+                      userLocationSet = true;
+                      document.getElementById('timeFilter').disabled = false;
+                      document.getElementById('filterBtn').disabled = false;
+                  } else {
+                      alert("Low accuracy detected, showing default location.");
+                      userMarker.setPosition(new google.maps.LatLng(defaultLat, defaultLon));
+                      map.setCenter(userMarker.getPosition());
+                  }
+
+                  updateMap(userLat, userLon);
+              });
+          } else {
+              document.getElementById('mapholder').innerHTML = "Your device cannot detect location.";
+          }
+      }
+
+
+      if(localStorage.getItem("dark-mode") === "enabled") {
           body.classList.add("dark");
           modeText.innerText = "Light Mode";
       }
 
-      if(localStorage.getItem("sidebar-active") === "true"){
+      if(localStorage.getItem("sidebar-active") === "true") {
           sidebar.classList.add("active");
       }
 
-      btn.onclick = function(){
+      btn.onclick = function() {
           sidebar.classList.toggle("active");
           localStorage.setItem("sidebar-active", sidebar.classList.contains("active"));
       }
 
-      searchBtn.onclick = function(){
+      searchBtn.onclick = function() {
           sidebar.classList.toggle("active");
           localStorage.setItem("sidebar-active", sidebar.classList.contains("active"));
       }
 
-      modeSwitch.onclick = function(){
+      modeSwitch.onclick = function() {
           body.classList.toggle("dark");
-          if(body.classList.contains("dark")){
+          if (body.classList.contains("dark")){
               modeText.innerText = "Light Mode";
               localStorage.setItem("dark-mode", "enabled");
-          }else{
+          } else {
               modeText.innerText = "Dark Mode";
               localStorage.setItem("dark-mode", "disabled");
           }

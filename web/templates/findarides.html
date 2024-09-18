@@ -175,26 +175,30 @@
                 nearbyDrivers = [];
                 filteredDrivers = [];
 
-                for (var i = 0; i < driverMarkers.length; i++) {
+                // Clear existing driver markers
+                for (let i = 0; i < driverMarkers.length; i++) {
                     driverMarkers[i].setMap(null);
                 }
                 driverMarkers = [];
 
-                for (var i = 0; i < driversData.length; i++) {
-                    var driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
-                    var distance = google.maps.geometry.spherical.computeDistanceBetween(
+                // Loop through each driver and place a marker
+                for (let i = 0; i < driversData.length; i++) {
+                    let driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
+                    let distance = google.maps.geometry.spherical.computeDistanceBetween(
                         new google.maps.LatLng(userLat, userLon), driverLatLon
                     );
 
+                    // Check if driver is within 1km radius
                     if (distance <= 1000) {
-                        var driverMarker = new google.maps.Marker({
+                        let driverMarker = new google.maps.Marker({
                             position: driverLatLon,
                             map: map,
                             title: "Driver's start location",
                             icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
                         });
 
-                        var infoWindow = new google.maps.InfoWindow({
+                        // Create info window for the driver
+                        let infoWindow = new google.maps.InfoWindow({
                             content: '<div><strong>Driver ID:</strong> ' + driversData[i].id + '<br>' +
                                     '<strong>Destination:</strong> ' + driversData[i].end_location + '<br>' +
                                     '<strong>DateTime:</strong> ' + driversData[i].dateandTime + '<br>' +
@@ -204,16 +208,20 @@
                                     '<strong>Status:</strong> ' + driversData[i].status + '</div>'
                         });
 
-                        google.maps.event.addListener(driverMarker, 'click', function() {
+                        // Attach click event to the driver marker
+                        driverMarker.addListener('click', function() {
                             infoWindow.open(map, driverMarker);
                         });
 
+                        // Add driver marker to the map
                         driverMarkers.push(driverMarker);
                         nearbyDrivers.push(driversData[i].id);
                         filteredDrivers.push(driversData[i]);
                     }
                 }
             }
+
+
 
             function applyTimeFilter() {
                 var timeFilterValue = document.getElementById('timeFilter').value;

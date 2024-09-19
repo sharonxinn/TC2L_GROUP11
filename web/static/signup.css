@@ -13,13 +13,21 @@
   right: 1.5%;
 }
 
-.outer{
-  width: 100%;
-  height: 100vh;
+.background{
   background-image: linear-gradient(to bottom, #27242f, #292632, #2c2935, #2e2b39, #312e3c, #383544, #3f3b4c, #464254, #534e64, #615a74, #6f6784, #7d7495);
+  height: 100vh;
+  width: 100%;
+  display: block;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.outer{
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100vh;
 }
 
 .inner{
@@ -30,7 +38,6 @@
   display: flex;
   overflow: hidden;
   box-shadow: 20px 20px 50px rgba(0, 0, 0, 0.5);
-
 }
 
 .left{
@@ -141,4 +148,62 @@ h2{
 
 .login a:hover{
   text-decoration: underline;
+}
+
+.flashes {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  margin: 0;
+  padding: 0;
+  display: none;
+  transition: opacity 0.6s ease-out;
+}
+
+.flashes.show {
+    display: block;
+    opacity: 1;
+}
+
+.flashes.hide {
+    opacity: 0;
+}
+
+
+.flash {
+    padding: 5px;
+    border: 6px solid transparent;
+    border-radius: 10px;
+    position: relative;
+    width: 500px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.flash.success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.flash.error {
+    color: #721c24;
+    background-color: #f8d7ee;
+    border-color: #f5c6cb;
+}
+
+.closebtn {
+    position: absolute;
+    top: 3px;
+    right: 10px;
+    color: #aaa;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.closebtn:hover {
+    color: black;
 }

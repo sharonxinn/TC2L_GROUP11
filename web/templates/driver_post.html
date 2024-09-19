@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driver Post</title>
+    <title>Rider Post</title>
     <link rel="stylesheet" href="../static/driver_post.css">
-    
+
     <!-- Google Maps & Places API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&callback=initMap&libraries=places&v=beta" async defer></script>
     <script>
@@ -79,42 +79,87 @@
 
         }
     </script>
-    
 </head>
+
 <body onload="initMap()">
+    <div class="logout">
+        <a href="/">
+            <input type="image" src="../static/pic&video/logout icon.png" width="50px" height="50px">
+        </a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flashes show" id="flashes">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    <script>
+        function hideFlashes() {
+            const flashes = document.getElementById('flashes');
+            if (flashes) {
+                // Set a timeout to hide the flashes after 3 seconds (3000 milliseconds)
+                setTimeout(() => {
+                    flashes.style.opacity = '0';
+                    setTimeout(() => {
+                        flashes.style.display = 'none';
+                    }, 600);
+                }, 3000);
+            }
+        }
+        hideFlashes();
+    </script>
+
     <div class="outside-center">
         <h1 align="center">Post A Ride</h1>
         <div class="middle-box">
             <form action="{{ url_for('main.driver_post') }}" method="post">
                 <div class="inner-center">
                     <label for="dateandTime">Date & Time</label>
-                    <input type="datetime-local" id="dateandTime" name="dateandTime" required>
+                    <br>
+                    <input type="datetime-local" id="dateandTime" name="dateandTime" required><br>
+                    <script>
+                        var today = new Date().toISOString().slice(0, 16);
+                        document.getElementsByName("dateandTime")[0].min = today;
+                    </script>
                 </div>
 
-                <!-- Start Location Search -->
-                 <div class="left-right">
-                <div class="inner-center">
-                    <label for="start_location">Start Location</label>
-                    <input id="start_location" type="text" name="start_location_search" placeholder="Search for a location..." required>
-                    <input type="hidden" id="start_location_name" name="start_location"> <!-- Hidden input for location name -->
-                    <input type="hidden" id="start_location_lat" name="start_location_lat"> <!-- Hidden input for latitude -->
-                    <input type="hidden" id="start_location_lng" name="start_location_lng"> <!-- Hidden input for longitude -->
-                </div>
+                <div class="left-right">
+                    <div class="inner-center">
+                        <label for="start_location">Start Location</label>
+                        <br>
+                        <input id="start_location" type="text" name="start_location_search" placeholder="Search Location..." required>
+                        <input type="hidden" id="start_location_name" name="start_location"> <!-- Hidden input for location name -->
+                        <input type="hidden" id="start_location_lat" name="start_location_lat"> <!-- Hidden input for latitude -->
+                        <input type="hidden" id="start_location_lng" name="start_location_lng"> <!-- Hidden input for longitude -->
+                    </div>
 
-                <div class="inner-center">
-                    <label for="end_location">End Location</label>
-                    <select name="end_location" id="end_location" required>
-                        <option value="Guard House">Guard House</option>
-                        <option value="FCI">FCI</option>
-                        <option value="FCM">FCM</option>
-                        <option value="FOE">FOE</option>
-                        <option value="STC">STC</option>
-                        <option value="MMU STADIUM">MMU Stadium</option>
-                    </select>
+                    <div class="inner-center">
+                        <label for="end_location">End Location</label>
+                        <br>
+                        <select name="end_location" id="end_location" required>
+                            <option value="Guard House">Guard House</option>
+                            <option value="FCI">FCI</option>
+                            <option value="FCM">FCM</option>
+                            <option value="FOE">FOE</option>
+                            <option value="FCM">FCM</option>
+                            <option value="STC">STC</option>
+                            <option value="MMUSTADIUM">MMU STADIUM</option>
+                            <option value="DTC">DTC</option>
+                            <option value="HB4">HB4</option>
+                            <option value="HB2">HB2</option>
+                        </select><br>
+                    </div>
                 </div>
-                </div>
-
-                <!-- Google Map for showing the location -->
+                
+                <!-- Google Map displaying start_location location -->
                 <div id="map"></div>
 
                 <div class="left-right">
@@ -169,7 +214,7 @@
                     <textarea id="message" name="message" rows="10" cols="30" placeholder="Enter Note..."></textarea><br><br>
                 </div>
 
-                <a href="/base_driver">
+                <a href="/base_passenger">
                     <input type="submit" value="Submit" class="btn">
                 </a>
             </form>

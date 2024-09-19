@@ -1,4 +1,4 @@
-{% extends "base_passenger.html" %}
+{% extends "base.html" %}
 {% block title %}Google Map{% endblock %}
 {% block content %}
 <!DOCTYPE html>
@@ -7,270 +7,337 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Google Map</title>
-    <link rel="stylesheet" href="../static/findaroute.css">
+    <link rel="stylesheet" href="../static/findarides.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flashes show" id="flashes">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    <script>
+        function hideFlashes() {
+            const flashes = document.getElementById('flashes');
+            if (flashes) {
+                // Set a timeout to hide the flashes after 3 seconds (3000 milliseconds)
+                setTimeout(() => {
+                    flashes.style.opacity = '0';
+                    setTimeout(() => {
+                        flashes.style.display = 'none';
+                    }, 600);
+                }, 3000);
+            }
+        }
+        hideFlashes();
+    </script>
+    
     <div class="container">
         <div class="header">
             <h1>Google Map</h1>
         </div>
 
-        <div class="details">
-            <div class="googlemap">
-                <input type="text" id="searchBox" placeholder="Search location">
-                <div id="mapholder"></div>
-            </div>
-
-            <div class="button">
-                <div class="box">
-                    <input type="datetime-local" id="timeFilter" disabled>
-                    <button onclick="applyTimeFilter()" class="btn" id="filterBtn" disabled>Filter</button>
+        <div class="size">
+            <div class="details">
+                <div class="googlemap">
+                    <div id="mapholder"></div>
                 </div>
 
-                <div class="box">
-                    <button onclick="getLocation()" class="btn">My Location</button>
+                <div class="button">
+                    <div class="box">
+                        <input type="text" id="searchBox" placeholder="Search Location..."><br>
+                        <input type="datetime-local" id="timeFilter" name="dateandTime" disabled><br>
+                        <script>
+                            var today = new Date().toISOString().slice(0, 16);
+                            document.getElementsByName("dateandTime")[0].min = today;
+                        </script>
+                        <button onclick="applyTimeFilter()" class="btn" id="filterBtn" disabled>Filter</button>
+                    </div>
+
+                    <div class="box">
+                        <button onclick="getLocation()" class="btn">My Location</button>
+                    </div>
+
+                    <div class="box">
+                        <i class='bx bx-right-arrow-alt'></i>
+                        <button onclick="goToDriverList()" class="btn">Driver List</button>
+                    </div>
                 </div>
 
-                <div class="box">
-                    <i class='bx bx-right-arrow-alt'></i>
-                    <button onclick="goToDriverList()" class="btn">Driver List</button>
-                </div>
-            </div>
-        </div>
+                <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&callback=initMap&libraries=places,geometry&v=beta" async defer></script>
+                <script>
+                    const darkModeStyle = [
+                            { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
+                            { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
+                            { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
+                            { featureType: "administrative.locality", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }], },
+                            { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }], },
+                            { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#263c3f" }], },
+                            { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#6b9a76" }], },
+                            { featureType: "road", elementType: "geometry", stylers: [{ color: "#38414e" }], },
+                            { featureType: "road", elementType: "geometry.stroke", stylers: [{ color: "#212a37" }], },
+                            { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9ca5b3" }], },
+                            { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#746855" }], },
+                            { featureType: "road.highway", elementType: "geometry.stroke", stylers: [{ color: "#1f2835" }], },
+                            { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#f3d19c" }], },
+                            { featureType: "transit", elementType: "geometry", stylers: [{ color: "#2f3948" }], },
+                            { featureType: "transit.station", elementType: "labels.text.fill", stylers: [{ color: "#d59563" }], },
+                            { featureType: "water", elementType: "geometry", stylers: [{ color: "#17263c" }], },
+                            { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#515c6d" }], },
+                            { featureType: "water", elementType: "labels.text.stroke", stylers: [{ color: "#17263c" }], },
+                        ];
 
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&callback=initMap&libraries=places,geometry&v=beta" async defer></script>
-        <script>
-            const darkModeStyle = [/* Dark mode style data */];
+                        var map;
+                        var userMarker;
+                        var driverMarkers = [];
+                        var nearbyDrivers = [];
+                        var filteredDrivers = [];
+                        var driversData = {{ drivers_data | tojson | safe }};
+                        var userLocationSet = false;
+                        var timeFilterApplied = false;
+                        var openInfoWindows = [];
 
-            var map;
-            var userMarker;
-            var driverMarkers = [];
-            var nearbyDrivers = [];
-            var filteredDrivers = [];
-            var driversData = {{ drivers_data | tojson | safe }};
-            var userLocationSet = false;
-            var timeFilterApplied = false;
+                        var defaultLat = 2.92909;
+                        var defaultLon = 101.64060;
 
-            var defaultLat = 2.92909;
-            var defaultLon = 101.64060;
+                        function initMap() {
+                            var mapOptions = {
+                                center: new google.maps.LatLng(defaultLat, defaultLon),
+                                zoom: 15,
+                                mapTypeId: google.maps.MapTypeId.ROADMAP,
+                                mapTypeControl: false,
+                                navigationControlOptions: { style: google.maps.NavigationControlStyle.SMALL }
+                            };
 
-            function initMap() {
-                var mapOptions = {
-                    center: new google.maps.LatLng(defaultLat, defaultLon),
-                    zoom: 15,
-                    mapTypeId: google.maps.MapTypeId.ROADMAP,
-                    mapTypeControl: false,
-                    navigationControlOptions: { style: google.maps.NavigationControlStyle.SMALL }
-                };
+                            map = new google.maps.Map(document.getElementById('mapholder'), mapOptions);
 
-                map = new google.maps.Map(document.getElementById('mapholder'), mapOptions);
+                            if (localStorage.getItem('dark-mode') === 'enabled') {
+                                map.setOptions({ styles: darkModeStyle });
+                            }
 
-                if (localStorage.getItem('dark-mode') === 'enabled') {
-                    map.setOptions({ styles: darkModeStyle });
-                }
+                            window.addEventListener('darkModeToggle', () => {
+                                if (localStorage.getItem('dark-mode') === 'enabled') {
+                                    map.setOptions({ styles: darkModeStyle });
+                                } else {
+                                    map.setOptions({ styles: [] });
+                                }
+                            });
 
-                window.addEventListener('darkModeToggle', () => {
-                    if (localStorage.getItem('dark-mode') === 'enabled') {
-                        map.setOptions({ styles: darkModeStyle });
-                    } else {
-                        map.setOptions({ styles: [] });
-                    }
-                });
+                            userMarker = new google.maps.Marker({
+                                position: new google.maps.LatLng(defaultLat, defaultLon),
+                                map: map,
+                                title: "Drag me to your location",
+                                draggable: true
+                            });
 
-                userMarker = new google.maps.Marker({
-                    position: new google.maps.LatLng(defaultLat, defaultLon),
-                    map: map,
-                    title: "Drag me to your location",
-                    draggable: true
-                });
+                            userMarker.addListener('dragend', function(event) {
+                                updateMap(event.latLng.lat(), event.latLng.lng());
+                            });
 
-                userMarker.addListener('dragend', function(event) {
-                    updateMap(event.latLng.lat(), event.latLng.lng());
-                });
+                            var autocomplete = new google.maps.places.Autocomplete(document.getElementById("searchBox"), {
+                                fields: ['geometry', 'name'],
+                                componentRestrictions: { country: 'MY' },
+                                bounds: {
+                                    north: 3.05,  // Northern boundary (Putrajaya, Puchong)
+                                    south: 2.75,  // Southern boundary (Dengkil, Cyberjaya)
+                                    east: 101.80, // Eastern boundary (Putrajaya, Cyberjaya)
+                                    west: 101.50  // Western boundary (Puchong, Dengkil)
+                                }
+                            });
 
-                var autocomplete = new google.maps.places.Autocomplete(document.getElementById("searchBox"), {
-                    fields: ['geometry', 'name'],
-                    componentRestrictions: { country: 'MY' },
-                    bounds: {
-                        north: 3.05,  // Northern boundary (Putrajaya, Puchong)
-                        south: 2.75,  // Southern boundary (Dengkil, Cyberjaya)
-                        east: 101.80, // Eastern boundary (Putrajaya, Cyberjaya)
-                        west: 101.50  // Western boundary (Puchong, Dengkil)
-                    }
-                });
+                            // Define allowed bounds for Cyberjaya, Putrajaya, Puchong, Dengkil
+                            const allowedBounds = new google.maps.LatLngBounds(
+                                { lat: 2.75, lng: 101.50 }, // Southwest corner
+                                { lat: 3.05, lng: 101.80 }  // Northeast corner
+                            );
 
-                // Define allowed bounds for Cyberjaya, Putrajaya, Puchong, Dengkil
-                const allowedBounds = new google.maps.LatLngBounds(
-                    { lat: 2.75, lng: 101.50 }, // Southwest corner
-                    { lat: 3.05, lng: 101.80 }  // Northeast corner
-                );
+                            // Listen for the place selection event
+                            autocomplete.addListener('place_changed', function() {
+                                const place = autocomplete.getPlace();
+                                if (!place.geometry || !place.geometry.location) {
+                                    alert("No details available for input: '" + place.name + "'");
+                                    return;
+                                }
 
-                // Listen for the place selection event
-                autocomplete.addListener('place_changed', function() {
-                    const place = autocomplete.getPlace();
-                    if (!place.geometry || !place.geometry.location) {
-                        alert("No details available for input: '" + place.name + "'");
-                        return;
-                    }
+                                // Validate if the selected location is within the allowed bounds
+                                if (!allowedBounds.contains(place.geometry.location)) {
+                                    alert("The selected location is outside of the allowed areas (Cyberjaya, Putrajaya, Puchong, Dengkil). Please select a valid location.");
+                                    return;
+                                }
 
-                    // Validate if the selected location is within the allowed bounds
-                    if (!allowedBounds.contains(place.geometry.location)) {
-                        alert("The selected location is outside of the allowed areas (Cyberjaya, Putrajaya, Puchong, Dengkil). Please select a valid location.");
-                        return;
-                    }
+                                var userLat = place.geometry.location.lat();
+                                var userLon = place.geometry.location.lng();
 
-                    var userLat = place.geometry.location.lat();
-                    var userLon = place.geometry.location.lng();
+                                userMarker.setPosition(new google.maps.LatLng(userLat, userLon));
+                                map.setCenter(userMarker.getPosition()); // Center map on user marker
+                                userLocationSet = true;
+                                document.getElementById('timeFilter').disabled = false;
+                                document.getElementById('filterBtn').disabled = false;
 
-                    userMarker.setPosition(new google.maps.LatLng(userLat, userLon));
-                    map.setCenter(userMarker.getPosition()); // Center map on user marker
-                    userLocationSet = true;
-                    document.getElementById('timeFilter').disabled = false;
-                    document.getElementById('filterBtn').disabled = false;
+                                updateMap(userLat, userLon);
+                            });
+                        }
+                            
 
-                    updateMap(userLat, userLon);
-                });
-            }
-                
+                        function getLocation() {
+                            if (navigator.geolocation) {
+                                navigator.geolocation.getCurrentPosition(function(position) {
+                                    var accuracy = position.coords.accuracy;
+                                    var userLat = position.coords.latitude;
+                                    var userLon = position.coords.longitude;
 
-            function getLocation() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function(position) {
-                        var accuracy = position.coords.accuracy;
-                        var userLat = position.coords.latitude;
-                        var userLon = position.coords.longitude;
+                                    if (accuracy < 100) {
+                                        userMarker.setPosition(new google.maps.LatLng(userLat, userLon));
+                                        map.setCenter(userMarker.getPosition()); // Center map on user marker
+                                        userLocationSet = true;
+                                        document.getElementById('timeFilter').disabled = false;
+                                        document.getElementById('filterBtn').disabled = false;
+                                    } else {
+                                        alert("Low accuracy detected, showing default location.");
+                                        userMarker.setPosition(new google.maps.LatLng(defaultLat, defaultLon));
+                                        map.setCenter(userMarker.getPosition()); // Center map on default location
+                                    }
 
-                        if (accuracy < 100) {
-                            userMarker.setPosition(new google.maps.LatLng(userLat, userLon));
-                            map.setCenter(userMarker.getPosition()); // Center map on user marker
-                            userLocationSet = true;
-                            document.getElementById('timeFilter').disabled = false;
-                            document.getElementById('filterBtn').disabled = false;
-                        } else {
-                            alert("Low accuracy detected, showing default location.");
-                            userMarker.setPosition(new google.maps.LatLng(defaultLat, defaultLon));
-                            map.setCenter(userMarker.getPosition()); // Center map on default location
+                                    updateMap(userLat, userLon);
+                                });
+                            } else {
+                                document.getElementById('mapholder').innerHTML = "Your device cannot detect location.";
+                            }
                         }
 
-                        updateMap(userLat, userLon);
-                    });
-                } else {
-                    document.getElementById('mapholder').innerHTML = "Your device cannot detect location.";
-                }
-            }
+                        function updateMap(userLat, userLon) {
+                            var userLatLon = new google.maps.LatLng(userLat, userLon);
 
-            function updateMap(userLat, userLon) {
-                var userLatLon = new google.maps.LatLng(userLat, userLon);
+                            // Center the map on the user marker
+                            map.setCenter(userLatLon);
 
-                // Center the map on the user marker
-                map.setCenter(userLatLon);
+                            if (userLocationSet && timeFilterApplied) {
+                                addDriverMarkers(userLat, userLon);
+                            }
+                        }
 
-                if (userLocationSet && timeFilterApplied) {
-                    addDriverMarkers(userLat, userLon);
-                }
-            }
+                        function addDriverMarkers(userLat, userLon) {
+                            nearbyDrivers = [];
+                            filteredDrivers = [];
 
-            function addDriverMarkers(userLat, userLon) {
-                nearbyDrivers = [];
-                filteredDrivers = [];
+                            // Clear existing driver markers
+                            for (let i = 0; i < driverMarkers.length; i++) {
+                                driverMarkers[i].setMap(null);
+                            }
+                            driverMarkers = [];
 
-                // Clear existing driver markers
-                for (let i = 0; i < driverMarkers.length; i++) {
-                    driverMarkers[i].setMap(null);
-                }
-                driverMarkers = [];
+                            // Loop through each driver and place a marker
+                            for (let i = 0; i < driversData.length; i++) {
+                                let driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
+                                let distance = google.maps.geometry.spherical.computeDistanceBetween(
+                                    new google.maps.LatLng(userLat, userLon), driverLatLon
+                                );
 
-                // Loop through each driver and place a marker
-                for (let i = 0; i < driversData.length; i++) {
-                    let driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
-                    let distance = google.maps.geometry.spherical.computeDistanceBetween(
-                        new google.maps.LatLng(userLat, userLon), driverLatLon
-                    );
+                                // Check if driver is within 1km radius
+                                if (distance <= 1000) {
+                                    let driverMarker = new google.maps.Marker({
+                                        position: driverLatLon,
+                                        map: map,
+                                        title: "Driver's start location",
+                                        icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                                    });
 
-                    // Check if driver is within 1km radius
-                    if (distance <= 1000) {
-                        let driverMarker = new google.maps.Marker({
-                            position: driverLatLon,
-                            map: map,
-                            title: "Driver's start location",
-                            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
-                        });
+                                    // Create info window for the driver
+                                    let infoWindow = new google.maps.InfoWindow({
+                                        content: '<div><strong>Driver ID:</strong> ' + driversData[i].id + '<br>' +
+                                                '<strong>Destination:</strong> ' + driversData[i].end_location + '<br>' +
+                                                '<strong>DateTime:</strong> ' + driversData[i].dateandTime + '<br>' +
+                                                '<strong>Total Persons:</strong> ' + driversData[i].totalperson + '<br>' +
+                                                '<strong>Fees:</strong> ' + driversData[i].fees + '<br>' +
+                                                '<strong>Message:</strong> ' + driversData[i].message + '<br>' +
+                                                '<strong>Status:</strong> ' + driversData[i].status + '</div>'
+                                    });
 
-                        // Create info window for the driver
-                        let infoWindow = new google.maps.InfoWindow({
-                            content: '<div><strong>Driver ID:</strong> ' + driversData[i].id + '<br>' +
-                                    '<strong>Destination:</strong> ' + driversData[i].end_location + '<br>' +
-                                    '<strong>DateTime:</strong> ' + driversData[i].dateandTime + '<br>' +
-                                    '<strong>Total Persons:</strong> ' + driversData[i].totalperson + '<br>' +
-                                    '<strong>Fees:</strong> ' + driversData[i].fees + '<br>' +
-                                    '<strong>Message:</strong> ' + driversData[i].message + '<br>' +
-                                    '<strong>Status:</strong> ' + driversData[i].status + '</div>'
-                        });
+                                    // Attach click event to the driver marker
+                                    driverMarker.addListener('click', function() {
+                                        closeAllInfoWindows();
 
-                        // Attach click event to the driver marker
-                        driverMarker.addListener('click', function() {
-                            infoWindow.open(map, driverMarker);
-                        });
+                                        infoWindow.open(map, driverMarker);
+                                        openInfoWindows.push(infoWindow);
+                                    });
 
-                        // Add driver marker to the map
-                        driverMarkers.push(driverMarker);
-                        nearbyDrivers.push(driversData[i].id);
-                        filteredDrivers.push(driversData[i]);
-                    }
-                }
-            }
+                                    // Add driver marker to the map
+                                    driverMarkers.push(driverMarker);
+                                    nearbyDrivers.push(driversData[i].id);
+                                    filteredDrivers.push(driversData[i]);
+                                }
+                            }
+                        }
 
+                        function applyTimeFilter() {
+                            var timeFilterValue = document.getElementById('timeFilter').value;
+                            var filterTime = timeFilterValue ? new Date(timeFilterValue) : null;
+                            timeFilterApplied = true;
 
+                            for (var i = 0; i < driverMarkers.length; i++) {
+                                driverMarkers[i].setMap(null);
+                            }
+                            driverMarkers = [];
 
-            function applyTimeFilter() {
-                var timeFilterValue = document.getElementById('timeFilter').value;
-                var filterTime = timeFilterValue ? new Date(timeFilterValue) : null;
-                timeFilterApplied = true;
+                            for (var i = 0; i < filteredDrivers.length; i++) {
+                                var driverTime = new Date(filteredDrivers[i].dateandTime);
+                                if (!filterTime || driverTime >= filterTime) {
+                                    var driverLatLon = new google.maps.LatLng(filteredDrivers[i].lat, filteredDrivers[i].lng);
+                                    var driverMarker = new google.maps.Marker({
+                                        position: driverLatLon,
+                                        map: map,
+                                        title: "Driver's start location",
+                                        icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                                    });
 
-                for (var i = 0; i < driverMarkers.length; i++) {
-                    driverMarkers[i].setMap(null);
-                }
-                driverMarkers = [];
+                                    var infoWindow = new google.maps.InfoWindow({
+                                        content: '<div><strong>Driver ID:</strong> ' + filteredDrivers[i].id + '<br>' +
+                                                '<strong>Destination:</strong> ' + filteredDrivers[i].end_location + '<br>' +
+                                                '<strong>DateTime:</strong> ' + filteredDrivers[i].dateandTime + '<br>' +
+                                                '<strong>Total Persons:</strong> ' + filteredDrivers[i].totalperson + '<br>' +
+                                                '<strong>Fees:</strong> ' + filteredDrivers[i].fees + '<br>' +
+                                                '<strong>Message:</strong> ' + filteredDrivers[i].message + '<br>' +
+                                                '<strong>Status:</strong> ' + filteredDrivers[i].status + '</div>'
+                                    });
 
-                for (var i = 0; i < filteredDrivers.length; i++) {
-                    var driverTime = new Date(filteredDrivers[i].dateandTime);
-                    if (!filterTime || driverTime >= filterTime) {
-                        var driverLatLon = new google.maps.LatLng(filteredDrivers[i].lat, filteredDrivers[i].lng);
-                        var driverMarker = new google.maps.Marker({
-                            position: driverLatLon,
-                            map: map,
-                            title: "Driver's start location",
-                            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
-                        });
+                                    google.maps.event.addListener(driverMarker, 'click', function() {
+                                        closeAllInfoWindows();
 
-                        var infoWindow = new google.maps.InfoWindow({
-                            content: '<div><strong>Driver ID:</strong> ' + filteredDrivers[i].id + '<br>' +
-                                    '<strong>Destination:</strong> ' + filteredDrivers[i].end_location + '<br>' +
-                                    '<strong>DateTime:</strong> ' + filteredDrivers[i].dateandTime + '<br>' +
-                                    '<strong>Total Persons:</strong> ' + filteredDrivers[i].totalperson + '<br>' +
-                                    '<strong>Fees:</strong> ' + filteredDrivers[i].fees + '<br>' +
-                                    '<strong>Message:</strong> ' + filteredDrivers[i].message + '<br>' +
-                                    '<strong>Status:</strong> ' + filteredDrivers[i].status + '</div>'
-                        });
+                                        infoWindow.open(map, driverMarker);
+                                        openInfoWindows.push(infoWindow);
+                                    });
 
-                        google.maps.event.addListener(driverMarker, 'click', function() {
-                            infoWindow.open(map, driverMarker);
-                        });
+                                    driverMarkers.push(driverMarker);
+                                }
+                            }
+                            
+                            if (userLocationSet) {
+                                updateMap(userMarker.getPosition().lat(), userMarker.getPosition().lng());
+                            }
+                        }
 
-                        driverMarkers.push(driverMarker);
-                    }
-                }
-                
-                if (userLocationSet) {
-                    updateMap(userMarker.getPosition().lat(), userMarker.getPosition().lng());
-                }
-            }
+                        function closeAllInfoWindows() {
+                            for (let i = 0; i < openInfoWindows.length; i++) {
+                                openInfoWindows[i].close();
+                            }
 
-            function goToDriverList() {
-                window.location.href = "/drivers_list?nearbyDrivers=" + nearbyDrivers.join(',');
-            }
-        </script>
+                            openInfoWindows = [];
+                        }
+
+                        function goToDriverList() {
+                            window.location.href = "/drivers_list?nearbyDrivers=" + nearbyDrivers.join(',');
+                        }
+                </script>
+            </div>
+        </div>
     </div>
 </body>
 </html>

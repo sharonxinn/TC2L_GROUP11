@@ -5,19 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../static/home.css">
     <title>Home</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
     <header>
-        <div class="carlogo">
+        <!-- <div class="carlogo">
             <img src="../static/pic&video/carlogo.png" width="150px" height="150px">
-        </div>
+        </div> -->
         <h2 class="logo">MMU Carpooling</h2>
         <nav class="top-nav">
-            <a href="/">Home<span></span></a>
-            <a href="#about">About<span></span></a>
-            <a href="/signup">Sign Up<span></span></a>
-            <a href="/login" class="bright">Log In<span></span></a>
+            <div class="menu">
+                <i class='bx bx-menu'></i>
+            </div>
+            <div class="list">
+                <a href="/">Home<span></span></a>
+                <a href="#about">About<span></span></a>
+                <a href="/signup">Sign Up<span></span></a>
+                <a href="/login" class="bright">Log In<span></span></a>
+            </div>
         </nav>
+        <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+        <script type = "text/javascript">
+            $(document).ready(function(){
+                $('.menu').click(function(){
+                    $('.list').toggleClass('active');
+                })
+            })
+        </script>
     </header>
 
     <section class="center">

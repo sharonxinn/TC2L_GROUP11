@@ -19,6 +19,7 @@
     --table-data: #0000000b;
     --table-hover: #fff6;
     --btn: rgba(0, 0, 0, 0.7);
+    --scroll: #0004;
   }
 
   body.dark{
@@ -29,17 +30,17 @@
     --mode-background: rgba(0, 0, 0, 0.5);
     --box-shadow: 5px 5px 10px rgba(255, 255, 255, 0.5);
     --box-shadow2: 10px 10px 20px rgba(255, 255, 255, 0.5);
-    --table-header: #8a8a8d8c;
-    --table-data: #89898f52;
-    --table-hover: #fff6;
-    --btn: rgba(255, 255, 255, 0.7);
+    --table-header: #212121;
+    --table-data: #3a3a3a;
+    --table-hover: #525252;
+    --btn: rgba(255, 255, 255, 0.95);
+    --scroll: rgba(255, 255, 255, 0.267);
   }
   
   body{
     position: relative;
     min-height: 100vh;
     width: 100%;
-    /* overflow: hidden; */
   }
 
   h1{
@@ -71,13 +72,6 @@
     pointer-events: none;
   }
 
-  /* .search{
-    display: flex;
-    justify-content: right;
-    width: 95%;
-    gap: 10px;
-  } */
-
   .table_body{
     width: 95%;
     max-height: calc(85% - .8rem);
@@ -95,7 +89,7 @@
 
   .table_body::-webkit-scrollbar-thumb{
     border-radius: .5rem;
-    background-color: #0004;
+    background-color: var(--scroll);
     visibility: hidden;
   }
 
@@ -145,4 +139,61 @@
     cursor: pointer;
     font-weight: 600;
     padding: 0 15px;
+  }
+
+  .flashes {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    margin: 0;
+    padding: 0;
+    display: none;
+    transition: opacity 0.6s ease-out;
+  }
+  
+  .flashes.show {
+      display: block;
+      opacity: 1;
+  }
+  
+  .flashes.hide {
+      opacity: 0;
+  }
+  
+  .flash {
+      padding: 5px;
+      border: 6px solid transparent;
+      border-radius: 10px;
+      position: relative;
+      width: 500px;
+      text-align: center;
+      margin-bottom: 10px;
+  }
+  
+  .flash.success {
+      color: #155724;
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+  }
+  
+  .flash.error {
+      color: #721c24;
+      background-color: #f8d7ee;
+      border-color: #f5c6cb;
+  }
+  
+  .closebtn {
+      position: absolute;
+      top: 3px;
+      right: 10px;
+      color: #aaa;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+  }
+  
+  .closebtn:hover {
+      color: black;
   }

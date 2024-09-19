@@ -26,7 +26,8 @@ class Rides(db.Model):
     fees = db.Column(db.String(50), nullable=False)
     duitnowid = db.Column(db.String(50), nullable=True)  # Nullable
     message = db.Column(db.Text, nullable=True)  # Nullable
-    status = db.Column(db.String(50), nullable=False,default='approved')
+
+    status = db.Column(db.String(50), nullable=False,default='IN PROGRESS')
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     passenger_matches = db.relationship('PassengerMatch', foreign_keys='PassengerMatch.driver_id', backref='driver_post', lazy=True)
 

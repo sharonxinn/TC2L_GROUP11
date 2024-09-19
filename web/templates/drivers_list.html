@@ -1,4 +1,4 @@
-{% extends "base_passenger.html" %}
+{% extends "base.html" %}
 {% block title %}Driver List{% endblock %}
 {% block content %}
 <!DOCTYPE html>
@@ -11,6 +11,35 @@
 </head>
  
 <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flashes show" id="flashes">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    <script>
+        function hideFlashes() {
+            const flashes = document.getElementById('flashes');
+            if (flashes) {
+                // Set a timeout to hide the flashes after 3 seconds (3000 milliseconds)
+                setTimeout(() => {
+                    flashes.style.opacity = '0';
+                    setTimeout(() => {
+                        flashes.style.display = 'none';
+                    }, 600);
+                }, 3000);
+            }
+        }
+        hideFlashes();
+    </script>
+    
     <main class="table">
 
         <section class="table_header">

@@ -572,7 +572,7 @@ def remove_passenger(match_id):
         match.status = 'REJECTED'
         db.session.commit()
 
-    return redirect(url_for('main.passenger_matched',driver_id=current_user.id))
+    return redirect(url_for('main.booking_history',driver_id=current_user.id))
 
 @bp.route('/approve_passenger/<int:match_id>', methods=['POST'])
 @login_required
@@ -582,7 +582,7 @@ def approve_passenger(match_id):
         match.status = 'IN PROGRESS'
         db.session.commit()
 
-    return redirect(url_for('main.match_passenger',driver_id=current_user.id))
+    return redirect(url_for('main.booking_history',driver_id=current_user.id))
 
 #set up confirm match page
 @bp.route('/confirm_match/<int:match_id>', methods=['POST'])

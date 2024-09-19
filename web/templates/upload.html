@@ -1,4 +1,4 @@
-{% extends "base_passenger.html" %}
+{% extends "base.html" %}
 {% block title %}Driver List{% endblock %}
 {% block content %}
 <!DOCTYPE html>
@@ -30,61 +30,92 @@
 </head>
 
 <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flashes show" id="flashes">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    <script>
+        function hideFlashes() {
+            const flashes = document.getElementById('flashes');
+            if (flashes) {
+                // Set a timeout to hide the flashes after 3 seconds (3000 milliseconds)
+                setTimeout(() => {
+                    flashes.style.opacity = '0';
+                    setTimeout(() => {
+                        flashes.style.display = 'none';
+                    }, 600);
+                }, 3000);
+            }
+        }
+        hideFlashes();
+    </script>
+    
     <div class="container">
-        <div class="box">
-            <div class="header">
-                <h1>Payment</h1>
-            </div>
+        <div class="size">
+            <div class="box">
+                <div class="header">
+                    <h1>Payment</h1>
+                </div>
 
-            <div class="details">
-                <form method="POST" enctype="multipart/form-data">
-                    {{ form.hidden_tag() }}
-                    <input type="hidden" name="match_id" value="{{ match_id }}"> <!-- Include match_id -->
-                    
-                    <div class="row">
-                        <div class="info_left-right">
-                            <i class='bx bxs-user'></i>
-                            <div class="info_up-down">
-                                <h3><label for="passenger_name">Full Name</label></h3>
-                                <p>{{ profile.fullName }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="info_left-right">
-                            <i class='bx bxs-credit-card'></i>
-                            <div class="info_up-down">
-                                <h3><label for="payment_method">Payment Method</label></h3>
-                                <div class="radio">
-                                    <input type="radio" name="payment_method" id="DuitNow" value="upload" checked onclick="toggleUploadField()">
-                                    <p><label for="DuitNow">DuitNow</label></p>
-                                </div>
-                                <div class="radio">
-                                    <input type="radio" name="payment_method" id="cash" value="cash" onclick="toggleUploadField()">
-                                    <p><label for="cash">Cash</label></p>
+                <div class="details">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        <input type="hidden" name="match_id" value="{{ match_id }}"> <!-- Include match_id -->
+                        
+                        <div class="row">
+                            <div class="info_left-right">
+                                <i class='bx bxs-user'></i>
+                                <div class="info_up-down">
+                                    <h3><label for="passenger_name">Full Name</label></h3>
+                                    <p>{{ profile.fullName }}</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="row" id="payment_proof_container">
-                        <div class="info_left-right">
-                            <i class='bx bxs-receipt' id="icon"></i>
-                            <div class="info_up-down" id="upload_field">
-                                <h3><label for="payment_proof">Receipt</label></h3>
-                                <p>{{ form.payment_proof }}</p>
+                        <div class="row">
+                            <div class="info_left-right">
+                                <i class='bx bxs-credit-card'></i>
+                                <div class="info_up-down">
+                                    <h3><label for="payment_method">Payment Method</label></h3>
+                                    <div class="radio">
+                                        <input type="radio" name="payment_method" id="DuitNow" value="upload" checked onclick="toggleUploadField()">
+                                        <p><label for="DuitNow">DuitNow</label></p>
+                                    </div>
+                                    <div class="radio">
+                                        <input type="radio" name="payment_method" id="cash" value="cash" onclick="toggleUploadField()">
+                                        <p><label for="cash">Cash</label></p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <br>
-                    <button type="submit" class="btn">Upload</button>
-                </form>
+                        <div class="row" id="payment_proof_container">
+                            <div class="info_left-right">
+                                <i class='bx bxs-receipt' id="icon"></i>
+                                <div class="info_up-down" id="upload_field">
+                                    <h3><label for="payment_proof">Receipt</label></h3>
+                                    <p>{{ form.payment_proof }}</p>
+                                </div>
+                            </div>
+                        </div>
 
-                <script>
-                    toggleUploadField();
-                </script>
+                        <br>
+                        <button type="submit" class="btn">Upload</button>
+                    </form>
+
+                    <script>
+                        toggleUploadField();
+                    </script>
+                </div>
             </div>
         </div>
     </div>

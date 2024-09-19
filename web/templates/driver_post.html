@@ -5,111 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rider Post</title>
     <link rel="stylesheet" href="../static/driver_post.css">
+
+    <!-- Google Maps & Places API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC2un2GtIOA0jUz-BXUs34Vj-mIfsCiRdk&callback=initMap&libraries=places&v=beta" async defer></script>
-    
     <script>
         let map;
         let marker;
-        let originalLocation;
-
-        window.onload = function() {
-        initMap();
-        };
-
+        let autocomplete;
+        let originalLocation = { lat: 2.9278, lng: 101.6419 }; // Default to MMU Cyberjaya
+    
         function initMap() {
-            originalLocation = { lat: 2.9278, lng: 101.6419 }; // Default location (Example: MMU Cyberjaya)
-            
+            // Initialize map
             map = new google.maps.Map(document.getElementById("map"), {
                 center: originalLocation,
                 zoom: 15
             });
-
+    
+            // Create a marker for the selected location
             marker = new google.maps.Marker({
                 position: originalLocation,
                 map: map,
-                title: "start_location Location",
+                title: "Start Location",
                 draggable: true
             });
-
-            // Update hidden fields with initial location
-            updateHiddenFields(originalLocation);
-
-            // Event listener for marker drag
-            marker.addListener('dragend', function(event) {
-                const newLocation = { lat: event.latLng.lat(), lng: event.latLng.lng() };
-                if (isWithinRadius(originalLocation, newLocation, 10000)) { // 10000 meters = 10 km
-                    updateHiddenFields(newLocation);
-                } else {
-                    alert("Marker can only be moved within 10 km of the original location.");
-                    marker.setPosition(originalLocation); // Reset marker position
+            // Initialize the Places Autocomplete input with component restrictions
+            autocomplete = new google.maps.places.Autocomplete(document.getElementById("start_location"), {
+                fields: ['geometry', 'name'],
+                componentRestrictions: { country: 'MY' }, // Restrict to Malaysia
+                bounds: {
+                    north: 3.05,  // Northern boundary (Putrajaya, Puchong)
+                    south: 2.75,  // Southern boundary (Dengkil, Cyberjaya)
+                    east: 101.80, // Eastern boundary (Putrajaya, Cyberjaya)
+                    west: 101.50  // Western boundary (Puchong, Dengkil)
                 }
             });
-        }
 
-        // Update hidden fields with the marker's current position
-        function updateHiddenFields(location) {
-            document.getElementById("start_location_lat").value = location.lat;
-            document.getElementById("start_location_lng").value = location.lng;
-        }
+            // Define the allowed bounds for validation (Cyberjaya, Putrajaya, Puchong, Dengkil)
+            const allowedBounds = new google.maps.LatLngBounds(
+                { lat: 2.75, lng: 101.50 }, // Southwest corner
+                { lat: 3.05, lng: 101.80 }  // Northeast corner
+            );
 
-        // Check if the new location is within a certain radius from the original location
-        function isWithinRadius(originalLocation, newLocation, radius) {
-            const R = 6371000; // Radius of the Earth in meters
-            const dLat = toRadians(newLocation.lat - originalLocation.lat);
-            const dLng = toRadians(newLocation.lng - originalLocation.lng);
-            const lat1 = toRadians(originalLocation.lat);
-            const lat2 = toRadians(newLocation.lat);
+            // Listen for the place selection event
+            autocomplete.addListener('place_changed', function() {
+                const place = autocomplete.getPlace();
+                if (!place.geometry || !place.geometry.location) {
+                    alert("No details available for input: '" + place.name + "'");
+                    return;
+                }
 
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.sin(dLng / 2) * Math.sin(dLng / 2) *
-                      Math.cos(lat1) * Math.cos(lat2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            const distance = R * c; // Distance in meters
+                // Validate if the selected location is within the allowed bounds
+                if (!allowedBounds.contains(place.geometry.location)) {
+                    alert("The selected location is outside of the allowed areas (Cyberjaya, Putrajaya, Puchong, Dengkil). Please select a valid location.");
+                    return;
+                }
 
-            return distance <= radius;
-        }
-
-        // Convert degrees to radians
-        function toRadians(degrees) {
-            return degrees * (Math.PI / 180);
-        }
-
-        // Update map and hidden fields based on the selected start_location location
-        function updateMapLocation() {
-            const locations = {
-                "Taman Puchong Utama": { lat: 2.9917, lng: 101.6156 },
-                "Taman Puchong Prima": { lat: 2.9818, lng: 101.5999 },
-                "Taman Kinrara": { lat: 3.0643, lng: 101.6396 },
-                "MRT Cyberjaya Utara": { lat: 2.9505, lng: 101.6568 },
-                "MRT Cyberjaya Centre": { lat: 2.9402, lng: 101.6654 },
-                "Garden Plaza Residence": { lat: 2.9494, lng: 101.6646 },
-                "Lakefront Residence": { lat: 2.9323, lng: 101.6305 },
-                "Dpulze": { lat: 2.9221, lng: 101.6510 },
-                "TamarindSquare": { lat: 2.9214, lng: 101.6365 },
-                "MutiaraVille": { lat: 2.9239, lng: 101.6339 },
-                "TheArc": { lat: 2.926, lng: 101.6360 }
-            };
-
-            const selectedLocation = document.getElementById("start_location").value;
-            const newLocation = locations[selectedLocation];
-
-            if (newLocation) {
+                // Move the marker to the new location
+                const newLocation = {
+                    lat: place.geometry.location.lat(),
+                    lng: place.geometry.location.lng()
+                };
                 map.setCenter(newLocation);
                 marker.setPosition(newLocation);
 
-                // Update hidden fields
-                updateHiddenFields(newLocation);
-            }
+                // Update the hidden fields with the selected location's coordinates
+                document.getElementById("start_location_lat").value = newLocation.lat;
+                document.getElementById("start_location_lng").value = newLocation.lng;
+
+                // Update the location name field
+                document.getElementById("start_location_name").value = place.name;
+            });
+
+
         }
     </script>
 </head>
 
-<body>
+<body onload="initMap()">
     <div class="logout">
         <a href="/">
             <input type="image" src="../static/pic&video/logout icon.png" width="50px" height="50px">
         </a>
     </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flashes show" id="flashes">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    <script>
+        function hideFlashes() {
+            const flashes = document.getElementById('flashes');
+            if (flashes) {
+                // Set a timeout to hide the flashes after 3 seconds (3000 milliseconds)
+                setTimeout(() => {
+                    flashes.style.opacity = '0';
+                    setTimeout(() => {
+                        flashes.style.display = 'none';
+                    }, 600);
+                }, 3000);
+            }
+        }
+        hideFlashes();
+    </script>
 
     <div class="outside-center">
         <h1 align="center">Post A Ride</h1>
@@ -119,27 +125,20 @@
                     <label for="dateandTime">Date & Time</label>
                     <br>
                     <input type="datetime-local" id="dateandTime" name="dateandTime" required><br>
+                    <script>
+                        var today = new Date().toISOString().slice(0, 16);
+                        document.getElementsByName("dateandTime")[0].min = today;
+                    </script>
                 </div>
 
                 <div class="left-right">
                     <div class="inner-center">
                         <label for="start_location">Start Location</label>
                         <br>
-                        <select name="start_location" id="start_location" onchange="updateMapLocation()" required>
-                            <option value="Taman Puchong Utama">Taman Puchong Utama</option>
-                            <option value="Taman Puchong Prima">Taman Puchong Prima</option>
-                            <option value="Taman Kinrara">Taman Kinrara</option>
-                            <option value="MRT Cyberjaya Utara">MRT Cyberjaya Utara</option>
-                            <option value="MRT Cyberjaya Centre">MRT Cyberjaya City Centre</option>
-                            <option value="Garden Plaza Residence">Garden Plaza Residence</option>
-                            <option value="Lakefront Residence">Lakefront Residence</option>
-                            <option value="Dpulze">Dpulze</option>
-                            <option value="TamarindSquare">Tamarind Square</option>
-                            <option value="MutiaraVille">Mutiara Ville</option>
-                            <option value="TheArc">The Arc</option>
-                        </select><br>
-                        <input type="hidden" id="start_location_lat" name="start_location_lat">
-                        <input type="hidden" id="start_location_lng" name="start_location_lng">
+                        <input id="start_location" type="text" name="start_location_search" placeholder="Search Location..." required>
+                        <input type="hidden" id="start_location_name" name="start_location"> <!-- Hidden input for location name -->
+                        <input type="hidden" id="start_location_lat" name="start_location_lat"> <!-- Hidden input for latitude -->
+                        <input type="hidden" id="start_location_lng" name="start_location_lng"> <!-- Hidden input for longitude -->
                     </div>
 
                     <div class="inner-center">
@@ -157,8 +156,6 @@
                             <option value="HB4">HB4</option>
                             <option value="HB2">HB2</option>
                         </select><br>
-                        <input type="hidden" id="end_location_lat" name="end_location_lat">
-                        <input type="hidden" id="end_location_lng" name="end_location_lng">
                     </div>
                 </div>
                 
@@ -181,7 +178,7 @@
                 <div class="inner-center">
                     <label for="totalperson">Maximum Number of Passengers</label>
                     <br>
-                    <input type="number" id="totalperson" name="totalperson" min="0" required>
+                    <input type="number" id="totalperson" name="totalperson" min="0" max="6" required>
                 </div>
 
                 <script>
@@ -217,7 +214,7 @@
                     <textarea id="message" name="message" rows="10" cols="30" placeholder="Enter Note..."></textarea><br><br>
                 </div>
 
-                <a href="/base_driver">
+                <a href="/base_passenger">
                     <input type="submit" value="Submit" class="btn">
                 </a>
             </form>

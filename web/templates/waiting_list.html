@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Waiting List{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waiting List</title>
+    <link rel="stylesheet" href="../static/waiting_list.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flashes show" id="flashes">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    <script>
+        function hideFlashes() {
+            const flashes = document.getElementById('flashes');
+            if (flashes) {
+                // Set a timeout to hide the flashes after 3 seconds (3000 milliseconds)
+                setTimeout(() => {
+                    flashes.style.opacity = '0';
+                    setTimeout(() => {
+                        flashes.style.display = 'none';
+                    }, 600);
+                }, 3000);
+            }
+        }
+        hideFlashes();
+    </script>
+    
+    <div class="container">
+
+        <div class="header">
+            <h1>Waiting List</h1>
+        </div>
+
+        <div class="table_body">
+            <table border="1">
+                <thead scope="col">
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Gender</th>
+                        <th>Contact</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for match in matches_approving %}
+                    <tr>
+                        <td>{{ profile_dict[match.passenger_id].fullName }}</td>
+                        <td>{{ profile_dict[match.passenger_id].gender }}</td>
+                        <td>{{ profile_dict[match.passenger_id].contact }}</td>
+                        <td>
+                            {% if match.payment_proof %}
+                                <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof">
+                            {% else %}
+                                Cash
+                            {% endif %}
+                        </td>
+                        <td>{{ match.status }}</td>
+                        <td>
+                            <div class="selection">
+                                <form action="{{ url_for('main.approve_passenger', match_id=match.id) }}" method="POST">
+                                    <input type="submit" value="Approve" class="btn">
+                                </form>
+            
+                                <form action="{{ url_for('main.remove_passenger', match_id=match.id) }}" method="POST">
+                                    <input type="submit" value="Reject" class="btn">
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock %}

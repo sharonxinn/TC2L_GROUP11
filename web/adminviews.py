@@ -36,47 +36,32 @@ class ProfileModelView(ModelView):
     column_labels = {
         'fullName': 'Full Name',
         'profile_pic': 'Profile Picture',
-        'is_approved': 'Approved',
+        'status': 'Status'
     }
-    form_columns = ('fullName', 'gender', 'contact', 'profile_pic', 'is_approved')
+    form_columns = ('fullName', 'gender', 'contact', 'profile_pic', 'status')
     
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin
     
     def _format_image(view, context, model, name):
         if getattr(model, name):
-            return Markup(f'<img src="{url_for("static", filename="/web/static/uploads/" + model.profile_pic)}" width="100" height="100" />')
+            return Markup(f'<img src="{url_for("static", filename="" + model.profile_pic)}" width="100" height="100" />')
         return ''
 
     column_formatters = {
         'profile_pic': _format_image
     }
 
-    @action('approve', 'Approve', 'Are you sure you want to approve the selected profiles?')
-    def action_approve(self, ids):
-        print(f"Approving profiles with IDs: {ids}")  # Debugging statement
-        try:
-            query = Profile.query.filter(Profile.id.in_(ids))
-            count = 0
-            for profile in query.all():
-                profile.is_approved = True
-                count += 1
-            db.session.commit()
-            flash(f'{count} profile(s) successfully approved.', 'success')
-        except Exception as e:
-            flash(f'An error occurred: {str(e)}', 'error')
-            db.session.rollback()
-
     @action('reject', 'Reject', 'Are you sure you want to reject the selected profiles?')
     def action_reject(self, ids):
         try:
             query = Profile.query.filter(Profile.id.in_(ids))
             count = 0
-            for profile in query.all():
-                profile.is_approved = False
+            for post in query.all():
+                post.status = 'rejected'
                 count += 1
             db.session.commit()
-            flash(f'{count} profile(s) successfully rejected.', 'success')
+            flash(f'{count} driver post(s) successfully rejected.', 'success')
         except Exception as e:
             flash(f'An error occurred: {str(e)}', 'error')
             db.session.rollback()

@@ -1,8 +1,7 @@
-{% extends "base_passenger.html" %}
+{% extends "base.html" %}
 {% block title %}Driver List{% endblock %}
 {% block content %}
 <!DOCTYPE html>
-<<<<<<< HEAD
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -13,111 +12,234 @@
 </head>
 
 <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flashes show" id="flashes">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                    {{ message }}
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    <script>
+        function hideFlashes() {
+            const flashes = document.getElementById('flashes');
+            if (flashes) {
+                // Set a timeout to hide the flashes after 3 seconds (3000 milliseconds)
+                setTimeout(() => {
+                    flashes.style.opacity = '0';
+                    setTimeout(() => {
+                        flashes.style.display = 'none';
+                    }, 600);
+                }, 3000);
+            }
+        }
+        hideFlashes();
+    </script>
+    
     <div class="container">
-        <div class="box">
-            <div class="driver">
-                <div class="header">
-                    <h1>Driver</h1>
-                </div>
-
-                <div class="details">
-                    <div class="row">
-                        <div class="info">
-                            <i class='bx bxs-user'></i>
-                            <h3>Full Name</h3>
-                            <p>{{ profile_dict[driver.user_id].fullName }}</p>
-                        </div>
-                        <div class="info">
-                            <i class='bx bx-male-female'></i>
-                            <h3>Gender</h3>
-                            <p>{{ profile_dict[driver.user_id].gender }}</p>
-                        </div>
-                        <div class="info">
-                            <i class='bx bxs-phone-call'></i>
-                            <h3>Contact</h3>
-                            <p>{{ profile_dict[driver.user_id].contact }}</p>
-                        </div>
+        <div class="size">
+            <div class="box">
+                <div class="driver">
+                    <div class="header">
+                        <h1>Driver</h1>
                     </div>
 
-                    <div class="row">
-                        <div class="info_left-right">
-                            <i class='bx bxs-time' ></i>
-                            <div class="info_up-down">
-                                <h3>Date and Time</h3>
-                                <p>{{ driver.dateandTime }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="info_left-right">
-                            <i class='bx bxs-map'></i>
-                            <div class="info_up-down">
-                                <h3>Start Location</h3>
-                                <p>{{ driver.start_location }}</p>
-                            </div>
-                        </div>
-                        <div class="info_left-right">
-                            <i class='bx bxs-map'></i>
-                            <div class="info_up-down">
-                                <h3>End Location</h3>
-                                <p>{{ driver.end_location }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="info_left-right">
-                            <i class='bx bxs-car'></i>
-                            <div class="info_up-down">
-                                <h3>Car Plate</h3>
-                                <p>{{ driver.carplate }}</p>
-                            </div>
-                        </div>
-                        <div class="info_left-right">
-                            <i class='bx bxs-car'></i>
-                            <div class="info_up-down">
-                                <h3>Car Model</h3>
-                                <p>{{ driver.carmodel }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="passenger">
-                <div class="header">
-                    <h1>Other Passengers</h1>
-                </div>
-
-                <div class="details">
-                    {% for passenger in passengers %}
-                    <div class="seperate">
-                        <div class="info_left-right">
-                            <i class='bx bxs-user'></i>
-                            <div class="info_up-down">
+                    <div class="details">
+                        <div class="row">
+                            <div class="info">
+                                <i class='bx bxs-user'></i>
                                 <h3>Full Name</h3>
-                                <p>{{ profile_dict[passenger.passenger_id].fullName }}</p>
+                                <p>{{ profile_dict[driver.user_id].fullName }}</p>
                             </div>
-                        </div>
-
-                        <div class="info_left-right">
-                            <i class='bx bx-male-female'></i>
-                            <div class="info_up-down">
+                            <div class="info">
+                                <i class='bx bx-male-female'></i>
                                 <h3>Gender</h3>
-                                <p>{{ profile_dict[passenger.passenger_id].gender }}</p>
+                                <p>{{ profile_dict[driver.user_id].gender }}</p>
+                            </div>
+                            <div class="info">
+                                <i class='bx bxs-phone-call'></i>
+                                <h3>Contact</h3>
+                                <p>{{ profile_dict[driver.user_id].contact }}</p>
                             </div>
                         </div>
 
-                        <div class="info_left-right">
-                            <i class='bx bxs-phone-call'></i>
-                            <div class="info_up-down">
-                                <h3>Contact</h3>
-                                <p>{{ profile_dict[passenger.passenger_id].contact }}</p>
+                        <div class="row">
+                            <div class="info_left-right">
+                                <i class='bx bxs-time' ></i>
+                                <div class="info_up-down">
+                                    <h3>Date and Time</h3>
+                                    <p>{{ driver.dateandTime }}</p>
+                                </div>
+                            </div>
+                            <div class="info_left-right">
+                                <i class='bx bxs-credit-card'></i>
+                                <div class="info_up-down">
+                                    <h3>DuitNow ID</h3>
+                                    <p>{{ driver.duitnowid }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="info_left-right">
+                                <i class='bx bxs-map'></i>
+                                <div class="info_up-down">
+                                    <h3>Start Location</h3>
+                                    <p>{{ driver.start_location }}</p>
+                                </div>
+                            </div>
+                            <div class="info_left-right">
+                                <i class='bx bxs-map'></i>
+                                <div class="info_up-down">
+                                    <h3>End Location</h3>
+                                    <p>{{ driver.end_location }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="info_left-right">
+                                <i class='bx bxs-car'></i>
+                                <div class="info_up-down">
+                                    <h3>Car Plate</h3>
+                                    <p>{{ driver.carplate }}</p>
+                                </div>
+                            </div>
+                            <div class="info_left-right">
+                                <i class='bx bxs-car'></i>
+                                <div class="info_up-down">
+                                    <h3>Car Model</h3>
+                                    <p>{{ driver.carmodel }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
+                </div>
+
+                <div class="passenger">
+                    <div class="header">
+                        <h1>Other Passengers</h1>
+                    </div>
+
+                    <div class="details">
+                        {% for passenger in passengers %}
+                        <div class="seperate">
+                            <div class="info_left-right">
+                                <i class='bx bxs-user'></i>
+                                <div class="info_up-down">
+                                    <h3>Full Name</h3>
+                                    <p>{{ profile_dict[passenger.passenger_id].fullName }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-male-female'></i>
+                                <div class="info_up-down">
+                                    <h3>Gender</h3>
+                                    <p>{{ profile_dict[passenger.passenger_id].gender }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bxs-phone-call'></i>
+                                <div class="info_up-down">
+                                    <h3>Contact</h3>
+                                    <p>{{ profile_dict[passenger.passenger_id].contact }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+
+                        {% for passenger in passengers_confirmed %}
+                        <div class="seperate">
+                            <div class="info_left-right">
+                                <i class='bx bxs-user'></i>
+                                <div class="info_up-down">
+                                    <h3>Full Name</h3>
+                                    <p>{{ profile_dict[passenger.passenger_id].fullName }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-male-female'></i>
+                                <div class="info_up-down">
+                                    <h3>Gender</h3>
+                                    <p>{{ profile_dict[passenger.passenger_id].gender }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bxs-phone-call'></i>
+                                <div class="info_up-down">
+                                    <h3>Contact</h3>
+                                    <p>{{ profile_dict[passenger.passenger_id].contact }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        {% for passenger in passengers_completed %}
+                        <div class="seperate">
+                            <div class="info_left-right">
+                                <i class='bx bxs-user'></i>
+                                <div class="info_up-down">
+                                    <h3>Full Name</h3>
+                                    <p>{{ profile_dict[passenger.passenger_id].fullName }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-male-female'></i>
+                                <div class="info_up-down">
+                                    <h3>Gender</h3>
+                                    <p>{{ profile_dict[passenger.passenger_id].gender }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bxs-phone-call'></i>
+                                <div class="info_up-down">
+                                    <h3>Contact</h3>
+                                    <p>{{ profile_dict[passenger.passenger_id].contact }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                        {% for passenger in passengers_approving %}
+                        <div class="seperate">
+                            <div class="info_left-right">
+                                <i class='bx bxs-user'></i>
+                                <div class="info_up-down">
+                                    <h3>Full Name</h3>
+                                    <p>{{ profile_dict[passenger.passenger_id].fullName }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bx-male-female'></i>
+                                <div class="info_up-down">
+                                    <h3>Gender</h3>
+                                    <p>{{ profile_dict[passenger.passenger_id].gender }}</p>
+                                </div>
+                            </div>
+
+                            <div class="info_left-right">
+                                <i class='bx bxs-phone-call'></i>
+                                <div class="info_up-down">
+                                    <h3>Contact</h3>
+                                    <p>{{ profile_dict[passenger.passenger_id].contact }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -125,53 +247,3 @@
 </body>
 </html>
 {% endblock %}
-
-<html>
-    <head>
-        <title>Match Rider</title>
-    </head>
-
-    <body>
-        <h2>Driver: {{ profile_dict[driver.user_id].fullName }}</h2>
-        <p>Gender: {{ profile_dict[driver.user_id].gender }}</p>
-        <p>Contact: {{ profile_dict[driver.user_id].contact }}</p>
-        <p>Date & Time: {{ driver.dateandTime }}</p>
-        <p>Starting Point: {{ driver.start_location }}</p>
-        <p>Drop Off Point: {{ driver.end_location }}</p>
-        <p>Carplate:{{ driver.carplate }}</p>
-        <p>Carmodel:{{ driver.carmodel }}</p>
-
-        <h3>Driver Ratings and Feedback</h3>
-        {% if ratings %}
-            {% for rating in ratings %}
-            <div>
-                <strong>Rating:</strong> {{ rating.rating }}/5
-                {% if rating.feedback %}
-                <p><strong>Feedback:</strong> {{ rating.feedback }}</p>
-                {% endif %}
-            </div>
-            {% endfor %}
-        {% else %}
-            <p>No ratings yet.</p>
-        {% endif %}
-
-        <h3>Other Passengers:</h3>
-        {% for passenger in passengers %}
-        <p>{{ profile_dict[passenger.passenger_id].fullName }} - {{ profile_dict[passenger.passenger_id].contact }}</p>
-        {% endfor %}
-
-
-        {% for passenger in passengers_completed %}
-
-       
-        {% for passenger in passengerss %}
-
-        <p>{{ profile_dict[passenger.passenger_id].fullName }} - {{ profile_dict[passenger.passenger_id].contact }}</p>
-        {% endfor %}
-
-        {% for passenger in passengers_confirmed %}
-        <p>{{ profile_dict[passenger.passenger_id].fullName }} - {{ profile_dict[passenger.passenger_id].contact }}</p>
-        {% endfor %}
-    </body>
-</html>
-

@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="../static/sidebar.css">
+    <link rel="stylesheet" href="../static/base.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-</head>
+  </head>
 
 <body>
     <div class="sidebar">
@@ -22,51 +22,41 @@
 
       <ul class="nav_list">
         <li>
-            <i class='bx bx-search-alt-2' ></i>
-            <input type="text" placeholder="Search...">
+          <i class='bx bx-search-alt-2' ></i>
+          <input type="text" id="sidebarSearch" placeholder="Search Location...">
           <span class="tooltip">Search</span>
         </li>
 
         <li>
-          <a href="{{ url_for('main.drivers_list') }}">
-            <i class='bx bxs-dashboard'></i>
-            <span class="icon_name">Dashboard</span>
-          </a>
-          <span class="tooltip">Dashboard</span>
-        </li>
-
-        <li>
-          <a href="#">
-            <i class='bx bx-user'></i>
-            <span class="icon_name">Profile</span>
-          </a>
-          <span class="tooltip">Profile</span>
-        </li>
-
-        <li>
-          <a href="{{ url_for('main.find_rides') }}">
+          <a href="{{ url_for('main.findarides')}}">
             <i class='bx bx-map' ></i>
-            <span class="icon_name">Find A Route</span>
+            <span class="icon_name">Find a Ride</span>
           </a>
-          <span class="tooltip">Find A Route</span>
+          <span class="tooltip">Find a Ride</span>
         </li>
 
         <li>
-          <a href="{{ url_for('main.booking_history') }}">
+          <a href="{{ url_for('main.driver_post') }}">
+            <i class='bx bx-car'></i>
+            <span class="icon_name">Post a Ride</span>
+          </a>
+          <span class="tooltip">Post a Ride</span>
+        </li>
+
+        <li>
+          <a href="{{ url_for('main.booking_history') }}" >
             <i class='bx bx-history' ></i>
             <span class="icon_name">Booking History</span>
           </a>
           <span class="tooltip">Booking History</span>
         </li>
 
-
-
         <li>
-          <a href="#">
-            <i class='bx bx-body'></i>
-            <span class="icon_name">Switch Identity</span>
+          <a href="{{ url_for('main.dashboard') }}" >
+            <i class='bx bx-user'></i>
+            <span class="icon_name">Profile</span>
           </a>
-          <span class="tooltip">Switch Identity</span>
+          <span class="tooltip">Profile</span>
         </li>
 
         <li class="mode">
@@ -85,12 +75,12 @@
       <div class="profile_content">
         <div class="profile">
           <div class="profile_details">
-            <img src="{{ profile.profile_pic }}"  width="40px" height="40px" alt="Profile Picture">
+            <img src="{{ profile.profile_pic }}" alt="Profile Picture" width="40px" height="40px">
             <div class="name_id">
               <div class="name">{{ profile.fullName }}</div>
-              <div class="id">Driver</div>
             </div>
           </div>
+
           <a href="/">
             <i class='bx bx-exit' id="logout" ></i>
           </a>
@@ -102,7 +92,6 @@
         {% block content %}{% endblock %}
     </div>
 
-
     <script>
       let btn = document.querySelector("#btn");
       let sidebar = document.querySelector(".sidebar");
@@ -111,19 +100,246 @@
       let modeText = document.querySelector(".mode_name");
       let body = document.querySelector("body");
 
-      btn.onclick = function(){
-        sidebar.classList.toggle("active");
+      // Link sidebarSearch & mapSearchBox
+      let sidebarSearch = document.querySelector("#sidebarSearch");
+      let mapSearchBox = document.querySelector("#searchBox");
+
+      function getLocation() {
+          if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(function(position) {
+                  var accuracy = position.coords.accuracy;
+                  var userLat = position.coords.latitude;
+                  var userLon = position.coords.longitude;
+
+                  if (accuracy < 100) {
+                      userMarker.setPosition(new google.maps.LatLng(userLat, userLon));
+                      map.setCenter(userMarker.getPosition());
+                      userLocationSet = true;
+                      document.getElementById('timeFilter').disabled = false;
+                      document.getElementById('filterBtn').disabled = false;
+                  } else {
+                      alert("Low accuracy detected, showing default location.");
+                      userMarker.setPosition(new google.maps.LatLng(defaultLat, defaultLon));
+                      map.setCenter(userMarker.getPosition());
+                  }
+
+                  updateMap(userLat, userLon);
+              });
+          } else {
+              document.getElementById('mapholder').innerHTML = "Your device cannot detect location.";
+          }
       }
-      searchBtn.onclick = function(){
-        sidebar.classList.toggle("active");
+
+      function updateMap(userLat, userLon) {
+          var userLatLon = new google.maps.LatLng(userLat, userLon);
+          map.setCenter(userLatLon);
+          if (userLocationSet && timeFilterApplied) {
+              addDriverMarkers(userLat, userLon);
+          }
       }
-      modeSwitch.onclick = function(){
-        body.classList.toggle("dark");
-        if(body.classList.contains("dark")){
-          modeText.innerText = "Light Mode"
-        }else{
-          modeText.innerText = "Dark Mode"
-        }
+
+      function addDriverMarkers(userLat, userLon) {
+          nearbyDrivers = [];
+          filteredDrivers = [];
+
+          // Clear existing driver markers
+          for (let i = 0; i < driverMarkers.length; i++) {
+              driverMarkers[i].setMap(null);
+          }
+          driverMarkers = [];
+
+          // Loop through each driver and place a marker
+          for (let i = 0; i < driversData.length; i++) {
+              let driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
+              let distance = google.maps.geometry.spherical.computeDistanceBetween(
+                  new google.maps.LatLng(userLat, userLon), driverLatLon
+              );
+
+              // Check if driver is within 1km radius
+              if (distance <= 1000) {
+                  let driverMarker = new google.maps.Marker({
+                      position: driverLatLon,
+                      map: map,
+                      title: "Driver's start location",
+                      icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                  });
+
+                  // Create info window for the driver
+                  let infoWindow = new google.maps.InfoWindow({
+                      content: '<div><strong>Driver ID:</strong> ' + driversData[i].id + '<br>' +
+                              '<strong>Destination:</strong> ' + driversData[i].end_location + '<br>' +
+                              '<strong>DateTime:</strong> ' + driversData[i].dateandTime + '<br>' +
+                              '<strong>Total Persons:</strong> ' + driversData[i].totalperson + '<br>' +
+                              '<strong>Fees:</strong> ' + driversData[i].fees + '<br>' +
+                              '<strong>Message:</strong> ' + driversData[i].message + '<br>' +
+                              '<strong>Status:</strong> ' + driversData[i].status + '</div>'
+                  });
+
+                  // Attach click event to the driver marker
+                  driverMarker.addListener('click', function() {
+                    closeAllInfoWindows();
+
+                    infoWindow.open(map, driverMarker);
+                    openInfoWindows.push(infoWindow);
+                  });
+
+                  // Add driver marker to the map
+                  driverMarkers.push(driverMarker);
+                  nearbyDrivers.push(driversData[i].id);
+                  filteredDrivers.push(driversData[i]);
+              }
+          }
+      }
+
+      function applyTimeFilter() {
+          var timeFilterValue = document.getElementById('timeFilter').value;
+          var filterTime = timeFilterValue ? new Date(timeFilterValue) : null;
+          timeFilterApplied = true;
+
+          for (var i = 0; i < driverMarkers.length; i++) {
+              driverMarkers[i].setMap(null);
+          }
+          driverMarkers = [];
+
+          for (var i = 0; i < filteredDrivers.length; i++) {
+              var driverTime = new Date(filteredDrivers[i].dateandTime);
+              if (!filterTime || driverTime >= filterTime) {
+                  var driverLatLon = new google.maps.LatLng(filteredDrivers[i].lat, filteredDrivers[i].lng);
+                  var driverMarker = new google.maps.Marker({
+                      position: driverLatLon,
+                      map: map,
+                      title: "Driver's start location",
+                      icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                  });
+
+                  var infoWindow = new google.maps.InfoWindow({
+                      content: '<div><strong>Driver ID:</strong> ' + filteredDrivers[i].id + '<br>' +
+                              '<strong>Destination:</strong> ' + filteredDrivers[i].end_location + '<br>' +
+                              '<strong>DateTime:</strong> ' + filteredDrivers[i].dateandTime + '<br>' +
+                              '<strong>Total Persons:</strong> ' + filteredDrivers[i].totalperson + '<br>' +
+                              '<strong>Fees:</strong> ' + filteredDrivers[i].fees + '<br>' +
+                              '<strong>Message:</strong> ' + filteredDrivers[i].message + '<br>' +
+                              '<strong>Status:</strong> ' + filteredDrivers[i].status + '</div>'
+                  });
+
+                  google.maps.event.addListener(driverMarker, 'click', function() {
+                    closeAllInfoWindows();
+
+                    infoWindow.open(map, driverMarker);
+                    openInfoWindows.push(infoWindow);
+                  });
+
+                  driverMarkers.push(driverMarker);
+              }
+          }
+          
+          if (userLocationSet) {
+              updateMap(userMarker.getPosition().lat(), userMarker.getPosition().lng());
+          }
+      }
+
+      function closeAllInfoWindows() {
+          for (let i = 0; i < openInfoWindows.length; i++) {
+              openInfoWindows[i].close();
+          }
+
+          openInfoWindows = [];
+      }
+
+      function goToDriverList() {
+          window.location.href = "/drivers_list?nearbyDrivers=" + nearbyDrivers.join(',');
+      }
+
+      if (sidebarSearch && mapSearchBox) {
+          let autocomplete;
+          function initializeAutocomplete() {
+              autocomplete = new google.maps.places.Autocomplete(sidebarSearch, {
+                  fields: ['geometry', 'name'],
+                  componentRestrictions: { country: 'MY' },
+                  bounds: {
+                      north: 3.05,
+                      south: 2.75,
+                      east: 101.80,
+                      west: 101.50
+                  }
+              });
+
+              // Define allowed bounds for Cyberjaya, Putrajaya, Puchong, Dengkil
+              const allowedBounds = new google.maps.LatLngBounds(
+                  { lat: 2.75, lng: 101.50 },
+                  { lat: 3.05, lng: 101.80 }
+              );
+
+              autocomplete.addListener('place_changed', function () {
+                  const place = autocomplete.getPlace();
+                  if (!place.geometry || !place.geometry.location) {
+                      alert("No details available for input: '" + place.name + "'");
+                      return;
+                  }
+
+                  if (!allowedBounds.contains(place.geometry.location)) {
+                      alert("The selected location is outside of the allowed areas (Cyberjaya, Putrajaya, Puchong, Dengkil). Please select a valid location.");
+                      return;
+                  }
+
+                  mapSearchBox.value = sidebarSearch.value;
+
+                  var userLat = place.geometry.location.lat();
+                  var userLon = place.geometry.location.lng();
+
+                  userMarker.setPosition(new google.maps.LatLng(userLat, userLon));
+                  map.setCenter(userMarker.getPosition());
+                  userLocationSet = true;
+                  document.getElementById('timeFilter').disabled = false;
+                  document.getElementById('filterBtn').disabled = false;
+
+                  updateMap(userLat, userLon);
+              });
+          }
+
+          mapSearchBox.addEventListener("input", function() {
+              sidebarSearch.value = mapSearchBox.value;
+          });
+
+          sidebarSearch.addEventListener("input", function() {
+              mapSearchBox.value = sidebarSearch.value;
+          });
+
+          window.addEventListener('load', function() {
+              initializeAutocomplete();
+          });
+      }
+
+
+      if(localStorage.getItem("dark-mode") === "enabled") {
+          body.classList.add("dark");
+          modeText.innerText = "Light Mode";
+      }
+
+      if(localStorage.getItem("sidebar-active") === "true") {
+          sidebar.classList.add("active");
+      }
+
+      btn.onclick = function() {
+          sidebar.classList.toggle("active");
+          localStorage.setItem("sidebar-active", sidebar.classList.contains("active"));
+      }
+
+      searchBtn.onclick = function() {
+          sidebar.classList.toggle("active");
+          localStorage.setItem("sidebar-active", sidebar.classList.contains("active"));
+      }
+
+      modeSwitch.onclick = function() {
+          body.classList.toggle("dark");
+          if (body.classList.contains("dark")){
+              modeText.innerText = "Light Mode";
+              localStorage.setItem("dark-mode", "enabled");
+          } else {
+              modeText.innerText = "Dark Mode";
+              localStorage.setItem("dark-mode", "disabled");
+          }
+          window.dispatchEvent(new Event('darkModeToggle'));
       }
     </script>
   </body>

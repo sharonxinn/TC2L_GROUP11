@@ -4,7 +4,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.actions import action
 from flask import flash, redirect, url_for
 from markupsafe import Markup
-from .models import Profile,Driverspost
+from .models import Profile,Rides
 from . import db  # Ensure this import is at the bottom to avoid circular import
 import os
 
@@ -102,7 +102,7 @@ class RiderPostModelView(ModelView):
     @action('approve', 'Approve', 'Are you sure you want to approve the selected driver posts?')
     def action_approve(self, ids):
         try:
-            query = Driverspost.query.filter(Driverspost.id.in_(ids))
+            query = Rides.query.filter(Rides.id.in_(ids))
             count = 0
             for post in query.all():
                 post.status = 'approved'
@@ -116,7 +116,7 @@ class RiderPostModelView(ModelView):
     @action('reject', 'Reject', 'Are you sure you want to reject the selected driver posts?')
     def action_reject(self, ids):
         try:
-            query = Driverspost.query.filter(Driverspost.id.in_(ids))
+            query = Rides.query.filter(Rides.id.in_(ids))
             count = 0
             for post in query.all():
                 post.status = 'rejected'

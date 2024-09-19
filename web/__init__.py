@@ -28,6 +28,9 @@ def create_app():
     login_manager.init_app(app)
     login_manager.login_view = 'main.home'
 
+    from .models import User, Rides, Profile, PassengerMatch
+
+
     # Define the user loader function
     @login_manager.user_loader
     def load_user(user_id):
@@ -39,10 +42,25 @@ def create_app():
     admin = Admin(app, template_mode='bootstrap4', index_view=AdminIndex())
     
     # Add views for admin
-    from .models import User, Profile,Driverspost # Import here to avoid circular imports
+    from .models import User, Profile,Rides # Import here to avoid circular imports
     admin.add_view(AdminModelView(User, db.session))
     admin.add_view(ProfileModelView(Profile, db.session))
-    admin.add_view(RiderPostModelView(Driverspost, db.session))
+    admin.add_view(RiderPostModelView(Rides, db.session))
+    admin.add_view(AdminLogoutView(name="Log Out", endpoint="logout"))
+
+    # Register blueprints
+    from .routes import bp as main_bp
+    app.register_blueprint(main_bp)
+
+    # Initialize Flask-Admin
+    from .adminviews import AdminIndex, AdminModelView, ProfileModelView, AdminLogoutView,RiderPostModelView
+    admin = Admin(app, template_mode='bootstrap4', index_view=AdminIndex())
+    
+    # Add views for admin
+    from .models import User, Profile,Rides # Import here to avoid circular imports
+    admin.add_view(AdminModelView(User, db.session))
+    admin.add_view(ProfileModelView(Profile, db.session))
+    admin.add_view(RiderPostModelView(Rides, db.session))
     admin.add_view(AdminLogoutView(name="Log Out", endpoint="logout"))
 
     # Register blueprints

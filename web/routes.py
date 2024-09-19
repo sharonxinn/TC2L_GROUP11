@@ -582,7 +582,7 @@ def approve_passenger(match_id):
         match.status = 'IN PROGRESS'
         db.session.commit()
 
-    return redirect(url_for('main.passenger_matched',driver_id=current_user.id))
+    return redirect(url_for('main.match_passenger',driver_id=current_user.id))
 
 #set up confirm match page
 @bp.route('/confirm_match/<int:match_id>', methods=['POST'])
@@ -599,7 +599,7 @@ def confirm_match(match_id):
         db.session.commit()
 
         driver_post = match.driver_post
-        driver_post.status = 'CONFIRMED'
+        driver_post.status = 'CONFIRM'
         db.session.commit()
 
         # Redirect to the match_passenger page or another relevant page

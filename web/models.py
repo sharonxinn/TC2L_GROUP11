@@ -26,8 +26,7 @@ class Rides(db.Model):
     fees = db.Column(db.String(50), nullable=False)
     duitnowid = db.Column(db.String(50), nullable=True)  # Nullable
     message = db.Column(db.Text, nullable=True)  # Nullable
-
-    status = db.Column(db.String(50), nullable=False,default='IN PROGRESS')
+    status = db.Column(db.String(50), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     passenger_matches = db.relationship('PassengerMatch', foreign_keys='PassengerMatch.driver_id', backref='driver_post', lazy=True)
 
@@ -37,11 +36,9 @@ class Profile(db.Model):
     gender = db.Column(db.String(100), nullable=False)
     birthyear=db.Column(db.String(15), nullable=False)
     contact = db.Column(db.String(15), nullable=False)
-    birthyear = db.Column(db.String(15), nullable=False)
-    profile_pic = db.Column(db.String(200), default="default.jpg")  
-    status = db.Column(db.String(50), nullable=False,default='approved')
+    status = db.Column(db.String(20), nullable=False, default='APPROVING')
+    profile_pic = db.Column(db.String(200), default="default.jpg")  # Make sure this column is present
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    birthyear = db.Column(db.String(15), nullable=False)
 
 
 class PassengerMatch(db.Model):
@@ -61,3 +58,6 @@ class PaymentProof(db.Model):
     file_name = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('profile.user_id'), nullable=False)
     user = db.relationship('Profile', backref='payment_proofs', lazy=True)
+
+    match_proof = db.relationship('PassengerMatch', backref='match_payment_proof', lazy=True)
+

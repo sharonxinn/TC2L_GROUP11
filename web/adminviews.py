@@ -84,6 +84,19 @@ class RiderPostModelView(ModelView):
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin
 
+    @action('approve', 'Approve', 'Are you sure you want to approve the selected driver posts?')
+    def action_approve(self, ids):
+        try:
+            query = Rides.query.filter(Rides.id.in_(ids))
+            count = 0
+            for post in query.all():
+                post.status = 'approved'
+                count += 1
+            db.session.commit()
+            flash(f'{count} driver post(s) successfully approved.', 'success')
+        except Exception as e:
+            flash(f'An error occurred: {str(e)}', 'error')
+            db.session.rollback()
 
     @action('reject', 'Reject', 'Are you sure you want to reject the selected driver posts?')
     def action_reject(self, ids):

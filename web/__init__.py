@@ -39,6 +39,9 @@ def create_app():
     login_manager.login_view = 'main.home'
     mail.init_app(app)
 
+    from .models import User, Rides, Profile, PassengerMatch
+
+
     # Define the user loader function
     @login_manager.user_loader
     def load_user(user_id):
@@ -84,4 +87,3 @@ def add_admin_to_db(app):
             db.session.add(admin_user)
             db.session.commit()
             print("Admin successfully added!")
-

@@ -40,23 +40,11 @@
                 }
             });
 
-            // Define the allowed bounds for validation (Cyberjaya, Putrajaya, Puchong, Dengkil)
-            const allowedBounds = new google.maps.LatLngBounds(
-                { lat: 2.75, lng: 101.50 }, // Southwest corner
-                { lat: 3.05, lng: 101.80 }  // Northeast corner
-            );
-
             // Listen for the place selection event
             autocomplete.addListener('place_changed', function() {
                 const place = autocomplete.getPlace();
                 if (!place.geometry || !place.geometry.location) {
                     alert("No details available for input: '" + place.name + "'");
-                    return;
-                }
-
-                // Validate if the selected location is within the allowed bounds
-                if (!allowedBounds.contains(place.geometry.location)) {
-                    alert("The selected location is outside of the allowed areas (Cyberjaya, Putrajaya, Puchong, Dengkil). Please select a valid location.");
                     return;
                 }
 

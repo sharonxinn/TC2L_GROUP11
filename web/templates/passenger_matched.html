@@ -160,9 +160,15 @@
                                     <h3>Payment</h3>
                                     <p>
                                         {% if match.payment_proof %}
-                                            <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof">
+                                            <div class="main_div">
+                                                <button onclick="bigit()">Image Enlargement</button><br><button onclick="littleit()">Image reduction</button>
+                                                <div class="pic_div">
+                                                    <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof" class="pic"> 
+                                                </div>
+                                            </div>
+                                                
                                         {% else %}
-                                            Cash
+                                        Cash
                                         {% endif %}
                                     </p>
                                 </div>
@@ -229,9 +235,15 @@
                                     <h3>Payment</h3>
                                     <p>
                                         {% if match.payment_proof %}
-                                            <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof">
+                                            <div class="main_div">
+                                                <button onclick="bigit()">Image Enlargement</button><br><button onclick="littleit()">Image reduction</button>
+                                                <div class="pic_div">
+                                                    <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof" class="pic"> 
+                                                </div>
+                                            </div>
+                                                
                                         {% else %}
-                                            Cash
+                                        Cash
                                         {% endif %}
                                     </p>
                                 </div>
@@ -296,7 +308,13 @@
                                     <h3>Payment</h3>
                                     <p>
                                         {% if match.payment_proof %}
-                                            <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof">
+                                            <div class="main_div">
+                                                <button onclick="bigit()">Image Enlargement</button><br><button onclick="littleit()">Image reduction</button>
+                                                <div class="pic_div">
+                                                    <img src="{{ url_for('static', filename='payment/' ~ match.payment_proof.file_name) }}" alt="Payment Proof" class="pic"> 
+                                                </div>
+                                            </div>
+                                                
                                         {% else %}
                                             Cash
                                         {% endif %}

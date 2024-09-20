@@ -22,8 +22,8 @@ def create_app():
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USE_SSL'] = False
     app.config['MAIL_USERNAME'] = 'mmucarpooling@gmail.com'
-    app.config['MAIL_PASSWORD'] = 'mmucarpooling228#'
-    app.config['MAIL_DEFAULT_SENDER'] = ('Your App', 'mmucarpooling@gmail.com')
+    app.config['MAIL_PASSWORD'] = 'opzefykwjmvybkep'
+    app.config['MAIL_DEFAULT_SENDER'] = 'mmucarpooling@gmail.com'
     
     # Set up upload folder
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')

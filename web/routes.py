@@ -716,40 +716,75 @@ def cancel_match_p(match_id):
 @bp.route('/reject_passenger/<int:match_id>', methods=['POST'])
 @login_required
 def reject_passenger(match_id):
-    match = PassengerMatch.query.get(match_id)
-    if match:
-        match.status = 'PENDING REVIEW'
-        db.session.commit()
+    matches = PassengerMatch.query.filter_by(driver_id=match_id).all()
+    
+    if not matches:  # Check if matches are found
+        flash('Match not found.', 'danger')
+        return redirect(url_for('main.booking_history'))
+    
+    try:
+        # Update match status
+        for match in matches:
+            match.status = 'PENDING REVIEW'
 
-        send_admin_email(match)
+        # Commit the changes to the database
+        db.session.commit()  # Ensure you commit after changing the status
+
+        # Send email notification
+        send_admin_email(matches[0])  # Send email using the first match
+        flash('The email has been sent to the administrator.', 'success')
+
+    except Exception as e:
+        # Rollback if there was an error
+        db.session.rollback()
+        print(f"Error updating database or sending email: {e}")
+        flash('An error occurred. Unable to reject passenger or send email.', 'danger')
 
     return redirect(url_for('main.booking_history'))
 
+
+
 def send_admin_email(match):
     """Send an email to the administrator"""
-    admin_email = 'mmucarpooling@gmail.com' # Admin's email address
+    admin_email = 'mmucarpooling@gmail.com' 
     subject = "Passenger payment credentials rejected"
+
+    # Fetch driver and passenger details
+    driver = Rides.query.get(match.driver_id)  # Get driver from Rides table
+    passenger = User.query.get(match.passenger_id)  
+
+    # Debugging output
+    print(f"Driver: {driver}, Passenger: {passenger}")
+
+    # Check if both driver and passenger exist
+    if driver is None:
+        print(f"Driver with ID {match.driver_id} not found.")
+        return  # Early exit if driver doesn't exist
+
+    if passenger is None:
+        print(f"Passenger with ID {match.passenger_id} not found.")
+        return  # Early exit if passenger doesn't exist
+
     body = f"""
     Dear Admin,
 
-    Driver {match.driver_id} has rejected passenger {match.passenger_id}'s payment credentials. Please review the information as soon as possible.
+    Driver {driver.user.email} has rejected passenger {passenger.email}'s payment credentials. Please review the information as soon as possible.
 
     Match ID: {match.id}
-    Driver ID: {match.driver_id}
-    Passenger ID: {match.passenger_id}
 
     Thank you!
     """
+    
     msg = Message(subject, sender='mmucarpooling@gmail.com', recipients=[admin_email])
     msg.body = body
 
-    # 发送邮件
     try:
+        print(f"Sending email to: {admin_email}")  # Debugging line
         mail.send(msg)
-        flash('The email has been sent to the administrator.', 'success')
+        print("Email sent successfully.")  # Debugging line
     except Exception as e:
         print(f"Error sending email: {e}")
-        flash('Unable to send email to the administrator, please try again later.', 'danger')
+        raise
 
 
 

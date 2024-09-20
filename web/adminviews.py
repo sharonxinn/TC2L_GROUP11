@@ -5,7 +5,7 @@ from flask_admin.actions import action
 from flask import flash, redirect, url_for
 from markupsafe import Markup
 from .models import Profile,Rides
-from . import db  # Ensure this import is at the bottom to avoid circular import
+from . import db  
 import os
 
 class AdminIndex(AdminIndexView):

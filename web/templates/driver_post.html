@@ -31,20 +31,25 @@
             // Initialize the Places Autocomplete input with component restrictions
             autocomplete = new google.maps.places.Autocomplete(document.getElementById("start_location"), {
                 fields: ['geometry', 'name'],
-                componentRestrictions: { country: 'MY' }, // Restrict to Malaysia
-                bounds: {
-                    north: 3.05,  // Northern boundary (Putrajaya, Puchong)
-                    south: 2.75,  // Southern boundary (Dengkil, Cyberjaya)
-                    east: 101.80, // Eastern boundary (Putrajaya, Cyberjaya)
-                    west: 101.50  // Western boundary (Puchong, Dengkil)
-                }
-            });
+                componentRestrictions: { country: 'MY' } });// Restrict to Malaysia
+
+            // Define the allowed bounds for validation (Cyberjaya, Putrajaya, Puchong, Dengkil)
+            const allowedBounds = new google.maps.LatLngBounds(
+                { lat: 2.35, lng: 100.45 }, // Southwest corner
+                { lat: 3.60, lng: 102.00 }  // Northeast corner
+            );
 
             // Listen for the place selection event
             autocomplete.addListener('place_changed', function() {
                 const place = autocomplete.getPlace();
                 if (!place.geometry || !place.geometry.location) {
                     alert("No details available for input: '" + place.name + "'");
+                    return;
+                }
+
+                // Validate if the selected location is within the allowed bounds
+                if (!allowedBounds.contains(place.geometry.location)) {
+                    alert("The selected location is outside of the Selangor. Please select a valid location.");
                     return;
                 }
 

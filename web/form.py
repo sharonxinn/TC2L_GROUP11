@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import IntegerField,TextAreaField, RadioField, FileField, SubmitField
+from wtforms import RadioField, FileField, SubmitField
 from wtforms.validators import DataRequired
 
 class PaymentForm(FlaskForm):

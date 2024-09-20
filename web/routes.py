@@ -593,7 +593,7 @@ def approve_passenger(match_id):
         if driver_post:
             approved_passengers_count = PassengerMatch.query.filter_by(driver_id=driver_post.id, status='PAYMENT PENDING').count()
             
-            if approved_passengers_count >= driver_post.totalperson:
+            if approved_passengers_count > driver_post.totalperson:
                 flash("You have already approved the maximum number of passengers.", "error")
                 match.status = 'CANCELED'
                 db.session.commit()

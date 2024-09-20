@@ -137,7 +137,6 @@
               addDriverMarkers(userLat, userLon);
           }
       }
-
       function addDriverMarkers(userLat, userLon) {
           nearbyDrivers = [];
           filteredDrivers = [];
@@ -148,6 +147,10 @@
           }
           driverMarkers = [];
 
+          // Get the filter time
+          var timeFilterValue = document.getElementById('timeFilter').value;
+          var filterTime = timeFilterValue ? new Date(timeFilterValue) : null;
+
           // Loop through each driver and place a marker
           for (let i = 0; i < driversData.length; i++) {
               let driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
@@ -157,36 +160,40 @@
 
               // Check if driver is within 1km radius
               if (distance <= 1000) {
-                  let driverMarker = new google.maps.Marker({
-                      position: driverLatLon,
-                      map: map,
-                      title: "Driver's start location",
-                      icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
-                  });
+                  let driverTime = new Date(driversData[i].dateandTime);
 
-                  // Create info window for the driver
-                  let infoWindow = new google.maps.InfoWindow({
-                      content: '<div><strong>Driver ID:</strong> ' + driversData[i].id + '<br>' +
-                              '<strong>Destination:</strong> ' + driversData[i].end_location + '<br>' +
-                              '<strong>DateTime:</strong> ' + driversData[i].dateandTime + '<br>' +
-                              '<strong>Total Persons:</strong> ' + driversData[i].totalperson + '<br>' +
-                              '<strong>Fees:</strong> ' + driversData[i].fees + '<br>' +
-                              '<strong>Message:</strong> ' + driversData[i].message + '<br>' +
-                              '<strong>Status:</strong> ' + driversData[i].status + '</div>'
-                  });
+                  // Only add markers that match the time filter criteria
+                  if (!filterTime || driverTime >= filterTime) {
+                      let driverMarker = new google.maps.Marker({
+                          position: driverLatLon,
+                          map: map,
+                          title: "Driver's start location",
+                          icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                      });
 
-                  // Attach click event to the driver marker
-                  driverMarker.addListener('click', function() {
-                    closeAllInfoWindows();
+                      // Create info window for the driver
+                      let infoWindow = new google.maps.InfoWindow({
+                          content: '<div><strong>Driver ID:</strong> ' + driversData[i].id + '<br>' +
+                                  '<strong>Destination:</strong> ' + driversData[i].end_location + '<br>' +
+                                  '<strong>DateTime:</strong> ' + driversData[i].dateandTime + '<br>' +
+                                  '<strong>Total Persons:</strong> ' + driversData[i].totalperson + '<br>' +
+                                  '<strong>Fees:</strong> ' + driversData[i].fees + '<br>' +
+                                  '<strong>Message:</strong> ' + driversData[i].message + '<br>' +
+                                  '<strong>Status:</strong> ' + driversData[i].status + '</div>'
+                      });
 
-                    infoWindow.open(map, driverMarker);
-                    openInfoWindows.push(infoWindow);
-                  });
+                      // Attach click event to the driver marker
+                      driverMarker.addListener('click', function() {
+                          closeAllInfoWindows();
+                          infoWindow.open(map, driverMarker);
+                          openInfoWindows.push(infoWindow);
+                      });
 
-                  // Add driver marker to the map
-                  driverMarkers.push(driverMarker);
-                  nearbyDrivers.push(driversData[i].id);
-                  filteredDrivers.push(driversData[i]);
+                      // Add driver marker to the map
+                      driverMarkers.push(driverMarker);
+                      nearbyDrivers.push(driversData[i].id);
+                      filteredDrivers.push(driversData[i]);
+                  }
               }
           }
       }
@@ -196,13 +203,17 @@
           var filterTime = timeFilterValue ? new Date(timeFilterValue) : null;
           timeFilterApplied = true;
 
+          // Clear existing driver markers
           for (var i = 0; i < driverMarkers.length; i++) {
               driverMarkers[i].setMap(null);
           }
           driverMarkers = [];
 
+          // Loop through filtered drivers and apply time filter
           for (var i = 0; i < filteredDrivers.length; i++) {
               var driverTime = new Date(filteredDrivers[i].dateandTime);
+              
+              // Only add markers that match the filter criteria
               if (!filterTime || driverTime >= filterTime) {
                   var driverLatLon = new google.maps.LatLng(filteredDrivers[i].lat, filteredDrivers[i].lng);
                   var driverMarker = new google.maps.Marker({
@@ -222,21 +233,26 @@
                               '<strong>Status:</strong> ' + filteredDrivers[i].status + '</div>'
                   });
 
-                  google.maps.event.addListener(driverMarker, 'click', function() {
-                    closeAllInfoWindows();
+                  // Attach click event to the driver marker
+                  google.maps.event.addListener(driverMarker, 'click', (function(marker, info) {
+                      return function() {
+                          closeAllInfoWindows();
+                          info.open(map, marker);
+                          openInfoWindows.push(info);
+                      };
+                  })(driverMarker, infoWindow));
 
-                    infoWindow.open(map, driverMarker);
-                    openInfoWindows.push(infoWindow);
-                  });
-
+                  // Add driver marker to the array
                   driverMarkers.push(driverMarker);
               }
           }
-          
+
+          // Update map if user location is set
           if (userLocationSet) {
               updateMap(userMarker.getPosition().lat(), userMarker.getPosition().lng());
           }
       }
+
 
       function closeAllInfoWindows() {
           for (let i = 0; i < openInfoWindows.length; i++) {
@@ -255,20 +271,14 @@
           function initializeAutocomplete() {
               autocomplete = new google.maps.places.Autocomplete(sidebarSearch, {
                   fields: ['geometry', 'name'],
-                  componentRestrictions: { country: 'MY' },
-                  bounds: {
-                      north: 3.05,
-                      south: 2.75,
-                      east: 101.80,
-                      west: 101.50
-                  }
-              });
+                  componentRestrictions: { country: 'MY' }});// Restrict to Malaysia
 
-              // Define allowed bounds for Cyberjaya, Putrajaya, Puchong, Dengkil
+              // Define allowed bounds for the whole Selangor
               const allowedBounds = new google.maps.LatLngBounds(
-                  { lat: 2.75, lng: 101.50 },
-                  { lat: 3.05, lng: 101.80 }
+                  { lat: 2.35, lng: 100.45 }, // Southwest corner
+                  { lat: 3.60, lng: 102.00 }  // Northeast corner
               );
+
 
               autocomplete.addListener('place_changed', function () {
                   const place = autocomplete.getPlace();
@@ -278,7 +288,7 @@
                   }
 
                   if (!allowedBounds.contains(place.geometry.location)) {
-                      alert("The selected location is outside of the allowed areas (Cyberjaya, Putrajaya, Puchong, Dengkil). Please select a valid location.");
+                      alert("The selected location is outside of the Selangor. Please select a valid location.");
                       return;
                   }
 

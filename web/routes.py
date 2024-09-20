@@ -599,7 +599,7 @@ def confirm_match(match_id):
         db.session.commit()
 
         driver_post = match.driver_post
-        driver_post.status = 'CONFIRMED'
+        driver_post.status = 'CONFIRM'
         db.session.commit()
 
         # Redirect to the match_passenger page or another relevant page

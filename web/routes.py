@@ -106,11 +106,6 @@ def logout():
     logout_user()
     return redirect(url_for('main.login'))
 
-#set up use_laptop page
-@bp.route('/use_laptop')
-def use_laptop():
-    return render_template('use_laptop.html',user=current_user)
-
 #set up home page
 @bp.route('/')
 def home():

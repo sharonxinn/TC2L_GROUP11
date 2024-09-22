@@ -1,4 +1,4 @@
-{% extends "base_passenger.html" %}
+{% extends "base.html" %}
 {% block title %}Booking History{% endblock %}
 {% block content %}
 
@@ -88,6 +88,29 @@
                     </tr>
                     {% endfor %}
 
+                    {% for match in passenger_matches_aprroving %}
+                    <tr>
+                        <td>Passenger</td>
+                        <td>{{ profile_dict[match.driver.user_id].fullName }}</td>
+                        <td>{{ match.driver.dateandTime }}</td>
+                        <td>{{ match.driver.start_location }}</td>
+                        <td>{{ match.driver.end_location }}</td>
+                        <td>{{ profile_dict[match.passenger_id].fullName }}</td>
+                        <td>{{ match.status }}</td>
+                        <td>
+                            <div class="selection">
+                                <form action="{{ url_for('main.confirm_match', match_id=match.id) }}" method="POST">
+                                    <input type="submit" value="Confirm" class="btn">
+                                </form>  
+
+                                <form action="{{ url_for('main.cancel_match_p', match_id=match.id) }}" method="POST">
+                                    <input type="submit" value="Cancel" class="btn">
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
 
                     {% for driver in driver_posts %}
                     <tr>
@@ -108,7 +131,7 @@
                         </td>
                         <td>{{ driver.status }}</td>
                         <td>
-                            {% if driver.id in driver_matches_dict and driver_matches_dict[driver.id]|length > 0 %}
+                            {% if driver.id in driver_matches_dict and driver_matches_dict[driver.id]|length >0 %}
                                 <form action="{{ url_for('main.view_detail_d', match_id=driver_matches_dict[driver.id][0].id) }}" method="POST">
                                     <input type="submit" value="View Detail" class="btn">
                                 </form>

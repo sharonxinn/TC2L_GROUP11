@@ -49,7 +49,7 @@
             <div class="inner">
 
                 <div class="left">
-                    <video src="../static/pic&video/video.mp4" muted autoplay loop id="carvideo"></video>
+                    <video src="../static/pic&video/video.mp4" muted autoplay loop id="carvideo" preload="auto"></video>
                 </div>
 
                 <script>
@@ -103,24 +103,25 @@
                                 draw(show_num);
         
                                 function dj() {
-                                draw(show_num);
+                                    draw(show_num);
                                 }
         
                                 function sublim(){
-                                var val = document.getElementById("text").value;
-                                var num = show_num.join('');
-                                if (val == '') {
-                                    alert('Please Enter Vertification Code');
-                                } else if (val == num){
-                                    alert('Summit Success!');
-                                    document.getElementById(".input-val").val('');
-                                    draw(show_num);
-        
-                                }else{
-                                    alert('Vertification Code Error!')
-                                    document.getElementById('text').value = '';
-                                    draw(show_num);
-                                }
+                                    var val = document.getElementById("text").value();
+                                    var num = show_num.join('');
+
+                                    if (val == '') {
+                                        alert('Please Enter Vertification Code');
+                                    } else if (val == num){
+                                        alert('Summit Success!');
+                                        document.getElementById(".input-val").val('');
+                                        draw(show_num);
+            
+                                    } else{
+                                        alert('Vertification Code Error!')
+                                        document.getElementById('text').value = '';
+                                        draw(show_num);
+                                    }
                                 }
         
                                 function draw(show_num) {

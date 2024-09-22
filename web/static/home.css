@@ -11,11 +11,50 @@ body{
     min-height: 100vh;
 }
 
-/* .carlogo{
+.popout{
     position: absolute;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+.msg{
+    color: black;
+    text-align: center;
+    background: rgba(255, 255, 255);
+    border-radius: 20px;
+    padding: 10px 25px 20px; /*top side bottom*/
+}
+
+.close-btn{
+    position: relative;
+    display: block;
+    left: 98%;
+    width: 20px;
+    height: 20px;
+    background: #eee;
+    color: #111;
+    border: none;
+    outline: none;
+    border-radius: 50px;
+    cursor: pointer;
+}
+
+.popout h2{
+    font-size: 20px;
+}
+
+.popout p{
+    font-size: 15px;
     margin-top: 5px;
-    margin-left: -115px;
-  } */
+}
+
+body.active-popout .main{
+    filter: blur(5px);
+}
 
 header{
     position: absolute;
@@ -26,7 +65,6 @@ header{
     background-color: transparent;
     display: flex;
     justify-content: space-between;
-    /* align-items: center; */
     z-index: 100;
     color: white;
     transition: all 0.5s ease;
@@ -245,6 +283,63 @@ header{
 .container .card:hover{
     transform: translateY(-30px);
 }
+
+.flashes {
+    position: fixed;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    margin: 0;
+    padding: 0;
+    display: none;
+    transition: opacity 0.6s ease-out;
+  }
+  
+  .flashes.show {
+      display: block;
+      opacity: 1;
+  }
+  
+  .flashes.hide {
+      opacity: 0;
+  }
+  
+  .flash {
+      padding: 5px;
+      border: 6px solid transparent;
+      border-radius: 10px;
+      position: relative;
+      width: 500px;
+      text-align: center;
+      margin-bottom: 10px;
+  }
+  
+  .flash.success {
+      color: #155724;
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+  }
+  
+  .flash.error {
+      color: #721c24;
+      background-color: #f8d7ee;
+      border-color: #f5c6cb;
+  }
+  
+  .closebtn {
+      position: absolute;
+      top: 3px;
+      right: 10px;
+      color: #aaa;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+  }
+  
+  .closebtn:hover {
+      color: black;
+  }
 
 @media (min-width: 840px) and (max-width: 1200px) {
     .center h1 {

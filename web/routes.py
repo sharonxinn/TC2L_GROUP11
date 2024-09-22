@@ -32,7 +32,7 @@ def sign_up():
 
         if entered_captcha is None or entered_captcha.lower() != generated_captcha:
             flash('Verification Code Error!', category='error')
-            return redirect(url_for('main.signup'))
+            return redirect(url_for('main.sign_up'))
 
         user = User.query.filter_by(email=email).first()
 
@@ -173,7 +173,7 @@ def chooseid():
         role = request.form.get('role')
         if role == 'passenger':
 
-            return redirect(url_for('main.base'))
+            return redirect(url_for('main.base_passenger'))
 
         elif role == 'driver':
             return redirect(url_for('main.driver_post'))
@@ -185,8 +185,8 @@ def sidebar():
     return render_template('sidebar.html',user=current_user)
 
 #set up base page
-@bp.route('/base')
-def base():
+@bp.route('/base_passenger')
+def base_passenger():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
     return render_template('base.html', user=current_user, profile=profile)
 
@@ -325,7 +325,7 @@ def driver_post():
         db.session.add(new_Rides)
         db.session.commit()
 
-        return redirect(url_for('main.base'))
+        return redirect(url_for('main.base_passenger'))
 
     return render_template('driver_post.html')
 
@@ -363,6 +363,7 @@ def findarides():
             'status': dp.status,
             'id': dp.id,  
         })
+
     start_location_lat = 0
     start_location_lng = 0
 
@@ -397,7 +398,15 @@ def booking_history():
     passenger_matches = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
                                             .join(Rides, PassengerMatch.driver_id == Rides.id) \
                                             .filter(PassengerMatch.passenger_id == current_user.id) \
+                                            .filter(PassengerMatch.status.in_(['IN PROGRESS','CONFIRM','COMPLETED']))\
                                             .all()
+    
+    passenger_matches_aprroving = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
+                                            .join(Rides, PassengerMatch.driver_id == Rides.id) \
+                                            .filter(PassengerMatch.passenger_id == current_user.id) \
+                                            .filter(PassengerMatch.status.in_(['APPROVING', 'CANCELED']))\
+                                            .all()
+
 
     # Get all drivers posts where the current user is the driver and join PassengerMatch
     driver_posts = Rides.query.filter_by(user_id=current_user.id).all()
@@ -406,7 +415,7 @@ def booking_history():
     for post in driver_posts:
         # Filter matches based on 'APPROVING' or 'IN PROGRESS' status
         matches = PassengerMatch.query.filter(PassengerMatch.driver_id == post.id) \
-                                      .filter(PassengerMatch.status.in_(['APPROVING', 'IN PROGRESS'])) \
+                                      .filter(PassengerMatch.status.in_(['APPROVING', 'IN PROGRESS','CONFIRM','COMPLETED'])) \
                                       .all()  
         driver_matches_dict[post.id] = matches
 
@@ -418,7 +427,8 @@ def booking_history():
                            profile_dict=profile_dict, 
                            driver_posts=driver_posts, 
                            profile=profile,
-                           driver_matches_dict=driver_matches_dict)
+                           driver_matches_dict=driver_matches_dict,
+                           passenger_matches_aprroving=passenger_matches_aprroving)
 
 #set up match_passsenger page
 @bp.route('/match_passenger/<int:driver_id>')
@@ -436,7 +446,7 @@ def match_passenger(driver_id):
     matches = PassengerMatch.query.filter_by(driver_id=driver_id, status='IN PROGRESS').all()
     matches_approving = PassengerMatch.query.filter_by(driver_id=driver_id, status='APPROVING').all()
     matches_completed = PassengerMatch.query.filter_by(driver_id=driver_id, status='COMPLETED').all()
-    matches_confirmed = PassengerMatch.query.filter_by(driver_id=driver_id, status='confirm').all()
+    matches_confirmed = PassengerMatch.query.filter_by(driver_id=driver_id, status='CONFIRM').all()
 
     # Debugging: print to check contents
     print(f"Profile dict keys: {profile_dict.keys()}")
@@ -468,7 +478,7 @@ def passenger_matched(driver_id):
     matches = PassengerMatch.query.filter_by(driver_id=driver_id, status='IN PROGRESS').all()
     matches_approving = PassengerMatch.query.filter_by(driver_id=driver_id, status='APPROVING').all()
     matches_completed = PassengerMatch.query.filter_by(driver_id=driver_id, status='COMPLETED').all()
-    matches_confirmed = PassengerMatch.query.filter_by(driver_id=driver_id, status='confirm').all()
+    matches_confirmed = PassengerMatch.query.filter_by(driver_id=driver_id, status='CONFIRM').all()
 
     # Debugging: print to check contents
     print(f"Profile dict keys: {profile_dict.keys()}")
@@ -500,7 +510,7 @@ def waiting_list(driver_id):
     matches = PassengerMatch.query.filter_by(driver_id=driver_id, status='IN PROGRESS').all()
     matches_approving = PassengerMatch.query.filter_by(driver_id=driver_id, status='APPROVING').all()
     matches_completed = PassengerMatch.query.filter_by(driver_id=driver_id, status='COMPLETED').all()
-    matches_confirmed = PassengerMatch.query.filter_by(driver_id=driver_id, status='confirm').all()
+    matches_confirmed = PassengerMatch.query.filter_by(driver_id=driver_id, status='CONFIRM').all()
 
     # Debugging: print to check contents
     print(f"Profile dict keys: {profile_dict.keys()}")
@@ -530,12 +540,11 @@ def match_drivers(driver_id):
     passengers = PassengerMatch.query.filter_by(driver_id=driver_id, status='IN PROGRESS' ).all() 
     passengers_approving = PassengerMatch.query.filter_by(driver_id=driver_id, status='APPROVING' ).all() 
     passengers_completed = PassengerMatch.query.filter_by(driver_id=driver_id, status='COMPLETED' ).all() 
-    passengers_confirmed = PassengerMatch.query.filter_by(driver_id=driver_id, status='confirm' ).all() 
+    passengers_confirmed = PassengerMatch.query.filter_by(driver_id=driver_id, status='CONFIRM' ).all() 
     return render_template('match_driver.html', 
                            driver=driver,
                             passengers=passengers, 
-                            profile_dict=profile_dict,
-                            profile=profile,
+                            profile_dict=profile_dict,profile=profile,
                             passengers_approving=passengers_approving,
                             passengers_completed=passengers_completed,
                             passengers_confirmed=passengers_confirmed)
@@ -585,7 +594,7 @@ def approve_passenger(match_id):
 def confirm_match(match_id):
     match = PassengerMatch.query.get(match_id)
     if match:
-        match.status = 'confirm'
+        match.status = 'CONFIRM'
 
         # Find the latest payment proof for this passenger
         payment_proof = PaymentProof.query.filter_by(user_id=match.passenger_id).order_by(PaymentProof.id.desc()).first()
@@ -595,7 +604,7 @@ def confirm_match(match_id):
         db.session.commit()
 
         driver_post = match.driver_post
-        driver_post.status = 'confirmed'
+        driver_post.status = 'CONFIRMED'
         db.session.commit()
 
         # Redirect to the match_passenger page or another relevant page
@@ -605,15 +614,25 @@ def confirm_match(match_id):
 
 #set up cancel match page
 @bp.route('/complete_match/<int:match_id>', methods=['POST'])
+@login_required
 def complete_match(match_id):
-    match = PassengerMatch.query.get(match_id)
-    if match:
-        match.status = 'complete'
+    matches = PassengerMatch.query.filter_by(driver_id=match_id).all()
+    
+    if matches:
+        for match in matches:
+            match.status = 'COMPLETED'
+        
+        driver_post = Rides.query.get_or_404(match_id)
+        driver_post.status = 'COMPLETED'
+        
         db.session.commit()
+        flash('Match and driver post have been complete.', 'success')
+    else:
 
-        driver_post = match.driver_post
-        driver_post.status = ' completed '
+        driver_post = Rides.query.get_or_404(match_id)
+        driver_post.status = 'COMPLETED'
         db.session.commit()
+        flash('Driver post has been completed.', 'success')
 
     return redirect(url_for('main.booking_history'))
 
@@ -655,6 +674,8 @@ def cancel_match_p(match_id):
 @bp.route('/view_detail_d/<int:match_id>', methods=['GET', 'POST'])
 @login_required
 def view_detail_d(match_id):
+    if match_id == 'no_matches':
+        return redirect(url_for('main.no_matches_page'))
     match = PassengerMatch.query.get_or_404(match_id)
     return redirect(url_for('main.match_passenger', driver_id=match.driver_id))
 

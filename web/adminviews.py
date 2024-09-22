@@ -5,7 +5,7 @@ from flask_admin.actions import action
 from flask import flash, redirect, url_for
 from markupsafe import Markup
 from .models import Profile,Rides
-from . import db  # Ensure this import is at the bottom to avoid circular import
+from . import db  
 import os
 
 class AdminIndex(AdminIndexView):
@@ -84,6 +84,19 @@ class RiderPostModelView(ModelView):
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin
 
+    @action('approve', 'Approve', 'Are you sure you want to approve the selected driver posts?')
+    def action_approve(self, ids):
+        try:
+            query = Rides.query.filter(Rides.id.in_(ids))
+            count = 0
+            for post in query.all():
+                post.status = 'approved'
+                count += 1
+            db.session.commit()
+            flash(f'{count} driver post(s) successfully approved.', 'success')
+        except Exception as e:
+            flash(f'An error occurred: {str(e)}', 'error')
+            db.session.rollback()
 
     @action('reject', 'Reject', 'Are you sure you want to reject the selected driver posts?')
     def action_reject(self, ids):

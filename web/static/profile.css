@@ -77,6 +77,11 @@ h1{
     font-size: 14px;
   }
 
+  .inner-center input[type='file']{
+    color: black;
+    cursor: pointer;
+  }
+
   .left-right{
     display: flex;
     column-gap: 30px;

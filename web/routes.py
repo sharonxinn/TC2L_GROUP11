@@ -32,7 +32,7 @@ def sign_up():
         generated_captcha = request.form.get('captcha_code')
 
         if entered_captcha is None or entered_captcha.lower() != generated_captcha:
-            flash('Verification Code Error!', category='error')
+            flash('Verification code error!', category='error')
             return redirect(url_for('main.sign_up'))
 
         user = User.query.filter_by(email=email).first()
@@ -266,7 +266,7 @@ def change_password():
         if old_password == new_password:
             flash("Old password and new password are the same.", category='error')
         elif new_password != confirm_new_password:
-            flash("New password don't match.",category="error")
+            flash("New password does not match.",category="error")
         elif check_password_hash(current_user.password, old_password):
             current_user.password = generate_password_hash(new_password,method='scrypt')
             db.session.commit()
@@ -702,7 +702,7 @@ def cancel_match(match_id):
         driver_post.status = 'CANCELLED'
         
         db.session.commit()
-        flash('Match and driver post have been cancelled.', 'success')
+        flash('Your ride has been cancelled.', 'success')
     else:
 
         driver_post = Rides.query.get_or_404(match_id)

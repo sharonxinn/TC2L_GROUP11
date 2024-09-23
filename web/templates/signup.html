@@ -15,17 +15,7 @@
           <input type="image" src="../static/pic&video/logout icon.png" width="50px" height="50px">
       </a>
     </div>
-
-    <script>
-      window.onload = function() {
-          var screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-
-          if (screenWidth < 1024) {
-              window.location.href = "desktop-version.html";
-          }
-      };
-    </script>
-
+    
     <div class="background">
       {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -63,10 +53,10 @@
             <video src="../static/pic&video/video.mp4" muted autoplay loop id="carvideo" preload="auto"></video>
           </div>
 
-          <script>
+          <!-- <script>
             let vid = document.getElementById("carvideo");
             vid.playbackRate = 2;
-          </script> 
+          </script>  -->
 
           <div class="right">
             <div class="right-word">

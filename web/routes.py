@@ -186,16 +186,16 @@ def base_passenger():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
     return render_template('base.html', user=current_user, profile=profile)
 
-#set up dashboard page
-@bp.route('/dashboard', methods=['GET'])
+#set up base_profile page
+@bp.route('/base_profile', methods=['GET'])
 @login_required
-def dashboard():
+def base_profile():
     profile = Profile.query.filter_by(user_id=current_user.id).first()
     if profile is None:
         flash("No profile found. Please complete your profile first.", category="error")
         return redirect(url_for('main.profile'))
 
-    return render_template('dashboard.html', profile=profile)
+    return render_template('base_profile.html', profile=profile)
 
 #set up update profile page
 def allowed_file(filename):
@@ -210,7 +210,7 @@ def editprofile():
         # Render the profile edit page
         if not profile:
             flash("Profile not found.", category="error")
-            return redirect(url_for('main.dashboard'))
+            return redirect(url_for('main.base_profile'))
         
         return render_template('editprofile.html', profile=profile)
 
@@ -251,7 +251,7 @@ def editprofile():
 
         db.session.commit()
         flash("Profile updated successfully!", category="success")
-        return redirect(url_for('main.dashboard'))
+        return redirect(url_for('main.base_profile'))
 
 
 # define route for changing password
@@ -400,20 +400,28 @@ def booking_history():
     passenger_matches_aprroving = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
                                             .join(Rides, PassengerMatch.driver_id == Rides.id) \
                                             .filter(PassengerMatch.passenger_id == current_user.id) \
-                                            .filter(PassengerMatch.status.in_(['APPROVING', 'CANCELED']))\
+                                            .filter(PassengerMatch.status.in_(['APPROVING']))\
                                             .all()
 
 
     # Get all drivers posts where the current user is the driver and join PassengerMatch
-    driver_posts = Rides.query.filter_by(user_id=current_user.id).all()
+    driver_posts = Rides.query.filter(Rides.user_id==current_user.id) \
+                                .filter(Rides.status.in_(['APPROVING', 'IN PROGRESS','CONFIRMED','PAYMENT PENDING','PENDING REVIEW'])) \
+                                .all()
+
+    driver_posts_c = Rides.query.filter(Rides.user_id==current_user.id) \
+                                .filter(Rides.status.in_(['COMPLETED','CANCELLED'])) \
+                                .all()
 
     driver_matches_dict = {}
     for post in driver_posts:
         # Filter matches based on 'APPROVING' or 'IN PROGRESS' status
         matches = PassengerMatch.query.filter(PassengerMatch.driver_id == post.id) \
-                                      .filter(PassengerMatch.status.in_(['APPROVING', 'IN PROGRESS','CONFIRMED','COMPLETED','PAYMENT PENDING','PENDING REVIEW'])) \
+                                      .filter(PassengerMatch.status.in_(['APPROVING', 'IN PROGRESS','CONFIRMED','PAYMENT PENDING','PENDING REVIEW','COMPLETED'])) \
                                       .all()  
+
         driver_matches_dict[post.id] = matches
+
 
     profiles = Profile.query.all()
     profile_dict = {profile.user_id: profile for profile in profiles}
@@ -424,6 +432,7 @@ def booking_history():
                            driver_posts=driver_posts, 
                            profile=profile,
                            driver_matches_dict=driver_matches_dict,
+                           driver_posts_c=driver_posts_c,
                            passenger_matches_aprroving=passenger_matches_aprroving)
 
 #set up match_passsenger page
@@ -595,7 +604,7 @@ def approve_passenger(match_id):
             
             if approved_passengers_count > driver_post.totalperson:
                 flash("You have already approved the maximum number of passengers.", "error")
-                match.status = 'CANCELED'
+                match.status = 'CANCELLED'
                 db.session.commit()
 
                 return redirect(url_for('main.booking_history',match_id=current_user.id))  # Adjust the URL as needed
@@ -670,13 +679,13 @@ def complete_match(match_id):
         driver_post.status = 'COMPLETED'
         
         db.session.commit()
-        flash('Match and driver post have been complete.', 'success')
+        flash('Your ride has been completed.', 'success')
     else:
 
         driver_post = Rides.query.get_or_404(match_id)
         driver_post.status = 'COMPLETED'
         db.session.commit()
-        flash('Driver post has been completed.', 'success')
+        flash('Your ride has been completed.', 'success')
 
     return redirect(url_for('main.booking_history'))
 
@@ -687,19 +696,19 @@ def cancel_match(match_id):
     
     if matches:
         for match in matches:
-            match.status = 'CANCELED'
+            match.status = 'CANCELLED'
         
         driver_post = Rides.query.get_or_404(match_id)
-        driver_post.status = 'CANCELED'
+        driver_post.status = 'CANCELLED'
         
         db.session.commit()
-        flash('Match and driver post have been canceled.', 'success')
+        flash('Match and driver post have been cancelled.', 'success')
     else:
 
         driver_post = Rides.query.get_or_404(match_id)
-        driver_post.status = 'CANCELED'
+        driver_post.status = 'CANCELLED'
         db.session.commit()
-        flash('Driver post has been canceled.', 'success')
+        flash('Your ride has been cancelled.', 'success')
 
     return redirect(url_for('main.booking_history'))
 
@@ -708,7 +717,7 @@ def cancel_match(match_id):
 def cancel_match_p(match_id):
     match = PassengerMatch.query.get(match_id)
     if match:
-        match.status = 'CANCELED'
+        match.status = 'CANCELLED'
         db.session.commit()
 
     return redirect(url_for('main.booking_history'))

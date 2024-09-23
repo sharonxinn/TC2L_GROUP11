@@ -56,7 +56,6 @@
     background: var(--box-color);
     border-radius: 50px;
     transition: all 0.5s ease;
-    /* z-index: -1; */
   }
 
   .sidebar.active ~ .right_box main.table {
@@ -79,7 +78,6 @@
     color: var(--text-color);
     overflow: auto;
     border-radius: 30px;
-    /* text-overflow: ellipsis; */
   }
 
   .table_body::-webkit-scrollbar{

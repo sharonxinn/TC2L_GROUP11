@@ -52,7 +52,7 @@
         </li>
 
         <li>
-          <a href="{{ url_for('main.dashboard') }}" >
+          <a href="{{ url_for('main.base_profile') }}" >
             <i class='bx bx-user'></i>
             <span class="icon_name">Profile</span>
           </a>
@@ -133,10 +133,12 @@
       function updateMap(userLat, userLon) {
           var userLatLon = new google.maps.LatLng(userLat, userLon);
           map.setCenter(userLatLon);
+
           if (userLocationSet && timeFilterApplied) {
               addDriverMarkers(userLat, userLon);
           }
       }
+      
       function addDriverMarkers(userLat, userLon) {
           nearbyDrivers = [];
           filteredDrivers = [];

@@ -41,7 +41,6 @@
     position: relative;
     min-height: 100vh;
     width: 100%;
-    /* overflow: hidden; */
   }
 
   .container{
@@ -53,7 +52,6 @@
     background: var(--box-color);
     border-radius: 50px;
     transition: all 0.5s ease;
-    /* z-index: -1; */
     text-align: center;
   }
 
@@ -191,7 +189,6 @@ h1{
 }
 
 .ans input{
-  /* width: 100%; */
   background: var(--type-box);
   border: none;
   padding: 10px 43px;
@@ -207,7 +204,6 @@ h1{
 }
 
 .btn1{
-    /* width: 100%; */
     background: var(--text-color);
     border: none;
     border-radius: 50px;
@@ -219,8 +215,6 @@ h1{
 }
 
 .btn{
-    /* width: 25%;
-    height: 50px; */
     background: var(--text-color);
     border: none;
     border-radius: 50px;

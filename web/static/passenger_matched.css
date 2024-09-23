@@ -144,7 +144,7 @@ img{
   width: 80px;
   height: 80px;
   border-radius: 20px;
-  cursor: pointer;
+  cursor: zoom-in;
 }
 
 img:hover{

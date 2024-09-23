@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1024">
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="../static/base.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -10,8 +10,17 @@
   </head>
 
 <body>
-    <div class="sidebar">
+  <script>
+    window.onload = function() {
+        var screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 
+        if (screenWidth < 1024) {
+            window.location.href = "desktop-version.html";
+        }
+    };
+  </script>
+  
+    <div class="sidebar">
       <div class="logo_name">
         <div class="logo">
           <ion-icon name="car"></ion-icon>

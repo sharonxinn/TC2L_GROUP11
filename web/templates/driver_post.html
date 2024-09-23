@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1024">
     <title>Rider Post</title>
     <link rel="stylesheet" href="../static/driver_post.css">
 
@@ -80,6 +80,16 @@
             <input type="image" src="../static/pic&video/logout icon.png" width="50px" height="50px">
         </a>
     </div>
+
+    <script>
+        window.onload = function() {
+            var screenWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+            if (screenWidth < 1024) {
+                window.location.href = "desktop-version.html";
+            }
+        };
+    </script>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}

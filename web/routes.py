@@ -335,7 +335,7 @@ def findarides():
     driver_posts = Rides.query.filter(
         and_(
             Rides.dateandTime >= today,  # Only show rides happening from today onwards
-            Rides.status == 'IN PROGRESS',  # Only show active rides
+            Rides.status !='rejected',  # Only show active rides
             Rides.user_id != current_user.id  # Exclude posts by the current user
         )
         ).all()
@@ -839,6 +839,11 @@ def upload_payment_proof(match_id):
                 user_id=current_user.id  # Ensure user_id is set
             )
             db.session.add(payment_proof)
+            db.session.flush()  # Flush to get the ID of the newly added payment proof
+            
+            # Associate the payment proof with the specific PassengerMatch record
+            passenger_match = PassengerMatch.query.get_or_404(match_id)
+            passenger_match.payment_proof_id = payment_proof.id  # Link to the PaymentProof
             db.session.commit()
 
             flash('Payment proof uploaded successfully!', 'success')

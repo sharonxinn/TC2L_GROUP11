@@ -5,7 +5,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1024">
     <title>Waiting List</title>
     <link rel="stylesheet" href="../static/waiting_list.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -73,7 +73,11 @@
                                 Cash
                             {% endif %}
                         </td>
-                        <td>{{ match.status }}</td>
+                        <td>
+                            <div class="match-status {{ match.status | lower | replace(' ', '-') }}">
+                                {{ match.status }}
+                            </div>
+                        </td>
                         <td>
                             <div class="selection">
                                 <form action="{{ url_for('main.approve_passenger', match_id=match.id) }}" method="POST">

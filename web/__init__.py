@@ -2,18 +2,28 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_admin import Admin
+from flask_mail import Mail
 from werkzeug.security import generate_password_hash
 import os
 
 # Initialize extensions
 db = SQLAlchemy()
 login_manager = LoginManager()
+mail = Mail()
 
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///carpooling.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SECRET_KEY'] = 'your_secret_key'
+
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    app.config['MAIL_PORT'] = 587
+    app.config['MAIL_USE_TLS'] = True
+    app.config['MAIL_USE_SSL'] = False
+    app.config['MAIL_USERNAME'] = 'mmucarpooling@gmail.com'
+    app.config['MAIL_PASSWORD'] = 'opzefykwjmvybkep'
+    app.config['MAIL_DEFAULT_SENDER'] = 'mmucarpooling@gmail.com'
     
     # Set up upload folder
     UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
@@ -27,6 +37,10 @@ def create_app():
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'main.home'
+    mail.init_app(app)
+
+    from .models import User, Rides, Profile, PassengerMatch
+
 
     # Define the user loader function
     @login_manager.user_loader

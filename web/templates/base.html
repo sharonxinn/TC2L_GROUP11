@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1024">
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="../static/base.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
@@ -11,7 +11,6 @@
 
 <body>
     <div class="sidebar">
-
       <div class="logo_name">
         <div class="logo">
           <ion-icon name="car"></ion-icon>
@@ -52,7 +51,7 @@
         </li>
 
         <li>
-          <a href="{{ url_for('main.dashboard') }}" >
+          <a href="{{ url_for('main.base_profile') }}" >
             <i class='bx bx-user'></i>
             <span class="icon_name">Profile</span>
           </a>
@@ -89,7 +88,7 @@
     </div>
 
     <div class="right_box">
-        {% block content %}{% endblock %}
+      {% block content %}{% endblock %}
     </div>
 
     <script>
@@ -133,10 +132,12 @@
       function updateMap(userLat, userLon) {
           var userLatLon = new google.maps.LatLng(userLat, userLon);
           map.setCenter(userLatLon);
+
           if (userLocationSet && timeFilterApplied) {
               addDriverMarkers(userLat, userLon);
           }
       }
+      
       function addDriverMarkers(userLat, userLon) {
           nearbyDrivers = [];
           filteredDrivers = [];

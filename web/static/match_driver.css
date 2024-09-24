@@ -99,7 +99,7 @@
 .driver{
     color: var(--toggle-color);
     background: var(--background-color);
-    width: 440px;
+    width: 540px;
     border-radius: 50px;
     padding: 15px 40px; /* top-bottom left-right*/
 }

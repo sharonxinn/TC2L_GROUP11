@@ -14,6 +14,7 @@
     --toggle-color: white;
     --mode-background: rgba(255, 255, 255, 0.5);
     --box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.5);
+    --scroll: #0004;
   }
 
   body.dark{
@@ -23,6 +24,7 @@
     --toggle-color: black;
     --mode-background: rgba(0, 0, 0, 0.5);
     --box-shadow: 5px 5px 10px rgba(255, 255, 255, 0.5);
+    --scroll: rgba(255, 255, 255, 0.267);
   }
   
   body{
@@ -106,14 +108,11 @@
     position: relative;
     height: 50px;
     width: 100%;
-    /*margin: 0 5px;*/
-    /* overflow: visible; */
   }
 
   .sidebar ul li .tooltip{
     font-weight: 500;
     position: absolute;
-    /* left: 62px; */
     left: 85px;
     top: 0;
     transform: translateY(-50%, -50%);
@@ -128,7 +127,7 @@
     opacity: 0;
     pointer-events: none;
     display: block;
-    z-index: 9999;
+    z-index: 10001;
   }
 
   .sidebar.active ul li .tooltip{
@@ -139,7 +138,8 @@
     top: 17%;
     transition: all 0.5s ease;
     opacity: 1;
-    z-index: 9999;
+    z-index: 10001;
+    position: absolute;
     color: var(--text-color);
   }
 
@@ -336,6 +336,25 @@
 
   .profile .profile_details .name_id{
     margin-left: 10px;
+    width: 90px;
+    overflow-x: scroll;
+    white-space: nowrap;
+    cursor: default;
+  }
+
+  .profile .profile_details .name_id::-webkit-scrollbar{
+    width: 0.5rem;
+    height: 0.5rem;
+  }
+  
+  .profile .profile_details .name_id::-webkit-scrollbar-thumb{
+    border-radius: .5rem;
+    background-color: var(--scroll);
+    visibility: hidden;
+  }
+  
+  .profile .profile_details .name_id:hover::-webkit-scrollbar-thumb{
+    visibility: visible;
   }
 
   .profile .profile_details .name{

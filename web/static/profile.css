@@ -26,7 +26,6 @@ h1{
     right: 1.5%;
 }
 
-
 .outside-center{
     background: linear-gradient(180deg, #DDDDDD 0%, #C8C8C8 64.5%, #777777 100%);
     border-radius: 50px;
@@ -76,6 +75,11 @@ h1{
   .inner-center::placeholder{
     color: rgba(0, 0, 0, 0.4);
     font-size: 14px;
+  }
+
+  .inner-center input[type='file']{
+    color: black;
+    cursor: pointer;
   }
 
   .left-right{

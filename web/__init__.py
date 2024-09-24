@@ -49,14 +49,16 @@ def create_app():
         return User.query.get(int(user_id))
 
     # Initialize Flask-Admin
-    from .adminviews import AdminIndex, AdminModelView, ProfileModelView, AdminLogoutView,RiderPostModelView
+    from .adminviews import AdminIndex, AdminModelView, ProfileModelView, AdminLogoutView,RiderPostModelView,PassengerMatchModelView,PaymentProofModelView
     admin = Admin(app, template_mode='bootstrap4', index_view=AdminIndex())
     
     # Add views for admin
-    from .models import User, Profile,Rides # Import here to avoid circular imports
+    from .models import User, Profile,Rides,PassengerMatch,PaymentProof # Import here to avoid circular imports
     admin.add_view(AdminModelView(User, db.session))
     admin.add_view(ProfileModelView(Profile, db.session))
     admin.add_view(RiderPostModelView(Rides, db.session))
+    admin.add_view(PassengerMatchModelView(PassengerMatch, db.session))
+    admin.add_view(PaymentProofModelView(PaymentProof, db.session))
     admin.add_view(AdminLogoutView(name="Log Out", endpoint="logout"))
 
     # Register blueprints

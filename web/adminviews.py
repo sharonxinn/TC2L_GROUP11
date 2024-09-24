@@ -4,7 +4,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.actions import action
 from flask import flash, redirect, url_for
 from markupsafe import Markup
-from .models import Profile,Rides,PassengerMatch
+from .models import Profile,Rides,PassengerMatch,PaymentProof
 from . import db  
 import os
 
@@ -38,6 +38,8 @@ class ProfileModelView(ModelView):
         'status': 'Status'
     }
     form_columns = ('fullName', 'gender', 'contact', 'status')
+
+    
     
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin
@@ -116,6 +118,42 @@ class RiderPostModelView(ModelView):
         except Exception as e:
             flash(f'An error occurred: {str(e)}', 'error')
             db.session.rollback()
+
+
+class PassengerMatchModelView(ModelView):
+    column_list = ('id','passenger_id', 'driver_id', 'payment_proof_id')  
+    column_labels = {
+        'id':'match_id',
+        'passenger_id': 'passenger_id',
+        'driver_id': 'driver_id',
+        'payment_proof_id': 'payment_proof_id'
+
+    }
+    form_columns = ('id','passenger_id', 'driver_id', 'payment_proof_id')
+
+
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.is_admin
+
+class PaymentProofModelView(ModelView):
+    column_list = ('id','file_name') 
+    column_labels = {
+        'id':'payment_proof_id',
+        'file_name': 'payment_proof',
+
+    }
+    form_columns = ('id','file_name')
+
+    def _format_image(view, context, model, name):
+        if getattr(model, name):
+            return Markup(f'<img src="{url_for("static", filename="/payment/" + model.file_name)}" width="200" height="200" />')
+        return ''
+
+    column_formatters = {
+        'file_name': _format_image}
+
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.is_admin
 
 class AdminLogoutView(BaseView):
     @expose('/')

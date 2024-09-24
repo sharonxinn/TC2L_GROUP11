@@ -4,7 +4,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.actions import action
 from flask import flash, redirect, url_for
 from markupsafe import Markup
-from .models import Profile,Rides
+from .models import Profile,Rides,PassengerMatch
 from . import db  
 import os
 
@@ -32,25 +32,15 @@ class AdminModelView(ModelView):
         return True
 
 class ProfileModelView(ModelView):
-    column_list = ('fullName', 'gender', 'contact', 'profile_pic', 'is_approved')
+    column_list = ('fullName', 'gender', 'contact', 'status')
     column_labels = {
         'fullName': 'Full Name',
-        'profile_pic': 'Profile Picture',
         'status': 'Status'
     }
-    form_columns = ('fullName', 'gender', 'contact', 'profile_pic', 'status')
+    form_columns = ('fullName', 'gender', 'contact', 'status')
     
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin
-    
-    def _format_image(view, context, model, name):
-        if getattr(model, name):
-            return Markup(f'<img src="{url_for("static", filename="" + model.profile_pic)}" width="100" height="100" />')
-        return ''
-
-    column_formatters = {
-        'profile_pic': _format_image
-    }
 
     @action('reject', 'Reject', 'Are you sure you want to reject the selected profiles?')
     def action_reject(self, ids):
@@ -58,7 +48,7 @@ class ProfileModelView(ModelView):
             query = Profile.query.filter(Profile.id.in_(ids))
             count = 0
             for post in query.all():
-                post.status = 'rejected'
+                post.status = 'REJECTED'
                 count += 1
             db.session.commit()
             flash(f'{count} driver post(s) successfully rejected.', 'success')
@@ -67,22 +57,37 @@ class ProfileModelView(ModelView):
             db.session.rollback()
 
 class RiderPostModelView(ModelView):
-    column_list = ('dateandTime', 'start_location', 'end_location', 'carplate', 'carmodel', 'totalperson', 'fees', 'message', 'status')
+    column_list = ('dateandTime', 'start_location', 'end_location', 'carplate', 'carmodel', 'totalperson', 'fees', 'message', 'status', 'matched_passengers')  # Added 'matched_passengers'
     column_labels = {
         'dateandTime': 'Date and Time',
-        'start_location': 'start_location Location',
-        'end_location': 'end_location Location',
+        'start_location': 'Start Location',
+        'end_location': 'End Location',
         'carplate': 'Car Plate',
         'carmodel': 'Car Model',
         'totalperson': 'Total Persons',
         'fees': 'Fees',
         'message': 'Message',
-        'status': 'Status'
+        'status': 'Status',
+        'matched_passengers': 'Matched Passengers'  # New label for matched passengers
     }
     form_columns = ('dateandTime', 'start_location', 'start_location_lat', 'start_location_lng', 'end_location', 'end_location_lat', 'end_location_lng', 'carplate', 'carmodel', 'totalperson', 'fees', 'duitnowid', 'message', 'status')
 
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin
+
+    # Custom formatter to display matched passengers
+    def _matched_passengers_formatter(self, context, model, name):
+        matches = PassengerMatch.query.filter_by(driver_id=model.id).all()
+        if matches:
+            passengers = [f'{match.passenger.email}' for match in matches]
+            return ', '.join(passengers)
+        else:
+            return 'No passengers matched yet.'
+
+    # Add the formatter for the 'matched_passengers' column
+    column_formatters = {
+        'matched_passengers': _matched_passengers_formatter
+    }
 
     @action('approve', 'Approve', 'Are you sure you want to approve the selected driver posts?')
     def action_approve(self, ids):
@@ -90,7 +95,7 @@ class RiderPostModelView(ModelView):
             query = Rides.query.filter(Rides.id.in_(ids))
             count = 0
             for post in query.all():
-                post.status = 'approved'
+                post.status = 'APPROVED'
                 count += 1
             db.session.commit()
             flash(f'{count} driver post(s) successfully approved.', 'success')
@@ -104,14 +109,13 @@ class RiderPostModelView(ModelView):
             query = Rides.query.filter(Rides.id.in_(ids))
             count = 0
             for post in query.all():
-                post.status = 'rejected'
+                post.status = 'REJECTED'
                 count += 1
             db.session.commit()
             flash(f'{count} driver post(s) successfully rejected.', 'success')
         except Exception as e:
             flash(f'An error occurred: {str(e)}', 'error')
             db.session.rollback()
-
 
 class AdminLogoutView(BaseView):
     @expose('/')

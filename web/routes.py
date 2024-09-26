@@ -95,10 +95,6 @@ def login():
 
     return render_template("login.html", user=current_user)
 
-@bp.route('/forgotpassword')
-def forgotpassword():
-    return render_template('forgotpassword.html',user=current_user)
-
 #set up logout page
 @bp.route('/logout')
 @login_required

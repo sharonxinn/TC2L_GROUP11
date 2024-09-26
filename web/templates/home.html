@@ -40,26 +40,27 @@
     <div class="popout" id="popout">
         <div class="msg">
             <button class="close-btn">&times;</button>
-            <h2>Please use laptop for a better version of design.</h2>
-            <p>Thank you and sorry for the inconvenience.</p>
+            <h2>This site is designed for desktop usage.</h2>
+            <p>Mobile user may experience compatibility issues.</p>
         </div>
     </div>
 
     <script>
-        // Check if the popout has been shown in this session
-        if (!sessionStorage.getItem("popoutShown")) {
-            document.body.classList.add("active-popout"); // Show popout
-            document.getElementById("popout").style.display = "flex"; // Ensure popout is visible
+        function isMobileOrTablet() {
+            return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        }
+
+        if (!sessionStorage.getItem("popoutShown") && isMobileOrTablet()) {
+            document.body.classList.add("active-popout");
+            document.getElementById("popout").style.display = "flex";
 
             document.querySelector(".popout .close-btn").addEventListener("click", function(){
                 document.body.classList.remove("active-popout");
                 document.querySelector(".popout").style.display = "none";
 
-                // Store a flag in localStorage to prevent popout in the future
                 sessionStorage.setItem("popoutShown", "true");
             });
         } else {
-            // Hide the popout if it has been shown before
             document.getElementById("popout").style.display = "none";
             document.body.classList.remove("active-popout");
         }

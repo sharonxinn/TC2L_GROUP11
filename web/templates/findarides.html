@@ -218,57 +218,79 @@
                         }
 
                         function addDriverMarkers(userLat, userLon) {
-                            nearbyDrivers = [];
-                            filteredDrivers = [];
+                                nearbyDrivers = [];
+                                filteredDrivers = [];
 
-                            // Clear existing driver markers
-                            for (let i = 0; i < driverMarkers.length; i++) {
-                                driverMarkers[i].setMap(null);
-                            }
-                            driverMarkers = [];
+                                // Clear existing driver markers
+                                for (let i = 0; i < driverMarkers.length; i++) {
+                                    driverMarkers[i].setMap(null);
+                                }
+                                driverMarkers = [];
+                                let markerPositions = {}; // Store the positions for jittering
 
-                            // Loop through each driver and place a marker
-                            for (let i = 0; i < driversData.length; i++) {
-                                let driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
-                                let distance = google.maps.geometry.spherical.computeDistanceBetween(
-                                    new google.maps.LatLng(userLat, userLon), driverLatLon
-                                );
+                                // Loop through each driver and place a marker
+                                for (let i = 0; i < driversData.length; i++) {
+                                    let driverLat = driversData[i].lat;
+                                    let driverLon = driversData[i].lng;
+                                    let driverLatLon = new google.maps.LatLng(driverLat, driverLon);
+                                    let distance = google.maps.geometry.spherical.computeDistanceBetween(
+                                        new google.maps.LatLng(userLat, userLon), driverLatLon
+                                    );
 
-                                // Check if driver is within 1km radius
-                                if (distance <= 1000) {
-                                    let driverMarker = new google.maps.Marker({
-                                        position: driverLatLon,
-                                        map: map,
-                                        title: "Driver's start location",
-                                        icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
-                                    });
+                                    // Check if driver is within 1km radius
+                                    if (distance <= 1000) {
+                                        // Apply jitter if there are multiple drivers at the same location
+                                        let key = driverLat + "," + driverLon;
+                                        if (!markerPositions[key]) {
+                                            markerPositions[key] = 0; // Initialize jitter count
+                                        }
 
-                                    // Create info window for the driver
-                                    let infoWindow = new google.maps.InfoWindow({
-                                        content: '<div><strong>Driver ID:</strong> ' + driversData[i].id + '<br>' +
+                                        let jitterRadius = 0.0005; // The distance to separate markers
+                                        let angle = (markerPositions[key] * 360) / (Math.PI * 2); // Calculate angle for circular jitter
+
+                                        // Apply jitter: shift markers in a circular pattern around the original position
+                                        let offsetLat = jitterRadius * Math.cos(angle);
+                                        let offsetLng = jitterRadius * Math.sin(angle);
+
+                                        let jitteredLat = driverLat + offsetLat;
+                                        let jitteredLon = driverLon + offsetLng;
+                                        let jitteredLatLon = new google.maps.LatLng(jitteredLat, jitteredLon);
+
+                                        markerPositions[key]++; // Increment count to move next marker
+
+                                        let driverMarker = new google.maps.Marker({
+                                            position: jitteredLatLon,
+                                            map: map,
+                                            title: "Driver's start location",
+                                            icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                                        });
+
+                                        // Create info window for the driver
+                                        let infoWindow = new google.maps.InfoWindow({
+                                            content: '<div><strong>Driver ID:</strong> ' + driversData[i].id + '<br>' +
                                                 '<strong>Destination:</strong> ' + driversData[i].end_location + '<br>' +
                                                 '<strong>DateTime:</strong> ' + driversData[i].dateandTime + '<br>' +
                                                 '<strong>Total Persons:</strong> ' + driversData[i].totalperson + '<br>' +
                                                 '<strong>Fees:</strong> ' + driversData[i].fees + '<br>' +
                                                 '<strong>Message:</strong> ' + driversData[i].message + '<br>' +
                                                 '<strong>Status:</strong> ' + driversData[i].status + '</div>'
-                                    });
+                                        });
 
-                                    // Attach click event to the driver marker
-                                    driverMarker.addListener('click', function() {
-                                        closeAllInfoWindows();
+                                        // Attach click event to the driver marker
+                                        driverMarker.addListener('click', function () {
+                                            closeAllInfoWindows();
+                                            infoWindow.open(map, driverMarker);
+                                            openInfoWindows.push(infoWindow);
+                                        });
 
-                                        infoWindow.open(map, driverMarker);
-                                        openInfoWindows.push(infoWindow);
-                                    });
-
-                                    // Add driver marker to the map
-                                    driverMarkers.push(driverMarker);
-                                    nearbyDrivers.push(driversData[i].id);
-                                    filteredDrivers.push(driversData[i]);
+                                        // Add driver marker to the map
+                                        driverMarkers.push(driverMarker);
+                                        nearbyDrivers.push(driversData[i].id);
+                                        filteredDrivers.push(driversData[i]);
+                                    }
                                 }
                             }
-                        }
+
 
                         function applyTimeFilter() {
                             var timeFilterValue = document.getElementById('timeFilter').value;
@@ -284,7 +306,6 @@
                             // Loop through filtered drivers and apply time filter
                             for (var i = 0; i < filteredDrivers.length; i++) {
                                 var driverTime = new Date(filteredDrivers[i].dateandTime);
-                                
                                 // Only add markers that match the filter criteria
                                 if (!filterTime || driverTime >= filterTime) {
                                     var driverLatLon = new google.maps.LatLng(filteredDrivers[i].lat, filteredDrivers[i].lng);
@@ -297,17 +318,17 @@
 
                                     var infoWindow = new google.maps.InfoWindow({
                                         content: '<div><strong>Driver ID:</strong> ' + filteredDrivers[i].id + '<br>' +
-                                                '<strong>Destination:</strong> ' + filteredDrivers[i].end_location + '<br>' +
-                                                '<strong>DateTime:</strong> ' + filteredDrivers[i].dateandTime + '<br>' +
-                                                '<strong>Total Persons:</strong> ' + filteredDrivers[i].totalperson + '<br>' +
-                                                '<strong>Fees:</strong> ' + filteredDrivers[i].fees + '<br>' +
-                                                '<strong>Message:</strong> ' + filteredDrivers[i].message + '<br>' +
-                                                '<strong>Status:</strong> ' + filteredDrivers[i].status + '</div>'
+                                            '<strong>Destination:</strong> ' + filteredDrivers[i].end_location + '<br>' +
+                                            '<strong>DateTime:</strong> ' + filteredDrivers[i].dateandTime + '<br>' +
+                                            '<strong>Total Persons:</strong> ' + filteredDrivers[i].totalperson + '<br>' +
+                                            '<strong>Fees:</strong> ' + filteredDrivers[i].fees + '<br>' +
+                                            '<strong>Message:</strong> ' + filteredDrivers[i].message + '<br>' +
+                                            '<strong>Status:</strong> ' + filteredDrivers[i].status + '</div>'
                                     });
 
                                     // Attach click event to the driver marker
-                                    google.maps.event.addListener(driverMarker, 'click', (function(marker, info) {
-                                        return function() {
+                                    google.maps.event.addListener(driverMarker, 'click', (function (marker, info) {
+                                        return function () {
                                             closeAllInfoWindows();
                                             info.open(map, marker);
                                             openInfoWindows.push(info);
@@ -325,7 +346,6 @@
                             }
                         }
 
-
                         function closeAllInfoWindows() {
                             for (let i = 0; i < openInfoWindows.length; i++) {
                                 openInfoWindows[i].close();
@@ -333,6 +353,7 @@
 
                             openInfoWindows = [];
                         }
+
 
                         function goToDriverList() {
                             window.location.href = "/drivers_list?nearbyDrivers=" + nearbyDrivers.join(',');

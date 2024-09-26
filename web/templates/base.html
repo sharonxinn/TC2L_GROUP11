@@ -152,6 +152,9 @@
           var timeFilterValue = document.getElementById('timeFilter').value;
           var filterTime = timeFilterValue ? new Date(timeFilterValue) : null;
 
+          // Keep track of existing marker positions to handle overlaps
+          let markerPositions = new Set();
+
           // Loop through each driver and place a marker
           for (let i = 0; i < driversData.length; i++) {
               let driverLatLon = new google.maps.LatLng(driversData[i].lat, driversData[i].lng);
@@ -165,8 +168,22 @@
 
                   // Only add markers that match the time filter criteria
                   if (!filterTime || driverTime >= filterTime) {
+                      let lat = driversData[i].lat;
+                      let lng = driversData[i].lng;
+
+                      // If this position already exists, add a small random offset
+                      while (markerPositions.has(`${lat},${lng}`)) {
+                          lat += (Math.random() - 0.5) * 0.0005; // Small latitude adjustment
+                          lng += (Math.random() - 0.5) * 0.0005; // Small longitude adjustment
+                      }
+
+                      // Store the new position
+                      markerPositions.add(`${lat},${lng}`);
+
+                      let driverLatLonAdjusted = new google.maps.LatLng(lat, lng);
+
                       let driverMarker = new google.maps.Marker({
-                          position: driverLatLon,
+                          position: driverLatLonAdjusted,
                           map: map,
                           title: "Driver's start location",
                           icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
@@ -210,15 +227,29 @@
           }
           driverMarkers = [];
 
+          // Keep track of existing marker positions to handle overlaps
+          let markerPositions = new Set();
+
           // Loop through filtered drivers and apply time filter
           for (var i = 0; i < filteredDrivers.length; i++) {
               var driverTime = new Date(filteredDrivers[i].dateandTime);
-              
               // Only add markers that match the filter criteria
               if (!filterTime || driverTime >= filterTime) {
-                  var driverLatLon = new google.maps.LatLng(filteredDrivers[i].lat, filteredDrivers[i].lng);
+                  var lat = filteredDrivers[i].lat;
+                  var lng = filteredDrivers[i].lng;
+
+                  // If this position already exists, add a small random offset
+                  while (markerPositions.has(`${lat},${lng}`)) {
+                      lat += (Math.random() - 0.5) * 0.0005; // Small latitude adjustment
+                      lng += (Math.random() - 0.5) * 0.0005; // Small longitude adjustment
+                  }
+
+                  // Store the new position
+                  markerPositions.add(`${lat},${lng}`);
+
+                  var driverLatLonAdjusted = new google.maps.LatLng(lat, lng);
                   var driverMarker = new google.maps.Marker({
-                      position: driverLatLon,
+                      position: driverLatLonAdjusted,
                       map: map,
                       title: "Driver's start location",
                       icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
@@ -253,6 +284,7 @@
               updateMap(userMarker.getPosition().lat(), userMarker.getPosition().lng());
           }
       }
+
 
 
       function closeAllInfoWindows() {
@@ -320,7 +352,6 @@
               initializeAutocomplete();
           });
       }
-
 
       if(localStorage.getItem("dark-mode") === "enabled") {
           body.classList.add("dark");

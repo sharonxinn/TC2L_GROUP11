@@ -61,3 +61,4 @@ class PaymentProof(db.Model):
 
     match_proof = db.relationship('PassengerMatch', backref='match_payment_proof', lazy=True)
 
+

@@ -9,24 +9,6 @@
     <title>Upload Payment</title>
     <link rel="stylesheet" href="../static/upload.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <script>
-        function toggleUploadField() {
-        var paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
-        var paymentProofContainer = document.getElementById('payment_proof_container');
-        var uploadField = document.getElementById('upload_field');
-        var icon = document.getElementById('icon');
-
-        if (paymentMethod === 'upload') {
-            paymentProofContainer.classList.add('active');
-            uploadField.classList.add('active');
-            icon.classList.add('active');
-        } else {
-            paymentProofContainer.classList.remove('active');
-            uploadField.classList.remove('active');
-            icon.classList.remove('active');
-        }
-    }
-    </script>
 </head>
 
 <body>
@@ -87,11 +69,11 @@
                                 <div class="info_up-down">
                                     <h3><label for="payment_method">Payment Method</label></h3>
                                     <div class="radio">
-                                        <input type="radio" name="payment_method" id="DuitNow" value="upload" checked onclick="toggleUploadField()">
+                                        <input type="radio" name="payment_method" id="DuitNow" value="upload" onclick="toggleUploadField()" required>
                                         <p><label for="DuitNow">DuitNow</label></p>
                                     </div>
                                     <div class="radio">
-                                        <input type="radio" name="payment_method" id="cash" value="cash" onclick="toggleUploadField()">
+                                        <input type="radio" name="payment_method" id="cash" value="cash" onclick="toggleUploadField()" required>
                                         <p><label for="cash">Cash</label></p>
                                     </div>
                                 </div>
@@ -102,7 +84,7 @@
                             <div class="info_left-right">
                                 <i class='bx bxs-receipt' id="icon"></i>
                                 <div class="info_up-down" id="upload_field">
-                                    <h3><label for="payment_proof">Receipt</label></h3>
+                                    <h3><label for="payment_proof">Payment Proof</label></h3>
                                     <p>{{ form.payment_proof }}</p>
                                 </div>
                             </div>
@@ -113,6 +95,36 @@
                     </form>
 
                     <script>
+                        function toggleUploadField() {
+                            var paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+                            var paymentProofContainer = document.getElementById('payment_proof_container');
+                            var uploadField = document.getElementById('upload_field');
+                            var icon = document.getElementById('icon');
+                            var paymentProofInput = document.querySelector('input[name="payment_proof"]');
+                    
+                            if (paymentMethod === 'upload') {
+                                paymentProofContainer.style.display = 'block';
+                                if (document.getElementById('DuitNow').checked) {
+                                    paymentProofInput.setAttribute('required', 'true');
+                                } else {
+                                    paymentProofInput.removeAttribute('required');
+                                }
+                            } else {
+                                paymentProofContainer.style.display = 'none';
+                                paymentProofInput.removeAttribute('required');
+                            }
+
+                            if (paymentMethod === 'upload') {
+                                paymentProofContainer.classList.add('active');
+                                uploadField.classList.add('active');
+                                icon.classList.add('active');
+                            } else {
+                                paymentProofContainer.classList.remove('active');
+                                uploadField.classList.remove('active');
+                                icon.classList.remove('active');
+                            }
+                        }
+
                         toggleUploadField();
                     </script>
                 </div>

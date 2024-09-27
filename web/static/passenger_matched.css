@@ -140,14 +140,14 @@ p{
     font-weight: 500;
 }
 
-img{
+.info_up-down img{
   width: 80px;
   height: 80px;
   border-radius: 20px;
   cursor: zoom-in;
 }
 
-img:hover{
+.info_up-down img:hover{
   transform: scale(4);
   z-index: 2;
 }

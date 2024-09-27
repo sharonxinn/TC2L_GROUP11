@@ -101,7 +101,7 @@
     background: var(--background-color);
     width: 540px;
     border-radius: 50px;
-    padding: 15px 40px; /* top-bottom left-right*/
+    padding: 20px 40px 0 40px;
 }
 
 h1{
@@ -117,7 +117,7 @@ h1{
 .row{
     display: flex;
     justify-content: space-between;
-    margin-bottom: 34px;
+    margin-bottom: 50px;
 }
 
 .i{

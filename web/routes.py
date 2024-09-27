@@ -95,10 +95,6 @@ def login():
 
     return render_template("login.html", user=current_user)
 
-@bp.route('/forgotpassword')
-def forgotpassword():
-    return render_template('forgotpassword.html',user=current_user)
-
 #set up logout page
 @bp.route('/logout')
 @login_required
@@ -728,7 +724,7 @@ def reject_passenger(match_id):
     matches = PassengerMatch.query.filter_by(driver_id=match_id).all()
     
     if not matches:  # Check if matches are found
-        flash('Match not found.', 'danger')
+        flash('Match not found.', 'error')
         return redirect(url_for('main.booking_history'))
     
     try:
@@ -747,7 +743,7 @@ def reject_passenger(match_id):
         # Rollback if there was an error
         db.session.rollback()
         print(f"Error updating database or sending email: {e}")
-        flash('An error occurred. Unable to reject passenger or send email.', 'danger')
+        flash('An error occurred. Unable to reject passenger or send email.', 'error')
 
     return redirect(url_for('main.booking_history'))
 
@@ -847,8 +843,9 @@ def upload_payment_proof(match_id):
             db.session.commit()
 
             flash('Payment proof uploaded successfully!', 'success')
+        
         elif payment_method == 'cash':
-            flash('You have chosen to pay by cash.', 'info')
+            flash('You have chosen to pay by cash.', 'success')
 
         # Redirect to booking history or another relevant page
         return redirect(url_for('main.booking_history'))

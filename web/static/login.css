@@ -127,29 +127,29 @@
     cursor: pointer;
   }
 
-  .rmb-forgot{
+  .rmb{
     display: flex;
     justify-content: space-between;
     font-size: 12px;
   }
 
-  .rmb-forgot label{
+  .rmb label{
     display: flex;
     gap: 3px;
     cursor: pointer;
   }
 
-  .rmb-forgot input{
+  .rmb input{
     accent-color: black;
     cursor: pointer;
   }
 
-  .rmb-forgot a{
+  .rmb a{
     color: black;
     text-decoration: none;
   }
 
-  .rmb-forgot a:hover{
+  .rmb a:hover{
     text-decoration: underline;
   }
 

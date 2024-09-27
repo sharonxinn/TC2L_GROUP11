@@ -133,16 +133,7 @@
                             </div>
                         </td>
                         <td>
-                            <div class="action">
-                                <div class="selection">
-                                    <form action="{{ url_for('main.select_driver', driver_id=match.id) }}" method="POST">
-                                        <input type="submit" value="Reselect" class="btn">
-                                    </form>
-                                    <form action="{{ url_for('main.pay_match', match_id=match.id) }}" method="POST">
-                                        <input type="submit" value="Repay" class="btn">
-                                    </form>  
-                                </div>
-                            </div>
+
                         </td>
                     </tr>
                     {% endfor %}
@@ -177,7 +168,8 @@
                                         <input type="submit" value="View Details" class="btn2">
                                     </form>
                                 {% endif %}
-
+                                
+                                {% if driver.id in driver_matches_dict and driver_matches_dict[driver.id]|length <0 %}
                                 <div class="selection">
                                     <form action="{{ url_for('main.complete_match', match_id=driver.id) }}" method="POST">
                                         <input type="submit" value="Complete" class="btn">
@@ -187,6 +179,7 @@
                                         <input type="submit" value="Cancel" class="btn">
                                     </form>
                                 </div>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>

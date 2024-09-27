@@ -131,6 +131,20 @@ class PassengerMatchModelView(ModelView):
     }
     form_columns = ('id','passenger_id', 'driver_id', 'payment_proof_id')
 
+    @action('reject', 'Reject', 'Are you sure you want to reject the selected driver posts?')
+    def action_reject(self, ids):
+        try:
+            query = Rides.query.filter(Rides.id.in_(ids))
+            count = 0
+            for post in query.all():
+                post.status = 'REJECTED'
+                count += 1
+            db.session.commit()
+            flash(f'{count} driver post(s) successfully rejected.', 'success')
+        except Exception as e:
+            flash(f'An error occurred: {str(e)}', 'error')
+            db.session.rollback()
+    
 
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_admin

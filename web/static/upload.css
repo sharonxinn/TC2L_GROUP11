@@ -158,6 +158,24 @@ p{
   display: block;
 }
 
+input[type="file"] {
+  cursor: pointer;
+  font-weight: 500;
+}
+
+::-webkit-file-upload-button{
+  color: var(--text-color);
+  background: var(--toggle-color);
+  border-radius: 8px;
+  padding: 3px 10px;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  margin-right: 7px;
+  font-family: "poppins";
+  font-weight: 500;
+}
+
 .btn{
   width: 100%;
   height: 50px;
@@ -191,7 +209,6 @@ p{
 .flashes.hide {
     opacity: 0;
 }
-
 
 .flash {
     padding: 5px;

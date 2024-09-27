@@ -82,6 +82,18 @@ h1{
     cursor: pointer;
   }
 
+  ::-webkit-file-upload-button{
+    font-family: "poppins";
+    color: white;
+    background: black;
+    border-radius: 8px;
+    padding: 2px 10px;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    margin-right: 8px;
+  }
+
   .left-right{
     display: flex;
     column-gap: 30px;
@@ -119,7 +131,6 @@ h1{
 .flashes.hide {
     opacity: 0;
 }
-
   
   .flash {
       padding: 5px;

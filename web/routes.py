@@ -402,7 +402,7 @@ def booking_history():
     passenger_matches_cancelled = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
                                             .join(Rides, PassengerMatch.driver_id == Rides.id) \
                                             .filter(PassengerMatch.passenger_id == current_user.id) \
-                                            .filter(PassengerMatch.status.in_(['CANCELLED','REJECT']))\
+                                            .filter(PassengerMatch.status.in_(['CANCELLED','REJECTED']))\
                                             .all()
 
 
@@ -593,6 +593,7 @@ def select_driver(driver_id):
     flash('Driver selected successfully.', category='success')
     return redirect(url_for('main.booking_history', driver_id=driver_id))
 
+
 #set up remove passenger page
 @bp.route('/remove_passenger/<int:match_id>', methods=['POST'])
 @login_required
@@ -621,7 +622,7 @@ def approve_passenger(match_id,rides_id):
             
             if approved_passengers_count >= driver_post.totalperson:
                 flash("You have already approved the maximum number of passengers.", "error")
-                match.status = 'CANCELLED'
+                match.status = 'REJECTED'
                 db.session.commit()
 
                 return redirect(url_for('main.passenger_matched',driver_id=driver_post.id))  # Adjust the URL as needed
@@ -715,16 +716,27 @@ def complete_match(match_id):
 @login_required
 def cancel_match(match_id):
     matches = PassengerMatch.query.filter_by(driver_id=match_id).all()
+    driver_post = Rides.query.get_or_404(match_id)
     
     if matches:
-        for match in matches:
-            match.status = 'CANCELLED'
+        other_matches = PassengerMatch.query.filter(
+            PassengerMatch.driver_id == driver_post.id,
+            PassengerMatch.status.in_(['IN PROGRESS', 'CONFIRMED', 'COMPLETED', 'PAYMENT PENDING', 'PENDING REVIEW'])
+        ).all()
         
-        driver_post = Rides.query.get_or_404(match_id)
-        driver_post.status = 'CANCELLED'
+        if len(other_matches) >= 1:  # More than one match exists with the specified statuses
+            flash('Cannot cancel the match because there are other passengers.', 'error')
         
-        db.session.commit()
-        flash('Your ride has been cancelled.', 'success')
+        else:
+            for match in matches:
+                match.status = 'CANCELLED'
+            
+            
+            driver_post.status = 'CANCELLED'
+            
+            db.session.commit()
+            flash('Your ride has been cancelled.', 'success')
+    
     else:
 
         driver_post = Rides.query.get_or_404(match_id)

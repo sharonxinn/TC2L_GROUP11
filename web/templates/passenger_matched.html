@@ -102,10 +102,10 @@
                                     </p>
                                     
                                     <div class="btn-lr">
-                                        <form action="{{ url_for('main.confirm_match', match_id=driver.id) }}" method="POST">
+                                        <form action="{{ url_for('main.confirm_match', match_id=match.id,rides_id=driver_id) }}" method="POST">
                                             <input type="submit" value="Confirm" class="btn1">
                                         </form>
-                                        <form action="{{ url_for('main.reject_passenger', match_id=driver.id) }}" method="POST">
+                                        <form action="{{ url_for('main.reject_passenger', match_id=match.id,rides_id=driver_id) }}" method="POST">
                                             <input type="submit" value="Reject" class="btn1">
                                         </form>
                                     </div>
@@ -167,14 +167,6 @@
                                         </div>
                                     </p>
                                     
-                                    <div class="btn-lr">
-                                        <form action="{{ url_for('main.confirm_match', match_id=driver.id) }}" method="POST">
-                                            <input type="submit" value="Confirm" class="btn1">
-                                        </form>
-                                        <form action="{{ url_for('main.reject_passenger', match_id=driver.id) }}" method="POST">
-                                            <input type="submit" value="Reject" class="btn1">
-                                        </form>
-                                    </div>
                                 </div>
                             </div>
                         </div>

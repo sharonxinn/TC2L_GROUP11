@@ -331,7 +331,7 @@ def findarides():
     driver_posts = Rides.query.filter(
         and_(
             Rides.dateandTime >= today,  # Only show rides happening from today onwards
-            Rides.status !='rejected',  # Only show active rides
+            Rides.status =='IN PROGRESS',  # Only show active rides
             Rides.user_id != current_user.id  # Exclude posts by the current user
         )
         ).all()
@@ -398,25 +398,34 @@ def booking_history():
                                             .filter(PassengerMatch.passenger_id == current_user.id) \
                                             .filter(PassengerMatch.status.in_(['APPROVING']))\
                                             .all()
+    
+    passenger_matches_cancelled = PassengerMatch.query.join(User, PassengerMatch.passenger_id == User.id) \
+                                            .join(Rides, PassengerMatch.driver_id == Rides.id) \
+                                            .filter(PassengerMatch.passenger_id == current_user.id) \
+                                            .filter(PassengerMatch.status.in_(['CANCELLED','REJECT']))\
+                                            .all()
 
 
     # Get all drivers posts where the current user is the driver and join PassengerMatch
     driver_posts = Rides.query.filter(Rides.user_id==current_user.id) \
-                                .filter(Rides.status.in_(['APPROVING', 'IN PROGRESS','CONFIRMED','PAYMENT PENDING','PENDING REVIEW'])) \
+                                .filter(Rides.status.in_(['APPROVING', 'IN PROGRESS','CONFIRMED','PAYMENT PENDING','PENDING REVIEW','COMPLETED'])) \
                                 .all()
 
     driver_posts_c = Rides.query.filter(Rides.user_id==current_user.id) \
-                                .filter(Rides.status.in_(['COMPLETED','CANCELLED'])) \
+                                .filter(Rides.status.in_(['CANCELLED'])) \
                                 .all()
 
     driver_matches_dict = {}
+
     for post in driver_posts:
         # Filter matches based on 'APPROVING' or 'IN PROGRESS' status
         matches = PassengerMatch.query.filter(PassengerMatch.driver_id == post.id) \
-                                      .filter(PassengerMatch.status.in_(['APPROVING', 'IN PROGRESS','CONFIRMED','PAYMENT PENDING','PENDING REVIEW','COMPLETED'])) \
+                                      .filter(PassengerMatch.status.in_(['APPROVING','IN PROGRESS','CONFIRMED','PAYMENT PENDING','PENDING REVIEW','COMPLETED'])) \
                                       .all()  
 
+
         driver_matches_dict[post.id] = matches
+
 
 
     profiles = Profile.query.all()
@@ -429,7 +438,8 @@ def booking_history():
                            profile=profile,
                            driver_matches_dict=driver_matches_dict,
                            driver_posts_c=driver_posts_c,
-                           passenger_matches_aprroving=passenger_matches_aprroving)
+                           passenger_matches_aprroving=passenger_matches_aprroving,
+                           passenger_matches_cancelled=passenger_matches_cancelled)
 
 #set up match_passsenger page
 @bp.route('/match_passenger/<int:driver_id>')
@@ -483,6 +493,14 @@ def passenger_matched(driver_id):
     matches_approving = PassengerMatch.query.filter_by(driver_id=driver_id, status='APPROVING').all()
     matches_completed = PassengerMatch.query.filter_by(driver_id=driver_id, status='COMPLETED').all()
     matches_confirmed = PassengerMatch.query.filter_by(driver_id=driver_id, status='CONFIRMED').all()
+
+    if len(matches) == 0 and len(matches_review) == 0 and len(matches_approving) == 0 and len(matches_completed) == 0:
+        if len(matches_confirmed) > 0:
+            for match in matches_confirmed:
+                match.status = 'CONFIRMED'
+                db.session.commit()
+            driver.status = 'CONFIRMED'
+            db.session.commit()
 
     # Debugging: print to check contents
     print(f"Profile dict keys: {profile_dict.keys()}")
@@ -584,31 +602,34 @@ def remove_passenger(match_id):
         match.status = 'REJECTED'
         db.session.commit()
 
-    return redirect(url_for('main.passenger_matched',driver_id=current_user.id))
+    return redirect(url_for('main.passenger_matched',driver_id=match_id))
 
-@bp.route('/approve_passenger/<int:match_id>', methods=['POST'])
+@bp.route('/approve_passenger/<int:match_id>/<int:rides_id>', methods=['POST'])
 @login_required
-def approve_passenger(match_id):
+def approve_passenger(match_id,rides_id):
     match = PassengerMatch.query.get(match_id)
     
     if match:
         # Check if the driver has the post in progress
-        driver_post = Rides.query.filter_by(user_id=current_user.id, status='IN PROGRESS').first()
+        driver_post = Rides.query.filter_by(id=rides_id).first()
+        print(f"Driver user ID: {rides_id}")
+        print(f"match ID: {match_id}")
         
         if driver_post:
             approved_passengers_count = PassengerMatch.query.filter_by(driver_id=driver_post.id, status='PAYMENT PENDING').count()
+            print(f"Driver user ID: {driver_post.id}")
             
-            if approved_passengers_count > driver_post.totalperson:
+            if approved_passengers_count >= driver_post.totalperson:
                 flash("You have already approved the maximum number of passengers.", "error")
                 match.status = 'CANCELLED'
                 db.session.commit()
 
-                return redirect(url_for('main.booking_history',match_id=current_user.id))  # Adjust the URL as needed
+                return redirect(url_for('main.passenger_matched',driver_id=driver_post.id))  # Adjust the URL as needed
             
             # Update match status to 'PAYMENT_PENDING'
             match.status = 'PAYMENT PENDING'
             db.session.commit()
-
+        
             driver_post.status = 'PAYMENT PENDING'
             db.session.commit()
 
@@ -616,15 +637,20 @@ def approve_passenger(match_id):
 
 
 #set up confirm match page
-@bp.route('/confirm_match/<int:match_id>', methods=['POST'])
+@bp.route('/confirm_match/<int:match_id>/<int:rides_id>', methods=['POST'])
 @login_required
-def confirm_match(match_id):
-    matches = PassengerMatch.query.filter_by(driver_id=match_id).all()
-    
-    if matches:
-        for match in matches:
-            match.status = 'CONFIRMED'
-            db.session.commit()
+def confirm_match(match_id,rides_id):
+    # Fetch the specific match by match_id
+    match = PassengerMatch.query.get_or_404(match_id)
+    driver_post = Rides.query.filter_by(id=rides_id).first()
+    print(f"match ID: {match_id}")
+
+
+    # If match exists, update its status
+    if match:
+        match.status = 'CONFIRMED'
+        db.session.commit()
+        flash('The match has been confirmed.', 'success')
     #     driver_post = Rides.query.get_or_404(match_id)
     #     driver_post.status = 'COMPLETED'
         
@@ -637,7 +663,7 @@ def confirm_match(match_id):
     #     db.session.commit()
     #     flash('Driver post has been completed.', 'success')
 
-    return redirect(url_for('main.booking_history'))
+    return redirect(url_for('main.passenger_matched', driver_id=driver_post.id))
 
 @bp.route('/pay_match/<int:match_id>', methods=['POST'])
 def pay_match(match_id):
@@ -721,22 +747,23 @@ def cancel_match_p(match_id):
 @bp.route('/reject_passenger/<int:match_id>', methods=['POST'])
 @login_required
 def reject_passenger(match_id):
-    matches = PassengerMatch.query.filter_by(driver_id=match_id).all()
+    match = PassengerMatch.query.get_or_404(match_id)
     
-    if not matches:  # Check if matches are found
+    if not match:  # Check if matches are found
         flash('Match not found.', 'error')
         return redirect(url_for('main.booking_history'))
     
     try:
         # Update match status
-        for match in matches:
+        if match:
             match.status = 'PENDING REVIEW'
+            db.session.commit()
 
         # Commit the changes to the database
-        db.session.commit()  # Ensure you commit after changing the status
+          # Ensure you commit after changing the status
 
         # Send email notification
-        send_admin_email(matches[0])  # Send email using the first match
+        send_admin_email(match)  # Send email using the first match
         flash('The email has been sent to the administrator.', 'success')
 
     except Exception as e:

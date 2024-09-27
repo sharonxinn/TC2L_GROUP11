@@ -119,6 +119,34 @@
                     </tr>
                     {% endfor %}
 
+                    {% for match in passenger_matches_cancelled %}
+                    <tr>
+                        <td>Passenger</td>
+                        <td>{{ profile_dict[match.driver.user_id].fullName }}</td>
+                        <td>{{ match.driver.dateandTime }}</td>
+                        <td>{{ match.driver.start_location }}</td>
+                        <td>{{ match.driver.end_location }}</td>
+                        <td>{{ profile_dict[match.passenger_id].fullName }}</td>
+                        <td>
+                            <div class="match-status {{ match.status | lower | replace(' ', '-') }}">
+                                {{ match.status }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="action">
+                                <div class="selection">
+                                    <form action="{{ url_for('main.select_driver', driver_id=match.id) }}" method="POST">
+                                        <input type="submit" value="Reselect" class="btn">
+                                    </form>
+                                    <form action="{{ url_for('main.pay_match', match_id=match.id) }}" method="POST">
+                                        <input type="submit" value="Repay" class="btn">
+                                    </form>  
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+
 
                     {% for driver in driver_posts %}
                     <tr>
